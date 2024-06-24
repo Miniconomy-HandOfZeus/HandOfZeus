@@ -16,7 +16,7 @@ resource "aws_iam_role" "scheduler_execution_role" {
 resource "aws_iam_policy" "lambda_invocation_policy" {
   name        = "${var.naming_prefix}-lambda-invocation-policy"
   description = "Policy for invoking lambda functions"
-  policy      = jsonencode({
+  policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
@@ -38,7 +38,7 @@ resource "aws_scheduler_schedule_group" "lambda_schedule_group" {
 }
 
 resource "aws_scheduler_schedule" "lambda_schedules" {
-  for_each = { for index, config in var.lambda_schedule_config : index => config }
+  for_each   = { for index, config in var.lambda_schedule_config : index => config }
   name       = "${each.value.name}-scheduler"
   group_name = aws_scheduler_schedule_group.lambda_schedule_group.name
 

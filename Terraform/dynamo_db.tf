@@ -1,8 +1,8 @@
 resource "aws_dynamodb_table" "db" {
-  name           = "${var.naming_prefix}-db"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "Key"
-  
+  name         = "${var.naming_prefix}-db"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "Key"
+
   attribute {
     name = "Key"
     type = "S"
@@ -21,20 +21,20 @@ resource "aws_dynamodb_table" "db" {
   }
 
   global_secondary_index {
-    name               = "DescriptionIndex"
-    hash_key           = "Description"
-    projection_type    = "KEYS_ONLY"
+    name            = "DescriptionIndex"
+    hash_key        = "Description"
+    projection_type = "KEYS_ONLY"
   }
 
   global_secondary_index {
-    name               = "DateIndex"
-    hash_key           = "Date"
-    projection_type    = "KEYS_ONLY"
+    name            = "DateIndex"
+    hash_key        = "Date"
+    projection_type = "KEYS_ONLY"
   }
 
   global_secondary_index {
-    name               = "TypeIndex"
-    hash_key           = "Type"
-    projection_type    = "KEYS_ONLY"
+    name            = "TypeIndex"
+    hash_key        = "Type"
+    projection_type = "KEYS_ONLY"
   }
 }
