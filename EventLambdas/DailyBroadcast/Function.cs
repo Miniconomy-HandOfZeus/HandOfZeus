@@ -37,8 +37,21 @@ public class Function
             var simulationStartTime = DateTime.ParseExact(simulationStartTimeString, "yyyy-MM-ddTHH:mm:ss", null, System.Globalization.DateTimeStyles.None);
             var currentTime = DateTime.Now;
 
-            var currentSimulationTime = DateTime.MinValue.AddSeconds((currentTime - simulationStartTime).TotalSeconds * 720);
-            return currentSimulationTime.ToString("yyyy-MM-dd");
+            // Get the current day of the simulation (eg: day 1302)
+            var simulationDayNumber = ((currentTime - simulationStartTime).TotalSeconds / 120) + 1;
+
+            // Calculate current year
+            var year = Math.Floor(simulationDayNumber / 360) + 1;
+            var daysIntoYear = Math.Floor(simulationDayNumber % 360);
+
+            // Calculate current month and day
+            var month = Math.Floor(daysIntoYear / 30) + 1;
+            var day = Math.Floor(daysIntoYear % 30);
+
+            // Format the year, month, and day with leading zeros
+            string formattedDate = $"{year:00}|{month:00}|{day:00}";
+
+            return formattedDate;
         }
         else
         {
