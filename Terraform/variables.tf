@@ -13,11 +13,6 @@ variable "naming_prefix" {
   description = "The prefix to use for naming resources."
 }
 
-variable "bucket_name" {
-  type        = string
-  description = "Name of the bucket."
-}
-
 variable "client_id" {
   type        = string
   description = "The client ID for the identity provider."
@@ -37,4 +32,15 @@ variable "callback_urls" {
 variable "logout_urls" {
   type        = list(string)
   description = "The logout URLs for the identity provider."
+}
+
+variable "lambda_config" {
+  type = list(object({
+    method = string # GET, POST, PUT, DELETE
+    description = string
+    lambda_invoke_arn = string
+  }))
+  description = "The configuration for the integration of Lambda functions into API gateway."
+
+  default = []
 }

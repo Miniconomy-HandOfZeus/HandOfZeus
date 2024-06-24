@@ -1,7 +1,7 @@
 resource "aws_s3_bucket" "app" {
-  bucket        = var.bucket_name
+  bucket        = "${var.naming_prefix}-frontend-bucket"
   force_destroy = true
-  tags          = { Name = var.bucket_name }
+  tags          = { Name = "${var.naming_prefix}-frontend-bucket" }
 }
 
 resource "aws_s3_bucket_versioning" "source_versioning" {
@@ -63,7 +63,7 @@ resource "aws_cloudfront_distribution" "app" {
   }
 
   enabled             = true
-  is_ipv6_enabled     = true
+  is_ipv6_enabled     = false
   comment             = "S3 bucket for ${aws_s3_bucket.app.bucket}"
   default_root_object = "index.html"
 
@@ -85,10 +85,10 @@ resource "aws_cloudfront_distribution" "app" {
     max_ttl                = 31536000
   }
 
-  aliases = ["myplanner.projects.bbdgrad.com"]
+  aliases = ["zeus.projects.bbdgrad.com"]
 
   viewer_certificate {
-    acm_certificate_arn      = "arn:aws:acm:us-east-1:774089569115:certificate/0292fc3d-f0a7-4d3b-991a-62677288ad48"
+    acm_certificate_arn      = "arn:aws:acm:us-east-1:625366111301:certificate/c53764c2-a809-4027-8fcd-ce6d58696d6d"
     ssl_support_method       = "sni-only"
     minimum_protocol_version = "TLSv1.2_2018"
   }
@@ -102,6 +102,6 @@ resource "aws_cloudfront_distribution" "app" {
   }
 
   tags = {
-    Name = var.bucket_name
+    Name = "${var.naming_prefix}-frontend-bucket"
   }
 }
