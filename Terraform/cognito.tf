@@ -27,7 +27,7 @@ resource "aws_cognito_user_pool_client" "client" {
 
 # Create the Cognito User Pool Domain
 resource "aws_cognito_user_pool_domain" "user_pool_domain" {
-  domain       = "my-planner"
+  domain       = "zeus"
   user_pool_id = aws_cognito_user_pool.user_pool.id
 }
 

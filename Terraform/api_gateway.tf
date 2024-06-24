@@ -5,7 +5,7 @@ resource "aws_apigatewayv2_api" "service_endpoints" {
 }
 
 resource "aws_apigatewayv2_integration" "lambda_integrations" {
-  for_each = { for index, config in var.lambda_config : index => config }
+  for_each = { for index, config in var.lambda_endpoint_config : index => config }
   api_id           = aws_apigatewayv2_api.service_endpoints.id
   integration_type = "AWS_PROXY"
 

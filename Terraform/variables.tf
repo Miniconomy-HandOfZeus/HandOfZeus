@@ -34,13 +34,25 @@ variable "logout_urls" {
   description = "The logout URLs for the identity provider."
 }
 
-variable "lambda_config" {
+variable "lambda_endpoint_config" {
   type = list(object({
     method = string # GET, POST, PUT, DELETE
     description = string
     lambda_invoke_arn = string
   }))
   description = "The configuration for the integration of Lambda functions into API gateway."
+
+  default = []
+}
+
+variable "lambda_schedule_config" {
+  type = list(object({
+    name = string
+    rate_expression = string # eg: 2 minutes
+    lambda_invoke_arn = string
+    queue_urls = list(string)
+  }))
+  description = "The configuration for the scheduled Lambda functions such as random events."
 
   default = []
 }
