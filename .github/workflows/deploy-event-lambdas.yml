@@ -1,0 +1,33 @@
+name: Deploy Event Lambdas
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'EventLambdas/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-my-planner-build
+          aws-region: eu-west-1
+
+      - name: Deploy lambdas
+        uses: Miniconomy-HandOfZeus/HandOfZeus/.github/actions/deploy-lambdas@main
+        with:
+          directory: 'EventLambdas'
+          LAMBDA_ROLE_ARN: ${{ secrets.LAMBDA_ROLE_ARN }}
