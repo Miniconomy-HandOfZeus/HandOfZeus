@@ -13,8 +13,27 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
+  prepare-matrix:
     runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.set-matrix.outputs.directories }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: List lambda directories
+        id: set-matrix
+        run: |
+          LAMBDA_DIRS=$(ls -d EventLambdas/*)
+          LAMBDA_DIRS_JSON=$(echo -n $LAMBDA_DIRS | jq -R -s -c 'split(" ")')
+          echo "directories=${LAMBDA_DIRS_JSON}" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lambda_dir: ${{fromJson(needs.prepare-matrix.outputs.directories)}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,8 +45,17 @@ jobs:
           role-session-name: github-my-planner-build
           aws-region: eu-west-1
 
-      - name: Deploy lambdas
-        uses: Miniconomy-HandOfZeus/HandOfZeus/.github/actions/deploy-lambdas@main
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
         with:
-          directory: 'EventLambdas'
-          LAMBDA_ROLE_ARN: ${{ secrets.LAMBDA_ROLE_ARN }}
+          dotnet-version: 8.x
+
+      - name: Install AWS Lambda tools
+        shell: bash
+        run: dotnet tool install -g Amazon.Lambda.Tools
+
+      - name: Deploy Lambda
+        run: |
+          cd ${{ matrix.lambda_dir }}
+          echo "Deploying function in ${{ matrix.lambda_dir }}"
+          dotnet lambda deploy-function --region eu-west-1 --function-name $(basename ${{ matrix.lambda_dir }}) --function-role ${{ secrets.LAMBDA_ROLE_ARN }}

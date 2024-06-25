@@ -2,10 +2,10 @@ name: Deploy Endpoint Lambdas
 
 on:
   push:
-    # branches:
-    #   - main
-    # paths:
-    #   - 'EventLambdas/**'
+    branches:
+      - main
+    paths:
+      - 'EndpointLambdas/**'
   workflow_dispatch:
 
 permissions:
@@ -24,7 +24,7 @@ jobs:
       - name: List lambda directories
         id: set-matrix
         run: |
-          LAMBDA_DIRS=$(ls -d EventLambdas/*)
+          LAMBDA_DIRS=$(ls -d EndpointLambdas/*)
           LAMBDA_DIRS_JSON=$(echo -n $LAMBDA_DIRS | jq -R -s -c 'split(" ")')
           echo "directories=${LAMBDA_DIRS_JSON}" >> $GITHUB_OUTPUT
 
