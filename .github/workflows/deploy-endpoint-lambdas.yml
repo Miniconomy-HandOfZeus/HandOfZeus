@@ -44,6 +44,6 @@ jobs:
 
       - name: Deploy Lambda
         run: |
+          cd ${{ matrix.lambda_dir }}
           echo "Deploying function in ${{ matrix.lambda_dir }}"
           dotnet lambda deploy-function --region eu-west-1 --function-name $(basename ${{ matrix.lambda_dir }}) --function-role ${{ secrets.LAMBDA_ROLE_ARN }}
-        working-directory: ${{ matrix.lambda_dir }}
