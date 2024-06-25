@@ -31,11 +31,11 @@ resource "aws_s3_bucket_website_configuration" "app" {
   bucket = aws_s3_bucket.app.bucket
 
   index_document {
-    suffix = "index.html"
+    suffix = "views/index.html"
   }
 
   error_document {
-    key = "pages/404.html"
+    key = "views/404.html"
   }
 }
 
