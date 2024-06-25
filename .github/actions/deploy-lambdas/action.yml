@@ -4,21 +4,12 @@ inputs:
   directory:
     type: string
     required: true
-  AWS_ROLE_ARN:
-    description: 'ARN of the role to assume'
   LAMBDA_ROLE_ARN:
     description: 'ARN of the role to assign to the lambdas'
 
 runs:
   using: composite
   steps:
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v2
-      with:
-        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-        role-session-name: github-my-planner-build
-        aws-region: eu-west-1
-
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v4
       with:
@@ -34,7 +25,7 @@ runs:
           if [ -d "$LAMBDA_DIR" ]; then
             echo "Deploying function in $LAMBDA_DIR"
             cd $LAMBDA_DIR
-            dotnet lambda deploy-function --region eu-west-1 --function-name $(basename $LAMBDA_DIR) --function-role ${{ secrets.LAMBDA_ROLE_ARN }}
+            dotnet lambda deploy-function --region eu-west-1 --function-name $(basename $LAMBDA_DIR) --function-role ${{ inputs.LAMBDA_ROLE_ARN }}
             cd ..
           fi
         done

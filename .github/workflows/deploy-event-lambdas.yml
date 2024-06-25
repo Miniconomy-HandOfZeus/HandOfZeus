@@ -30,5 +30,4 @@ jobs:
         uses: Miniconomy-HandOfZeus/HandOfZeus/.github/actions/deploy-lambdas@deploy-lambda-pipeline
         with:
           directory: 'EventLambdas'
-          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
           LAMBDA_ROLE_ARN: ${{ secrets.LAMBDA_ROLE_ARN }}
