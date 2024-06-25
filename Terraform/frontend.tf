@@ -31,7 +31,7 @@ resource "aws_s3_bucket_website_configuration" "app" {
   bucket = aws_s3_bucket.app.bucket
 
   index_document {
-    suffix = "views/index.html"
+    suffix = "index.html"
   }
 
   error_document {

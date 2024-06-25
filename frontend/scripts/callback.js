@@ -21,7 +21,7 @@ if (code && state) {
   
   if (savedState === state){
     await exchangeAuthorizationCodeForTokens(code, savedCodeVerifier);
-    window.location.href = "/views/index.html";
+    window.location.href = "/index.html";
   } else {
     console.error('State mismatch');
     window.location.href = "/views/login.html";
