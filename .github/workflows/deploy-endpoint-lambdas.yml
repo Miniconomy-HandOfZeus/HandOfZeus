@@ -45,6 +45,11 @@ jobs:
           role-session-name: github-my-planner-build
           aws-region: eu-west-1
 
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
       - name: Install AWS Lambda tools
         shell: bash
         run: dotnet tool install -g Amazon.Lambda.Tools
