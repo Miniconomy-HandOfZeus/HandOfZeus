@@ -31,6 +31,9 @@ jobs:
         with:
           dotnet-version: 8.x
 
+      - name: Install AWS Lambda tools
+        run: dotnet tool install -g Amazon.Lambda.Tools
+
       - name: Deploy event lambdas
         run: |
           for LAMBDA_DIR in EventLambdas/*; do
