@@ -1,0 +1,43 @@
+name: Deploy Event Lambdas
+
+on:
+  push:
+    # branches:
+    #   - main
+    # paths:
+    #   - 'EventLambdas/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-my-planner-build
+          aws-region: eu-west-1
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Deploy event lambdas
+        run: |
+          for LAMBDA_DIR in EventLambdas/*; do
+            if [ -d "$LAMBDA_DIR" ]; then
+              echo "Deploying function in $LAMBDA_DIR"
+              cd $LAMBDA_DIR
+              dotnet lambda deploy-function --region eu-west-1 --function-name $(basename $LAMBDA_DIR) --function-role ${{ secrets.LAMBDA_ROLE_ARN }}
+              cd ..
+            fi
+          done
