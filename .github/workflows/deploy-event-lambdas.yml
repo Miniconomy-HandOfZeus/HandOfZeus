@@ -26,21 +26,9 @@ jobs:
           role-session-name: github-my-planner-build
           aws-region: eu-west-1
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v4
+      - name: Deploy lambdas
+        uses: Miniconomy-HandOfZeus/HandOfZeus/.github/actions/deploy-lambdas@deploy-lambda-pipeline
         with:
-          dotnet-version: 8.x
-
-      - name: Install AWS Lambda tools
-        run: dotnet tool install -g Amazon.Lambda.Tools
-
-      - name: Deploy event lambdas
-        run: |
-          for LAMBDA_DIR in EventLambdas/*; do
-            if [ -d "$LAMBDA_DIR" ]; then
-              echo "Deploying function in $LAMBDA_DIR"
-              cd $LAMBDA_DIR
-              dotnet lambda deploy-function --region eu-west-1 --function-name $(basename $LAMBDA_DIR) --function-role ${{ secrets.LAMBDA_ROLE_ARN }}
-              cd ..
-            fi
-          done
+          directory: 'EventLambdas'
+          AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+          LAMBDA_ROLE_ARN: ${{ secrets.LAMBDA_ROLE_ARN }}
