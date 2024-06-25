@@ -26,7 +26,8 @@ jobs:
         run: |
           LAMBDA_DIRS=$(ls -d EventLambdas/*)
           LAMBDA_DIRS_JSON=$(echo $LAMBDA_DIRS | jq -R -s -c 'split(" ")')
-          echo "directories=${LAMBDA_DIRS_JSON}" >> $GITHUB_OUTPUT
+          # echo "directories=${LAMBDA_DIRS_JSON}" >> $GITHUB_OUTPUT
+          echo "directories=${EventLambdas/RandomEvent}" >> $GITHUB_OUTPUT
 
   deploy:
     needs: prepare-matrix
