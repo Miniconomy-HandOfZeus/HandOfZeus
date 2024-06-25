@@ -1,17 +1,16 @@
-
-const urlBackend = 'https://localhost:8080'
+import { backendUrl } from "./apiConfig";
 
 async function fetchWithAuth(endpoint, options = {}) {
     checkToken();
     const headers = new Headers(options.headers || {});
   
-    const token = sessionStorage.getItem('idToken');
+    const token = sessionStorage.getItem('accessToken');
 
     if (token) {
       headers.set('Authorization', `Bearer ${token}`);
     }
   
-    let url = apiEndpoint + endpoint;
+    let url = backendUrl + endpoint;
     let result = await fetch(url, {
       ...options,
       headers,
@@ -21,11 +20,10 @@ async function fetchWithAuth(endpoint, options = {}) {
 }
 
 async function simpleFetch(endpoint, options = {}) {
-    checkToken();
     const headers = new Headers(options.headers || {});
   
   
-    let url = apiEndpoint + endpoint;
+    let url = backendUrl + endpoint;
     let result = await fetch(url, {
       ...options,
       headers,
@@ -34,7 +32,4 @@ async function simpleFetch(endpoint, options = {}) {
     return result;
 }
 
-
-
 module.exports = { fetchWithAuth, simpleFetch };
-  
