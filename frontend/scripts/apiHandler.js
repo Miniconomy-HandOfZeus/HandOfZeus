@@ -1,5 +1,5 @@
 
-const urlBackend = 'https://localhost:8080'
+import { backendUrl } from "./apiConfig";
 
 async function fetchWithAuth(endpoint, options = {}) {
     checkToken();
@@ -11,7 +11,7 @@ async function fetchWithAuth(endpoint, options = {}) {
       headers.set('Authorization', `Bearer ${token}`);
     }
   
-    let url = apiEndpoint + endpoint;
+    let url = backendUrl + endpoint;
     let result = await fetch(url, {
       ...options,
       headers,
@@ -25,7 +25,7 @@ async function simpleFetch(endpoint, options = {}) {
     const headers = new Headers(options.headers || {});
   
   
-    let url = apiEndpoint + endpoint;
+    let url = backendUrl + endpoint;
     let result = await fetch(url, {
       ...options,
       headers,
