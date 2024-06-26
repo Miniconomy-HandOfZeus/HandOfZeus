@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-
 using Amazon.Lambda.Core;
+using Amazon.Lambda.APIGatewayEvents;
+using System.Text.Json;
+using Amazon.Lambda.Core;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -20,11 +23,16 @@ namespace MinimumWage
         /// <param name="input"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public string FunctionHandler()
+        public string FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
         {
             var task = Function.grabKey();
             System.Console.WriteLine(task.Id + " " + task.ToString() + " " + task.Result);
-
+            var response = new APIGatewayProxyResponse
+            {
+              StatusCode = 200,
+              Body = JsonSerializer.Serialize(new { message = input.Body }),
+              Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
             return "test";
         }
         public static async Task<string> grabKey()
