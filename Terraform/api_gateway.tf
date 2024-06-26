@@ -14,10 +14,16 @@ resource "aws_apigatewayv2_domain_name" "api" {
   }
 }
 
+resource "aws_apigatewayv2_stage" "default" {
+  api_id      = aws_apigatewayv2_api.api.id
+  name        = "$default"
+  auto_deploy = true
+}
+
 resource "aws_apigatewayv2_api_mapping" "api" {
   api_id      = aws_apigatewayv2_api.api.id
   domain_name = aws_apigatewayv2_domain_name.api.domain_name
-  stage       = "$default"
+  stage       = aws_apigatewayv2_stage.default.id
 }
 
 resource "aws_apigatewayv2_integration" "lambda_integrations" {
