@@ -38,7 +38,6 @@ namespace DailyBroadcast
         var simulationStartTime = DateTime.ParseExact(simulationStartTimeString, "yyyy-MM-ddTHH:mm:ss", null, System.Globalization.DateTimeStyles.None);
         var currentTime = DateTime.Now;
 
-<<<<<<< Updated upstream
             // Get the current day of the simulation (eg: day 1302)
             var simulationDayNumber = ((currentTime - simulationStartTime).TotalSeconds / 120) + 1;
 
@@ -59,15 +58,10 @@ namespace DailyBroadcast
         {
             throw new Exception("Failed to get the current simulation time");
         }
-=======
+
         var currentSimulationTime = DateTime.MinValue.AddSeconds((currentTime - simulationStartTime).TotalSeconds * 720);
         return currentSimulationTime.ToString("yyyy-MM-dd");
       }
-      else
-      {
-        throw new Exception("Failed to get the current simulation time");
-      }
->>>>>>> Stashed changes
     }
 
     private static async Task SendEventToQueues(string messageBody)
@@ -83,7 +77,10 @@ namespace DailyBroadcast
         await _sqsClient.SendMessageAsync(sendMessageRequest);
       }
     }
+    public static async double random(double lower = 0, double higher = 100)
+  {
 
+  }
     public static async Task<string> FunctionHandler() // This is the function that gets executed every two minutes
     {
       try
@@ -101,4 +98,3 @@ namespace DailyBroadcast
       }
     }
   }
-}
