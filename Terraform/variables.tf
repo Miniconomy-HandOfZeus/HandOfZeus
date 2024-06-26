@@ -35,14 +35,13 @@ variable "logout_urls" {
 }
 
 variable "lambda_endpoint_config" {
-  type = list(object({
-    method            = string # GET, POST, PUT, DELETE
+  type = map(object({ # The map key should be the route key eg: GET /helloworld
     description       = string
     lambda_invoke_arn = string
   }))
   description = "The configuration for the integration of Lambda functions into API gateway."
 
-  default = []
+  default = {}
 }
 
 variable "lambda_schedule_config" {
@@ -50,7 +49,7 @@ variable "lambda_schedule_config" {
     name              = string
     rate_expression   = string # eg: 2 minutes
     lambda_invoke_arn = string
-    queue_urls        = list(string)
+    endpoints         = list(string)
   }))
   description = "The configuration for the scheduled Lambda functions such as random events."
 
