@@ -21,7 +21,7 @@ resource "aws_apigatewayv2_api_mapping" "api" {
 }
 
 resource "aws_apigatewayv2_integration" "lambda_integrations" {
-  for_each         = { for index, config in var.lambda_endpoint_config : index => config }
+  for_each         = var.lambda_endpoint_config
   api_id           = aws_apigatewayv2_api.api.id
   integration_type = "AWS_PROXY"
 
@@ -29,4 +29,11 @@ resource "aws_apigatewayv2_integration" "lambda_integrations" {
   description        = each.value.description
   integration_method = each.value.method
   integration_uri    = each.value.lambda_invoke_arn
+}
+
+resource "aws_apigatewayv2_route" "lambda_routes" {
+  for_each  = var.lambda_endpoint_config
+  api_id    = aws_apigatewayv2_api.api.id
+  route_key = each.key
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integrations[each.key].id}"
 }
