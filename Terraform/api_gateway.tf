@@ -34,6 +34,7 @@ resource "aws_apigatewayv2_integration" "lambda_integrations" {
   connection_type    = "INTERNET"
   description        = each.value.description
   integration_method = each.key.split(" ")[0]
+  
   integration_uri    = each.value.lambda_invoke_arn
 }
 
