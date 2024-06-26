@@ -21,6 +21,19 @@ resource "aws_apigatewayv2_domain_name" "api" {
   }
 }
 
+resource "aws_apigatewayv2_authorizer" "cognito_jwt_authorizer" {
+  name          = "CognitoJWTAuthorizer"
+  api_id        = aws_apigatewayv2_api.api.id
+  authorizer_type = "JWT"
+  
+  identity_sources = ["$request.header.Authorization"]
+  
+  jwt_configuration {
+    audience = [aws_cognito_user_pool_client.client.id]
+    issuer   = "https://cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.user_pool.id}"
+  }
+}
+
 resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.api.id
   name        = "$default"
