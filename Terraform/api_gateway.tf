@@ -8,7 +8,7 @@ resource "aws_apigatewayv2_domain_name" "api" {
   domain_name = "api.zeus.projects.bbdgrad.com"
 
   domain_name_configuration {
-    certificate_arn = "arn:aws:acm:us-east-1:625366111301:certificate/584d9cbb-d67d-4acf-aa23-5b4faaa99ca2"
+    certificate_arn = "arn:aws:acm:eu-west-1:625366111301:certificate/91d22213-b9f0-4f3b-852e-b6bfc5054969"
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
