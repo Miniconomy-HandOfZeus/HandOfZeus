@@ -34,22 +34,12 @@ variable "logout_urls" {
   description = "The logout URLs for the identity provider."
 }
 
-variable "lambda_user_endpoint_config" {
+variable "lambda_endpoint_config" {
   type = map(object({ # The map key should be the route key eg: GET /helloworld
     method            = string
     description       = string
     lambda_invoke_arn = string
-  }))
-  description = "The configuration for the integration of Lambda functions into API gateway."
-
-  default = {}
-}
-
-variable "lambda_service_endpoint_config" {
-  type = map(object({ # The map key should be the route key eg: GET /helloworld
-    method            = string
-    description       = string
-    lambda_invoke_arn = string
+    authorizer_id     = string
   }))
   description = "The configuration for the integration of Lambda functions into API gateway."
 
