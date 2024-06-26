@@ -1,5 +1,5 @@
 output "backend_endpoint" {
-  value = aws_apigatewayv2_api.service_endpoints.api_endpoint
+  value = aws_apigatewayv2_api.api.api_endpoint
 }
 
 output "frontend_endpoint" {
