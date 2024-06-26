@@ -41,7 +41,7 @@ variable "lambda_endpoint_config" {
   }))
   description = "The configuration for the integration of Lambda functions into API gateway."
 
-  default = []
+  default = {}
 }
 
 variable "lambda_schedule_config" {
