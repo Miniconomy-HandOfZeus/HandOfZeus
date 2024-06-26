@@ -36,6 +36,7 @@ variable "logout_urls" {
 
 variable "lambda_endpoint_config" {
   type = map(object({ # The map key should be the route key eg: GET /helloworld
+    method            = string
     description       = string
     lambda_invoke_arn = string
   }))
