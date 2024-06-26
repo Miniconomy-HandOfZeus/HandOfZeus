@@ -61,5 +61,6 @@ resource "aws_apigatewayv2_route" "lambda_routes" {
   for_each  = var.lambda_endpoint_config
   api_id    = aws_apigatewayv2_api.api.id
   route_key = each.key
+  authorizer_id = each.value.authorizer_id
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integrations[each.key].id}"
 }

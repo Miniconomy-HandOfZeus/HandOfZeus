@@ -39,6 +39,7 @@ variable "lambda_endpoint_config" {
     method            = string
     description       = string
     lambda_invoke_arn = string
+    authorizer_id     = string
   }))
   description = "The configuration for the integration of Lambda functions into API gateway."
 
