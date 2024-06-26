@@ -8,6 +8,26 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
   role       = aws_iam_role.lambda_execution_role.name
 }
 
+resource "aws_iam_policy" "lambda_dynamodb_full_access" {
+  name        = "${var.naming_prefix}-lambda-dynamodb-full-access"
+  description = "Policy that grants full access to DynamoDB"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect   = "Allow",
+        Action   = "dynamodb:*",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_dynamodb_full_access_attachment" {
+  policy_arn = aws_iam_policy.lambda_dynamodb_full_access.arn
+  role       = aws_iam_role.lambda_execution_role.name
+}
+
 resource "aws_iam_role" "scheduler_execution_role" {
   name               = "${var.naming_prefix}-scheduler-role"
   assume_role_policy = data.aws_iam_policy_document.scheduler_assume_role.json
