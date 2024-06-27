@@ -58,3 +58,8 @@ variable "lambda_schedule_config" {
 
   default = []
 }
+
+variable "trusted_account_ids" {
+  type        = list(string)
+  description = "The account IDs that are trusted to access the trust store."
+}
