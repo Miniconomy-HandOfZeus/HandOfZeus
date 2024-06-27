@@ -22,7 +22,6 @@ resource "aws_apigatewayv2_domain_name" "api" {
 
   mutual_tls_authentication {
     truststore_uri = "s3://miniconomy-trust-store-bucket/truststore.pem"
-    truststore_version = "1"
   }
 }
 
