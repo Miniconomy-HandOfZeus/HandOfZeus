@@ -14,47 +14,56 @@ namespace MinimumWage
 {
   public class Function
   {
-    private static readonly AmazonDynamoDBClient _dynamoDbClient = new AmazonDynamoDBClient();
-    private static readonly string tableName = "ZeusTable";
-    /// <summary>
-    /// A simple function that takes a string and does a ToUpper
-    /// </summary>
-    /// <param name="input"></param>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    public string FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
+    public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
-      var task = Function.grabKey();
-      System.Console.WriteLine(task.Id + " " + task.ToString() + " " + task.Result);
       var response = new APIGatewayProxyResponse
       {
         StatusCode = 200,
         Body = JsonSerializer.Serialize(new { message = input.Body }),
         Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
       };
-      return "test";
+
+      return response;
     }
-    public static async Task<string> grabKey()
+
+    /// <summary>
+    /// A simple function that takes a string and does a ToUpper
+    /// </summary>
+    /// <param name="input"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public string FunctionHandler(string input, ILambdaContext context)
     {
-      var key = new Dictionary<string, AttributeValue>
+      if (YearEnd(input))
+      {
+        generateRate();
+      }
+      return input?.ToUpper();
+    }
+
+    private Boolean YearEnd(string date)
+    {
+      string[] dateSplit = date.Split('|');
+
+      return dateSplit[1].Equals("01") && dateSplit[2].Equals("01");
+    }
+    private void generateRate()
+    {
+      Random randomSeed = new Random();
+      int seed = randomSeed.Next(int.MinValue, int.MaxValue);
+      Random random = new Random(seed);
+      pushDB("tax_rate", random.Next(10, 30));
+      return;
+    }
+
+    private void pushDB(string key, object value)
+    {
+      Dictionary<string, AttributeValue> item = new Dictionary<string, AttributeValue>
         {
-            { "Key", new AttributeValue { S = "minimum_wage" } }
+            { "Key", new AttributeValue { S = key } },
+            { "Value", new AttributeValue { S = JsonConvert.SerializeObject(value) } }
         };
-      GetItemRequest request = new GetItemRequest
-      {
-        TableName = tableName,
-        Key = key
-      };
-      try
-      {
-        var response = await _dynamoDbClient.GetItemAsync(request);
-        System.Console.WriteLine(response.ToString(), response.Item);
-        return response.ToString();
-      }
-      catch
-      {
-        return null;
-      }
+
     }
   }
 }
