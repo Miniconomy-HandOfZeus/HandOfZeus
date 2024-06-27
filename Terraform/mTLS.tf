@@ -17,9 +17,9 @@ resource "aws_bucket_policy" "mtls" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
+        Effect    = "Allow",
         Principal = "*",
-        Action = "s3:GetObject",
+        Action    = "s3:GetObject",
         Resource = [
           "${aws_s3_bucket.mtls.arn}/*",
         ],
@@ -30,9 +30,9 @@ resource "aws_bucket_policy" "mtls" {
         }
       },
       {
-        Effect = "Deny",
+        Effect    = "Deny",
         Principal = "*",
-        Action = "s3:*",
+        Action    = "s3:*",
         Resource = [
           "${aws_s3_bucket.mtls.arn}/*",
         ],
