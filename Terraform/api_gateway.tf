@@ -19,6 +19,11 @@ resource "aws_apigatewayv2_domain_name" "api" {
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
+
+  mutual_tls_authentication {
+    truststore_uri = "s3://miniconomy-trust-store-bucket/truststore.pem"
+    truststore_version = "1"
+  }
 }
 
 resource "aws_apigatewayv2_authorizer" "cognito_jwt_authorizer" {
