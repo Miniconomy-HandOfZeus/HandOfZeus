@@ -63,3 +63,8 @@ variable "trusted_account_ids" {
   type        = list(string)
   description = "The account IDs that are trusted to access the trust store."
 }
+
+variable "cors_allowed_origins" {
+  type        = list(string)
+  description = "The allowed origins for CORS."
+}
