@@ -69,3 +69,16 @@ resource "aws_apigatewayv2_route" "lambda_routes" {
   authorizer_id      = each.value.authorizer_id
   target             = "integrations/${aws_apigatewayv2_integration.lambda_integrations[each.key].id}"
 }
+
+resource "aws_apigatewayv2_integration" "options_integration" {
+  api_id           = aws_apigatewayv2_api.api.id
+  integration_type = "AWS_PROXY"
+  integration_uri  = "arn:aws:lambda:eu-west-1:625366111301:function:OptionsLambda"
+}
+
+resource "aws_apigatewayv2_route" "options_proxy_route" {
+  api_id             = aws_apigatewayv2_api.api.id
+  route_key          = "OPTIONS /{proxy+}"
+  authorization_type = "NONE"
+  target             = "integrations/${aws_apigatewayv2_integration.options_integration.id}"
+}
