@@ -11,7 +11,7 @@ resource "aws_s3_bucket_versioning" "mtls" {
   }
 }
 
-resource "aws_bucket_policy" "mtls" {
+resource "aws_s3_bucket_policy" "mtls" {
   bucket = aws_s3_bucket.mtls.bucket
   policy = jsonencode({
     Version = "2012-10-17",
