@@ -25,7 +25,7 @@ resource "aws_s3_bucket_policy" "mtls" {
         ],
         Condition = {
           StringEquals = {
-            "aws:PrincipalAccount" = var.trusted_accounts_ids
+            "aws:PrincipalAccount" = var.trusted_account_ids
           }
         }
       },
@@ -38,7 +38,7 @@ resource "aws_s3_bucket_policy" "mtls" {
         ],
         Condition = {
           StringNotEquals = {
-            "aws:PrincipalAccount" = var.trusted_accounts_ids
+            "aws:PrincipalAccount" = var.trusted_account_ids
           }
         }
       }
