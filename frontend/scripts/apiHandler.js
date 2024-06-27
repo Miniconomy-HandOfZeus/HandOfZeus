@@ -1,4 +1,5 @@
-import { backendUrl } from "./apiConfig";
+import { backendUrl } from "./apiConfig.js";
+import { checkToken } from "./authManager.js";
 
 async function fetchWithAuth(endpoint, options = {}) {
     checkToken();
@@ -32,4 +33,4 @@ async function simpleFetch(endpoint, options = {}) {
     return result;
 }
 
-module.exports = { fetchWithAuth, simpleFetch };
+export { fetchWithAuth, simpleFetch };
