@@ -50,7 +50,7 @@ resource "aws_apigatewayv2_integration" "service_api" {
   integration_uri    = each.value.lambda_invoke_arn
 }
 
-resource "aws_apigatewayv2_route" "service_lambda_routes" {
+resource "aws_apigatewayv2_route" "service_api" {
   for_each           = var.service_lambda_endpoint_config
   api_id             = aws_apigatewayv2_api.service_api.id
   route_key          = each.key
@@ -134,7 +134,7 @@ resource "aws_apigatewayv2_integration" "user_api" {
   integration_uri    = each.value.lambda_invoke_arn
 }
 
-resource "aws_apigatewayv2_route" "service_lambda_routes" {
+resource "aws_apigatewayv2_route" "user_api" {
   for_each           = var.user_lambda_endpoint_config
   api_id             = aws_apigatewayv2_api.user_api.id
   route_key          = each.key

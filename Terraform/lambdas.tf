@@ -8,23 +8,27 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
   role       = aws_iam_role.lambda_execution_role.name
 }
 
-resource "aws_iam_policy" "lambda_dynamodb_full_access" {
-  name        = "${var.naming_prefix}-lambda-dynamodb-full-access"
-  description = "Policy that grants full access to DynamoDB"
+resource "aws_iam_policy" "lambda_access" {
+  name        = "${var.naming_prefix}-lambda-policy"
+  description = "Policy that grants full access to DynamoDB, S3 and Secrets Manager."
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
         Effect   = "Allow",
-        Action   = "dynamodb:*",
+        Action   = [
+          "dynamodb:*",
+          "s3:*",
+          "secretsmanager:*"
+        ],
         Resource = "*"
       }
     ]
   })
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_dynamodb_full_access_attachment" {
-  policy_arn = aws_iam_policy.lambda_dynamodb_full_access.arn
+resource "aws_iam_role_policy_attachment" "lambda_access_attachment" {
+  policy_arn = aws_iam_policy.lambda_access.arn
   role       = aws_iam_role.lambda_execution_role.name
 }
 
