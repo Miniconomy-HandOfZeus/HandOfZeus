@@ -27,6 +27,15 @@ resource "aws_apigatewayv2_domain_name" "service_api" {
   }
 }
 
+resource "aws_apigatewayv2_authorizer" "service_api" {
+  api_id                            = aws_apigatewayv2_api.service_api.id
+  authorizer_type                   = "REQUEST"
+  authorizer_uri                    = "arn:aws:lambda:eu-west-1:625366111301:function:AuthLambda"
+  identity_sources                  = ["$context.identity.clientCert.clientCertPem"]
+  name                              = "common-name-extractor"
+  authorizer_payload_format_version = "2.0"
+}
+
 resource "aws_apigatewayv2_stage" "service_api" {
   api_id      = aws_apigatewayv2_api.service_api.id
   name        = "$default"
@@ -54,8 +63,8 @@ resource "aws_apigatewayv2_route" "service_api" {
   for_each           = var.service_lambda_endpoint_config
   api_id             = aws_apigatewayv2_api.service_api.id
   route_key          = each.key
-  authorization_type = each.value.authorization_type
-  authorizer_id      = each.value.authorizer_id
+  authorization_type = "CUSTOM"
+  authorizer_id      = aws_apigatewayv2_authorizer.service_api.id
   target             = "integrations/${aws_apigatewayv2_integration.service_api[each.key].id}"
 }
 
@@ -71,7 +80,6 @@ resource "aws_apigatewayv2_route" "service_options_proxy_route" {
   authorization_type = "NONE"
   target             = "integrations/${aws_apigatewayv2_integration.service_options_integration.id}"
 }
-
 
 #USER API
 resource "aws_apigatewayv2_api" "user_api" {
@@ -138,8 +146,8 @@ resource "aws_apigatewayv2_route" "user_api" {
   for_each           = var.user_lambda_endpoint_config
   api_id             = aws_apigatewayv2_api.user_api.id
   route_key          = each.key
-  authorization_type = each.value.authorization_type
-  authorizer_id      = each.value.authorizer_id
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito_jwt_authorizer.id
   target             = "integrations/${aws_apigatewayv2_integration.user_api[each.key].id}"
 }
 

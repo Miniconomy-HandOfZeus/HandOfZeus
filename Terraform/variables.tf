@@ -36,11 +36,9 @@ variable "logout_urls" {
 
 variable "service_lambda_endpoint_config" {
   type = map(object({ # The map key should be the route key eg: GET /helloworld
-    method             = string
-    description        = string
-    lambda_invoke_arn  = string
-    authorization_type = string
-    authorizer_id      = string
+    method            = string
+    description       = string
+    lambda_invoke_arn = string
   }))
   description = "The configuration for the integration of Lambda functions into API gateway."
 
@@ -49,11 +47,9 @@ variable "service_lambda_endpoint_config" {
 
 variable "user_lambda_endpoint_config" {
   type = map(object({ # The map key should be the route key eg: GET /helloworld
-    method             = string
-    description        = string
-    lambda_invoke_arn  = string
-    authorization_type = string
-    authorizer_id      = string
+    method            = string
+    description       = string
+    lambda_invoke_arn = string
   }))
   description = "The configuration for the integration of Lambda functions into API gateway."
 
