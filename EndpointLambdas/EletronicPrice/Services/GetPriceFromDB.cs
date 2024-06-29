@@ -11,7 +11,7 @@ namespace EletronicPrice.Services
 {
     public class GetPriceFromDB
     {
-        private static readonly string tableName = "ZeusTable";
+        private static readonly string tableName = "hand-of-zeus-db";
         private static readonly string eletronicKey = "eletronic_price";
         private readonly AmazonDynamoDBClient client;
 
@@ -33,13 +33,13 @@ namespace EletronicPrice.Services
 
             var response = await client.GetItemAsync(request);
 
-            if (response.Item == null || !response.Item.ContainsKey(eletronicKey))
+            if (response.Item == null || !response.Item.ContainsKey("value"))
             {
-                throw new Exception("Minimum wage not found in the database.");
+                throw new Exception("Itme not found " + response?.Item.Count);
             }
 
-            Console.WriteLine(response.Item[eletronicKey].N);
-            return int.Parse(response.Item[eletronicKey].N);
+            Console.WriteLine(response.Item["value"].N);
+            return int.Parse(response.Item["value"].N);
         }
 
     }
