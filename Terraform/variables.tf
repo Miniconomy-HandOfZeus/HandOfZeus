@@ -34,7 +34,7 @@ variable "logout_urls" {
   description = "The logout URLs for the identity provider."
 }
 
-variable "lambda_user_endpoint_config" {
+variable "service_lambda_endpoint_config" {
   type = map(object({ # The map key should be the route key eg: GET /helloworld
     method            = string
     description       = string
@@ -45,7 +45,7 @@ variable "lambda_user_endpoint_config" {
   default = {}
 }
 
-variable "lambda_service_endpoint_config" {
+variable "user_lambda_endpoint_config" {
   type = map(object({ # The map key should be the route key eg: GET /helloworld
     method            = string
     description       = string
@@ -66,4 +66,14 @@ variable "lambda_schedule_config" {
   description = "The configuration for the scheduled Lambda functions such as random events."
 
   default = []
+}
+
+variable "trusted_account_ids" {
+  type        = list(string)
+  description = "The account IDs that are trusted to access the trust store."
+}
+
+variable "cors_allowed_origins" {
+  type        = list(string)
+  description = "The allowed origins for CORS."
 }
