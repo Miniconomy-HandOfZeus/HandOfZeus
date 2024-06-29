@@ -1,4 +1,5 @@
-﻿using System;
+﻿using salaryLambda.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,14 +8,11 @@ using System.Xml.Linq;
 
 namespace salaryLambda.services
 {
-    public class WageDeterminationService
+    public class WageDeterminationService : IWageDetermination
     {
         private readonly static Random random = new Random();
-        public WageService wageService  // property
-        {   set { wageService = value; }
-            get { return wageService; }// set method
-        }
-
+ 
+        private readonly WageService wageService = new WageService();
         public WageDeterminationService(WageService wageService)
         {
             this.wageService = wageService;

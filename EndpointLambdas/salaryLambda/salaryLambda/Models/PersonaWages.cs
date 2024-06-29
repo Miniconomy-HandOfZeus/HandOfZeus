@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace salaryLambda.services
+namespace salaryLambda.Models
 {
     public class PersonaWages
     {

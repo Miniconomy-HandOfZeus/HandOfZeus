@@ -6,6 +6,8 @@ using salaryLambda.services;
 using System;
 using Amazon.Lambda.APIGatewayEvents;
 using Newtonsoft.Json;
+using salaryLambda.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -16,6 +18,21 @@ public class Function
 {
     
     private readonly WageDeterminationService wageDeterminationService = new WageDeterminationService(new WageService());
+
+    private readonly ServiceProvider _serviceProvider;
+
+    public Function()
+    {
+        var serviceCollection = new ServiceCollection();
+        ConfigureServices(serviceCollection);
+        _serviceProvider = serviceCollection.BuildServiceProvider();
+    }
+
+    private void ConfigureServices(IServiceCollection services)
+    {
+        services.AddCoreServices();
+
+    }
 
     public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {

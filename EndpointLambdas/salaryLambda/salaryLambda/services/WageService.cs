@@ -5,10 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using salaryLambda.Interfaces;
 
 namespace salaryLambda.services
 {
-    public class WageService
+    public class WageService : IWageService
     {
         private static readonly string tableName = "ZeusTable"; 
         private static readonly string minimumWageKey = "MinimumWage";
