@@ -1,25 +1,20 @@
-using Amazon.Lambda.Core;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
-using Amazon.DynamoDBv2.DocumentModel;
-using salaryLambda.services;
-using System;
 using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.Core;
 using Newtonsoft.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace salaryLambda;
+namespace DoesSickPersonaDie;
 
 public class Function
 {
-    private readonly WageDeterminationService wageDeterminationService;
+    private static readonly Random random = new Random();
 
     public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         // Parse the request body to get the person ID
-        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(request.Body);
+        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, string>>(request.Body);
         if (requestBody == null || !requestBody.ContainsKey("personaId"))
         {
             return new APIGatewayProxyResponse
@@ -30,37 +25,23 @@ public class Function
             };
         }
 
-        List<string> personId = requestBody["personaId"];
+        string personId = requestBody["personaId"];
 
-        List<PersonaWages> personaWages = DetermineWage(personId);
+        // Determine if the person survives or not (50% chance)
+        bool survives = random.NextDouble() >= 0.5;
+
+        // Create the response
+        var response = new
+        {
+            personId = personId,
+            survives = survives
+        };
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonConvert.SerializeObject(personaWages),
+            Body = JsonConvert.SerializeObject(response),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
     }
-
-
-    public List<PersonaWages> DetermineWage(List<string> personas)
-    {
-        List<PersonaWages> wages = new List<PersonaWages>();
-
-        personas.ForEach(async person =>
-        {
-
-            int wage = await wageDeterminationService.DetermineWageAsync();
-            wages.Add(new PersonaWages()
-            {
-                personaId = person,
-                wage = wage
-            });
-
-        });
-
-        return wages;
-    }
-
-
 }
