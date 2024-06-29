@@ -32,13 +32,13 @@ namespace SalaryLambdas.services
             };
 
             var response = await client.GetItemAsync(request);
-            if (response.Item == null || !response.Item.ContainsKey(minimumWageKey))
+            if (response.Item == null || !response.Item.ContainsKey("value"))
             {
                 throw new Exception("Minimum wage not found in the database.");
             }
 
-            Console.WriteLine(response.Item[minimumWageKey].N);
-            return int.Parse(response.Item[minimumWageKey].N);
+            Console.WriteLine(response.Item["value"].N);
+            return int.Parse(response.Item["value"].N);
         }
     }
 }
