@@ -30,16 +30,24 @@ namespace FoodPrice.Services
                 }
             };
 
-            var response = await client.GetItemAsync(request);
-
-            if (response.Item == null || !response.Item.ContainsKey(foodKey))
+            try
             {
-                throw new Exception("Minimum wage not found in the database.");
-            }
+                var response = await client.GetItemAsync(request);
 
-            Console.WriteLine(response.Item["value"].N);
-            Console.WriteLine(response.Item[foodKey].N);
-            return int.Parse(response.Item["value"].N);
+                if (response.Item == null || !response.Item.ContainsKey(foodKey))
+                {
+                    throw new Exception("Minimum wage not found in the database.");
+                }
+
+                Console.WriteLine(response.Item["value"].N);
+                Console.WriteLine(response.Item[foodKey].N);
+                return int.Parse(response.Item["value"].N);
+            }catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                throw new Exception(ex.Message);
+            }
+            
         }
 
     }
