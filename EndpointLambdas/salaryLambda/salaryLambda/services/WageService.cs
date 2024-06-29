@@ -10,7 +10,7 @@ namespace salaryLambda.services
 {
     public class WageService
     {
-        private static readonly string tableName = "Wages";
+        private static readonly string tableName = "ZeusTable"; 
         private static readonly string minimumWageKey = "MinimumWage";
         private readonly AmazonDynamoDBClient client;
 
@@ -19,14 +19,14 @@ namespace salaryLambda.services
             client = new AmazonDynamoDBClient();
         }
 
-        public async Task<decimal> GetMinimumWageAsync()
+        public async Task<int> GetMinimumWageAsync()
         {
             var request = new GetItemRequest
             {
                 TableName = tableName,
                 Key = new Dictionary<string, AttributeValue>
                 {
-                    { "WageType", new AttributeValue { S = minimumWageKey } }
+                    { "Key", new AttributeValue { S = minimumWageKey } }
                 }
             };
 
@@ -36,7 +36,7 @@ namespace salaryLambda.services
                 throw new Exception("Minimum wage not found in the database.");
             }
 
-            return decimal.Parse(response.Item["Amount"].N);
+            return int.Parse(response.Item["Amount"].N);
         }
     }
 }
