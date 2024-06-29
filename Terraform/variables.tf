@@ -34,15 +34,26 @@ variable "logout_urls" {
   description = "The logout URLs for the identity provider."
 }
 
-variable "lambda_endpoint_config" {
-  type = list(object({
-    method            = string # GET, POST, PUT, DELETE
+variable "service_lambda_endpoint_config" {
+  type = map(object({ # The map key should be the route key eg: GET /helloworld
+    method            = string
     description       = string
     lambda_invoke_arn = string
   }))
   description = "The configuration for the integration of Lambda functions into API gateway."
 
-  default = []
+  default = {}
+}
+
+variable "user_lambda_endpoint_config" {
+  type = map(object({ # The map key should be the route key eg: GET /helloworld
+    method            = string
+    description       = string
+    lambda_invoke_arn = string
+  }))
+  description = "The configuration for the integration of Lambda functions into API gateway."
+
+  default = {}
 }
 
 variable "lambda_schedule_config" {
@@ -50,9 +61,19 @@ variable "lambda_schedule_config" {
     name              = string
     rate_expression   = string # eg: 2 minutes
     lambda_invoke_arn = string
-    queue_urls        = list(string)
+    endpoints         = list(string)
   }))
   description = "The configuration for the scheduled Lambda functions such as random events."
 
   default = []
+}
+
+variable "trusted_account_ids" {
+  type        = list(string)
+  description = "The account IDs that are trusted to access the trust store."
+}
+
+variable "cors_allowed_origins" {
+  type        = list(string)
+  description = "The allowed origins for CORS."
 }
