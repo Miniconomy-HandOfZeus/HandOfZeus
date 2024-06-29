@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace salaryLambda.services
 {
     public class WageDeterminationService
     {
-        private static readonly Random random = new Random();
-        private readonly WageService wageService;
+        private readonly static Random random = new Random();
+        public WageService wageService  // property
+        {   set { wageService = value; }
+            get { return wageService; }// set method
+        }
 
         public WageDeterminationService(WageService wageService)
         {

@@ -11,10 +11,10 @@ namespace GetEletronicPrice;
 public class Function
 {
 
-    private readonly GetPriceFromDB GetPriceFromDB;
+    private readonly GetPriceFromDB GetPriceFromDB = new GetPriceFromDB();
 
 
-    public async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         // Parse the request body to get the person ID
 

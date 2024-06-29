@@ -14,7 +14,8 @@ namespace salaryLambda;
 
 public class Function
 {
-    private readonly WageDeterminationService wageDeterminationService;
+    
+    private readonly WageDeterminationService wageDeterminationService = new WageDeterminationService(new WageService());
 
     public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
