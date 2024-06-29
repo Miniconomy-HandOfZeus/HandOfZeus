@@ -31,12 +31,13 @@ namespace GetFoodPrice.Services
             };
 
             var response = await client.GetItemAsync(request);
-            if (response.Item == null || !response.Item.ContainsKey("Amount"))
+            if (response.Item == null || !response.Item.ContainsKey(foodKey))
             {
                 throw new Exception("Minimum wage not found in the database.");
             }
 
-            return int.Parse(response.Item["Amount"].N);
+            Console.WriteLine(response.Item[foodKey].N);
+            return int.Parse(response.Item[foodKey].N);
         }
 
     }
