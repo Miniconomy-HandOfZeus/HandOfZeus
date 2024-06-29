@@ -8,9 +8,9 @@
   "profile": "design-level-up",
   "region": "eu-west-1",
   "configuration": "Release",
-  "framework": "netcoreapp3.1",
-  "function-runtime": "dotnetcore3.1",
-  "function-memory-size": 256,
+  "function-architecture": "x86_64",
+  "function-runtime": "dotnet8",
+  "function-memory-size": 512,
   "function-timeout": 30,
   "function-handler": "MinimumWage::MinimumWage.Function::FunctionHandler"
 }
