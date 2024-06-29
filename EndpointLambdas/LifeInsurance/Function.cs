@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2.Model;
+using Amazon.DynamoDBv2;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 
@@ -15,6 +16,9 @@ namespace LifeInsurance
   public class Function
   {
 
+    private static readonly AmazonDynamoDBClient _dynamoDbClient = new AmazonDynamoDBClient();
+    private static readonly string tableName = "hand-of-zeus-db";
+
     public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
       var response = new APIGatewayProxyResponse
@@ -24,20 +28,36 @@ namespace LifeInsurance
         Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
       };
 
+      Function function = new Function();
+      string date = "01|01|01";
+      string ans = function.getInsurance(date);
       return response;
     }
 
-    /// <summary>
-    /// A simple function that takes a string and does a ToUpper
-    /// </summary>
-    /// <param name="input"></param>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    public string FunctionHandler(string input, ILambdaContext context)
+    private string getInsurance(string date)
     {
-      return input?.ToUpper();
+      if (YearEnd(date))
+      {
+        generateRate();
+      }
+      return fetchFromDB("life_insurance").Result;
     }
 
+    private void generateRate()
+    {
+      Random randomSeed = new Random();
+      int seed = randomSeed.Next(int.MinValue, int.MaxValue);
+      Random random = new Random(seed);
+      pushDB("life_insurance", random.Next());
+      return;
+    }
+
+    private Boolean YearEnd(string date)
+    {
+      string[] dateSplit = date.Split('|');
+
+      return dateSplit[1].Equals("01") && dateSplit[2].Equals("01");
+    }
 
 
     private void pushDB(string key, object value)
@@ -50,7 +70,7 @@ namespace LifeInsurance
 
     }
 
-    private static string fetchFromDB(string key)
+    private async static Task<string> fetchFromDB(string key)
     {
       var dbRequest = new GetItemRequest
       {
@@ -60,8 +80,16 @@ namespace LifeInsurance
                     { "Key", new AttributeValue { S = key } }
                 }
       };
-      string value = "";
-      return value;
+      try
+      {
+        var response = await _dynamoDbClient.GetItemAsync(dbRequest);
+        System.Console.WriteLine(response.ToString(), response.Item);
+        return response.Item[key].S;
+      }
+      catch (Exception e)
+      {
+        throw e;
+      }
     }
   }
 }

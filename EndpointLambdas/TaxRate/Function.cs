@@ -10,10 +10,13 @@ using Amazon.DynamoDBv2.Model;
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace MinimumWage
+namespace TaxRate
 {
   public class Function
   {
+    private static readonly AmazonDynamoDBClient _dynamoDbClient = new AmazonDynamoDBClient();
+    private static readonly string tableName = "hand-of-zeus-db";
+
     public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
       var response = new APIGatewayProxyResponse
@@ -23,27 +26,17 @@ namespace MinimumWage
         Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
       };
 
+      string rate = new Function().getRate("01|01|01");
       return response;
     }
 
-    /// <summary>
-    /// A simple function that takes a string and does a ToUpper
-    /// </summary>
-    /// <param name="input"></param>
-    /// <param name="context"></param>
-    /// <returns></returns>
-    public string FunctionHandler(string input, ILambdaContext context)
-    {
-      string rate = getRate(input);
-      return rate;
-    }
     private string getRate(string date)
     {
       if (YearEnd(date))
       {
         generateRate();
       }
-      return fetchFromDB("tax_rate");
+      return fetchFromDB("tax_rate").Result;
     }
     private Boolean YearEnd(string date)
     {
@@ -65,12 +58,13 @@ namespace MinimumWage
       Dictionary<string, AttributeValue> item = new Dictionary<string, AttributeValue>
         {
             { "Key", new AttributeValue { S = key } },
-            { "Value", new AttributeValue { S = JsonSerializer.Serialize(new { value = value }) }
+            { "Value", new AttributeValue { S = JsonSerializer.Serialize(new { value = value }) }}
         };
 
     }
+    private readonly static string TableName = "hand-of-zeus";
 
-    private static string fetchFromDB(string key)
+    private  async static Task<string> fetchFromDB(string key)
     {
       var dbRequest = new GetItemRequest
       {
@@ -80,8 +74,16 @@ namespace MinimumWage
                     { "Key", new AttributeValue { S = key } }
                 }
       };
-      string value = "";
-      return value;
+      try
+      {
+        var response = await _dynamoDbClient.GetItemAsync(dbRequest);
+        System.Console.WriteLine(response.ToString(), response.Item);
+        return response.Item[key].S;
+      }
+      catch (Exception e)
+      {
+        throw e;
+      }
     }
   }
 }
