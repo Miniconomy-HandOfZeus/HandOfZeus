@@ -92,7 +92,7 @@ namespace MinimumWage
     {
       var dbRequest = new GetItemRequest
       {
-        TableName = "hand-of-zeus",
+        TableName = tableName,
         Key = new Dictionary<string, AttributeValue>
                 {
                     { "Key", new AttributeValue { S = key } }

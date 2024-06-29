@@ -62,7 +62,6 @@ namespace TaxRate
         };
 
     }
-    private readonly static string TableName = "hand-of-zeus";
 
     private  async static Task<string> fetchFromDB(string key)
     {
@@ -78,7 +77,7 @@ namespace TaxRate
       {
         var response = await _dynamoDbClient.GetItemAsync(dbRequest);
         System.Console.WriteLine(response.ToString(), response.Item);
-        return response.Item[key].S;
+        return response.Item["value"].S;
       }
       catch (Exception e)
       {
