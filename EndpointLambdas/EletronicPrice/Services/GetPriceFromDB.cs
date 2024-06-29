@@ -35,7 +35,7 @@ namespace EletronicPrice.Services
 
             if (response.Item == null || !response.Item.ContainsKey(eletronicKey))
             {
-                throw new Exception("Minimum wage not found in the database.");
+                throw new Exception("Itme not found " + response?.Item.ToString());
             }
 
             Console.WriteLine(response.Item[eletronicKey].N);
