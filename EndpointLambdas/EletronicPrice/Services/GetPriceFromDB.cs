@@ -11,7 +11,7 @@ namespace EletronicPrice.Services
 {
     public class GetPriceFromDB
     {
-        private static readonly string tableName = "ZeusTable";
+        private static readonly string tableName = "hand-of-zeus-db";
         private static readonly string eletronicKey = "eletronic_price";
         private readonly AmazonDynamoDBClient client;
 
