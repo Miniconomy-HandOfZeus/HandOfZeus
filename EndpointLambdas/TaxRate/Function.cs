@@ -67,7 +67,7 @@ namespace TaxRate
     {
       var dbRequest = new GetItemRequest
       {
-        TableName = TableName,
+        TableName = tableName,
         Key = new Dictionary<string, AttributeValue>
                 {
                     { "Key", new AttributeValue { S = key } }
