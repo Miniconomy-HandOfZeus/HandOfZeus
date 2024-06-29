@@ -34,7 +34,7 @@ namespace FoodPrice.Services
             {
                 var response = await client.GetItemAsync(request);
 
-                if (response.Item == null || !response.Item.ContainsKey(foodKey))
+                if (response.Item == null || !response.Item.ContainsKey("value"))
                 {
                     throw new Exception("Minimum wage not found in the database.");
                 }
