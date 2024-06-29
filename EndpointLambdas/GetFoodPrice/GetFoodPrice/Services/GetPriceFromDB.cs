@@ -11,7 +11,7 @@ namespace GetFoodPrice.Services
     public class GetPriceFromDB
     {
         private static readonly string tableName = "ZeusTable";
-        private static readonly string foodKey = "FoodPrice";
+        private static readonly string foodKey = "food_price";
         private readonly AmazonDynamoDBClient client;
 
         public GetPriceFromDB()

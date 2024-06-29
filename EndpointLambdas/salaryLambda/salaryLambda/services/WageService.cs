@@ -12,7 +12,7 @@ namespace salaryLambda.services
     public class WageService : IWageService
     {
         private static readonly string tableName = "ZeusTable"; 
-        private static readonly string minimumWageKey = "MinimumWage";
+        private static readonly string minimumWageKey = "minimum_wage";
         private readonly AmazonDynamoDBClient client;
 
         public WageService()
