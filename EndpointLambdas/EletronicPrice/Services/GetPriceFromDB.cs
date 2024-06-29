@@ -33,13 +33,13 @@ namespace EletronicPrice.Services
 
             var response = await client.GetItemAsync(request);
 
-            if (response.Item == null || !response.Item.ContainsKey(eletronicKey))
+            if (response.Item == null || !response.Item.ContainsKey("value"))
             {
-                throw new Exception("Itme not found " + response?.Item.ToString());
+                throw new Exception("Itme not found " + response?.Item.Count);
             }
 
-            Console.WriteLine(response.Item[eletronicKey].N);
-            return int.Parse(response.Item[eletronicKey].N);
+            Console.WriteLine(response.Item["value"].N);
+            return int.Parse(response.Item["value"].N);
         }
 
     }
