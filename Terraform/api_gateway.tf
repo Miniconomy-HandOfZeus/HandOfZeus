@@ -1,15 +1,23 @@
+# Cloudwatch logs
+resource "aws_cloudwatch_log_group" "service_log_group" {
+  name              = "/aws/apigateway/${aws_apigatewayv2_api.service_api.name}"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "user_log_group" {
+  name              = "/aws/apigateway/${aws_apigatewayv2_api.user_api.name}"
+  retention_in_days = 7
+}
+
 # SERVICE API
 resource "aws_apigatewayv2_api" "service_api" {
   name          = "${var.naming_prefix}-service-api"
   description   = "API Gateway for the service endpoints"
   protocol_type = "HTTP"
 
-  cors_configuration {
-    allow_credentials = true
-    allow_headers     = ["Content-Type", "Authorization"]
-    allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    allow_origins     = var.cors_allowed_origins
-    max_age           = 3000
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.service_log_group.arn
+    format          = "$context.requestId $context.identity.sourceIp $context.identity.caller $context.identity.user $context.requestTime $context.httpMethod $context.resourcePath $context.status $context.protocol $context.responseLength $context.error.message"
   }
 }
 
@@ -93,6 +101,11 @@ resource "aws_apigatewayv2_api" "user_api" {
     allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
     allow_origins     = var.cors_allowed_origins
     max_age           = 3000
+  }
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.user_log_group.arn
+    format          = "$context.requestId $context.identity.sourceIp $context.identity.caller $context.identity.user $context.requestTime $context.httpMethod $context.resourcePath $context.status $context.protocol $context.responseLength $context.error.message"
   }
 }
 
