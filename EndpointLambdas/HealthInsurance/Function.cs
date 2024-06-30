@@ -13,7 +13,7 @@ using Amazon.Lambda.Core;
 
 namespace HealthInsurance
 {
-    public class Function
+  public class Function
   {
 
     private static readonly AmazonDynamoDBClient _dynamoDbClient = new AmazonDynamoDBClient();
@@ -69,7 +69,7 @@ namespace HealthInsurance
     {
       var dbRequest = new GetItemRequest
       {
-        TableName = "hand-of-zeus",
+        TableName = tableName,
         Key = new Dictionary<string, AttributeValue>
                 {
                     { "Key", new AttributeValue { S = key } }
@@ -78,8 +78,13 @@ namespace HealthInsurance
       try
       {
         var response = await _dynamoDbClient.GetItemAsync(dbRequest);
+        if (response.Item == null || !response.Item.ContainsKey("value"))
+        {
+          throw new Exception("Minimum wage not found in the database.");
+        }
+
         System.Console.WriteLine(response.ToString(), response.Item);
-        return response.Item[key].S;
+        return response.Item["value"].N + "";
       }
       catch (Exception e)
       {
