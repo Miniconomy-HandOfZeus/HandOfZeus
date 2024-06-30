@@ -101,6 +101,11 @@ namespace MinimumWage
       try
       {
         var response = await _dynamoDbClient.GetItemAsync(dbRequest);
+        if (response.Item == null || !response.Item.ContainsKey("value"))
+        {
+          throw new Exception("Minimum wage not found in the database.");
+        }
+
         System.Console.WriteLine(response.ToString(), response.Item);
         return response.Item[key].S;
       }
