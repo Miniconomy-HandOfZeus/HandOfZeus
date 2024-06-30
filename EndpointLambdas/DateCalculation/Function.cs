@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Amazon.DynamoDBv2.Model.Internal.MarshallTransformations;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 
@@ -14,6 +15,7 @@ namespace DateCalculation
 {
     public class Function
     {
+        private readonly static List<string> allowedServices = ["persona", "property", "retail_bank", "commercial_bank", "health_insurance", "life_insurance", "short_term_insurance", "health_care", "central_revenue", "labour", "stock_exchange", "real_estate_sales", "real_estate_agent", "short_term_lender", "home_loans", "electronics_retailer", "food_retailer", "zeus"];
         private readonly static string tableName = "hand-of-zeus-db";
         private static readonly AmazonDynamoDBClient _dynamoDbClient = new();
 
@@ -25,6 +27,29 @@ namespace DateCalculation
                 Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
             };
 
+            // Validate the calling service
+            if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
+            {
+                string callingService = callingServiceObject?.ToString();
+                context.Logger.Log($"{callingService} requested the simulation date");
+                if (!allowedServices.Contains(callingService)) {
+                    response.StatusCode = 403;
+                    response.Body = JsonSerializer.Serialize(new
+                    {
+                        message = "Forbidden"
+                    });
+                    return response;
+                }
+            }
+            else
+            {
+                response.StatusCode = 403;
+                response.Body = JsonSerializer.Serialize(new
+                {
+                    message = "Forbidden"
+                });
+                return response;
+            }
             
             long systemTimeMilliseconds;
 
