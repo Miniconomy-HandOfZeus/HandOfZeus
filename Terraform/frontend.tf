@@ -35,7 +35,7 @@ resource "aws_s3_bucket_website_configuration" "app" {
   }
 
   error_document {
-    key = "pages/404.html"
+    key = "views/404.html"
   }
 }
 
@@ -43,8 +43,8 @@ resource "aws_s3_bucket_cors_configuration" "app" {
   bucket = aws_s3_bucket.app.bucket
 
   cors_rule {
-    allowed_methods = ["GET"]
-    allowed_origins = [aws_s3_bucket_website_configuration.app.website_endpoint]
+    allowed_methods = ["GET", "POST", "PUT", "DELETE", "HEAD"]
+    allowed_origins = ["*"]
     max_age_seconds = 3000
   }
 }

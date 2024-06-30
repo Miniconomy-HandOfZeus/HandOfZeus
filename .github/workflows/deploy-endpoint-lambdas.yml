@@ -1,0 +1,61 @@
+name: Deploy Endpoint Lambdas
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'EndpointLambdas/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  prepare-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      directories: ${{ steps.set-matrix.outputs.directories }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: List lambda directories
+        id: set-matrix
+        run: |
+          LAMBDA_DIRS=$(ls -d EndpointLambdas/*)
+          LAMBDA_DIRS_JSON=$(echo -n $LAMBDA_DIRS | jq -R -s -c 'split(" ")')
+          echo "directories=${LAMBDA_DIRS_JSON}" >> $GITHUB_OUTPUT
+
+  deploy:
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        lambda_dir: ${{fromJson(needs.prepare-matrix.outputs.directories)}}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          role-session-name: github-my-planner-build
+          aws-region: eu-west-1
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.x
+
+      - name: Install AWS Lambda tools
+        shell: bash
+        run: dotnet tool install -g Amazon.Lambda.Tools
+
+      - name: Deploy Lambda
+        run: |
+          cd ${{ matrix.lambda_dir }}
+          echo "Deploying function in ${{ matrix.lambda_dir }}"
+          dotnet lambda deploy-function --region eu-west-1 --function-name $(basename ${{ matrix.lambda_dir }}) --function-role ${{ secrets.LAMBDA_ROLE_ARN }}
