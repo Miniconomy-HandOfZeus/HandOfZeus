@@ -35,21 +35,30 @@ namespace DateCalculation
                     if (systemTimeMilliseconds < 0)
                     {
                         response.StatusCode = 400;
-                        response.Body = "Query parameter 'time' must be a positive integer";
+                        response.Body = JsonSerializer.Serialize(new
+                        {
+                            message = "Query parameter 'time' must be a positive integer"
+                        });
                         return response;
                     }
                 }
                 else
                 {
                     response.StatusCode = 400;
-                    response.Body = "The 'time' query parameter must be an integer";
+                    response.Body = JsonSerializer.Serialize(new
+                    {
+                        message = "The 'time' query parameter must be an integer"
+                    });
                     return response;
                 }
             }
             else
             {
                 response.StatusCode = 400;
-                response.Body = "Missing required query parameter 'time'";
+                response.Body = JsonSerializer.Serialize(new
+                {
+                    message = "Missing required query parameter 'time'"
+                });
                 return response;
             }
 
