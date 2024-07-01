@@ -26,6 +26,7 @@ public class Function
         try
         {
             var certAndKey = await GetCertAndKey();
+
             if (certAndKey == null)
             {
                 return "Error: Certificate and key not retrieved.";
@@ -34,7 +35,9 @@ public class Function
             // Use certAndKey.Cert and certAndKey.Key in your HTTPS request
             // Example: Create HTTPS request with certAndKey.Cert and certAndKey.Key
 
-            return "Success: HTTPS request sent.";
+            LambdaLogger.Log("KEY: " + certAndKey.Key);
+            LambdaLogger.Log("CERT: " + certAndKey.Cert);
+            return "Success: HTTPS request sent. Cert: " + certAndKey.Cert + " Key: " + certAndKey.Key;
         }
         catch (Exception ex)
         {
