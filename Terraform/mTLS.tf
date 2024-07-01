@@ -28,7 +28,7 @@ resource "aws_s3_bucket_policy" "mtls" {
         "${aws_s3_bucket.mtls.arn}/*"
       ],
       "Condition" : {
-        "StringEquals" : { "aws:PrincipalOrgID" : ["ou-t4b2-wl5wlvk1"] }
+        "StringEquals" : { "aws:PrincipalOrgID" : ["o-vl5vr53myk"] }
       }
     }]
   })
