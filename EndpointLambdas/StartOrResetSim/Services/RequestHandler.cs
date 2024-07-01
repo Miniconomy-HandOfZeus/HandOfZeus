@@ -29,10 +29,7 @@ namespace StartOrResetSim.Services
         {
             client.ClientCertificates.Add(cert);
             // Prepare the query parameter based on the boolean value
-            string param = value ? "start" : "reset";
-
-            // Build the request URL with the query parameter
-            string requestUrl = $"{url}?action={param}";
+            string action = value ? "start" : "reset";
 
             using (var httpClient = new HttpClient(client))
             {
@@ -42,12 +39,17 @@ namespace StartOrResetSim.Services
 
                     if (value)
                     {
-                        var requestBody = new { startTime };
+                        var requestBody = new
+                        {
+                            startTime = startTime,
+                            action = action
+                        };
+
                         var json = JsonConvert.SerializeObject(requestBody);
                         content = new StringContent(json, Encoding.UTF8, "application/json");
                     }
 
-                    var response = await httpClient.PutAsync(requestUrl, content);
+                    var response = await httpClient.PutAsync(url, content);
 
                     response.EnsureSuccessStatusCode();
 

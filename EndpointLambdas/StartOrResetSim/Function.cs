@@ -18,8 +18,9 @@ namespace StartOrResetSim;
 public class Function
 {
     private readonly RequestHandler RequestHandler = new RequestHandler();
-    private readonly GetStartTimeFromDB GetStartTimeFromDB = new GetStartTimeFromDB();
     private readonly CertHandler CertHandler = new CertHandler();
+    private readonly DeterminePrice DeterminePrice = new DeterminePrice();
+    private readonly DBHelper DBHelper = new DBHelper();
 
     List<string> OtherApiUrls = new List<string> {
         "https://sustenance.projects.bbdgrad.com",
@@ -74,10 +75,14 @@ public class Function
             {
                 if (action)
                 {
+                    DateTime currentTime = DateTime.Now;
+                    await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
+                    await DeterminePrice.setPrices();
+
                     await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
                     await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName2, context);
 
-                    string startTime = await GetStartTimeFromDB.GetStartTime();
+                    string startTime = await DBHelper.GetFromDB("SimulationStartTime");
                     OtherApiUrls.ForEach(url =>
                     {
                         RequestHandler.SendPutRequestAsync(url, true, startTime, certs);

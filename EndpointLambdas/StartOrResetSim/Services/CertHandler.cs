@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Amazon;
-using StartOrResetSim.Models;
 using Amazon.Runtime.Internal;
 using Newtonsoft.Json;
 using System.Security.Cryptography.X509Certificates;
@@ -73,11 +72,5 @@ namespace StartOrResetSim.Services
                 throw new Exception("PFX certificate or password not found in secret.");
             }
         }
-
-        //private class CertificateSecret
-        //{
-        //    public string Key { get; set; }
-        //    public string Cert { get; set; }
-        //}
     }
 }
