@@ -45,7 +45,7 @@ public class Function
         }
     }
 
-    private async Task<string> GetCertAndKey()
+    private async Task<X509Certificate2> GetCertAndKey()
     {
         //GetSecretValueRequest request = new GetSecretValueRequest
         //{
@@ -70,8 +70,24 @@ public class Function
 
         GetSecretValueResponse response = await secretsManagerClient.GetSecretValueAsync(request);
 
-        LambdaLogger.Log(response.ToString());
-        return response.ToString();
+        var secretObject = JsonConvert.DeserializeObject<Dictionary<string, string>>(response.SecretString);
+
+        if (secretObject.TryGetValue("PFXBase64", out string pfxBase64) && secretObject.TryGetValue("Password", out string password))
+        {
+            // Decode base64 string to byte array
+            byte[] pfxBytes = Convert.FromBase64String(pfxBase64);
+
+            // Extract certificate and key from PFX with password
+            
+            X509Certificate2 cert =  new X509Certificate2(pfxBytes, password);
+            LambdaLogger.Log($"Certificate Subject: {cert.Subject}");
+            LambdaLogger.Log($"Certificate Thumbprint: {cert.Thumbprint}");
+            return cert;
+        }
+        else
+        {
+            throw new Exception("PFX certificate or password not found in secret.");
+        }
     }
 
     private class CertificateSecret
