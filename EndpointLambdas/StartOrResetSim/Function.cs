@@ -1,3 +1,4 @@
+using Amazon.Lambda;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Newtonsoft.Json;
@@ -34,6 +35,15 @@ public class Function
         "https://persona.projects.bbdgrad.com",
     };
 
+    private static readonly string LambdaFunctionName1 = "DateCalculation";
+    private static readonly string LambdaFunctionName2 = "RandomEvent";
+    private readonly LambdaTrigger _LambdaTrigger;
+
+    public Function()
+    {
+        _LambdaTrigger = new LambdaTrigger();
+    }
+
     public async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest request, ILambdaContext context)
     {
         // Parse the request body to get the person ID
@@ -43,7 +53,7 @@ public class Function
             return new APIGatewayProxyResponse
             {
                 StatusCode = 400,
-                Body = JsonConvert.SerializeObject(new { message = "Invalid request. 'personaId' is required." }),
+                Body = JsonConvert.SerializeObject(new { message = "Invalid request. bool is required." }),
                 Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
             };
         }
@@ -52,6 +62,8 @@ public class Function
 
         if (action)
         {
+            await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
+
             string startTime = await GetStartTimeFromDB.GetStartTime();
             OtherApiUrls.ForEach(url =>
             {
