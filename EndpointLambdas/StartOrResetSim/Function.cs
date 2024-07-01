@@ -4,9 +4,11 @@ using Amazon.Lambda.Core;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
+using StartOrResetSim.Models;
 using StartOrResetSim.Services;
 using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -17,6 +19,7 @@ public class Function
 {
     private readonly RequestHandler RequestHandler = new RequestHandler();
     private readonly GetStartTimeFromDB GetStartTimeFromDB = new GetStartTimeFromDB();
+    private readonly CertHandler CertHandler = new CertHandler();
 
     List<string> OtherApiUrls = new List<string> {
         "https://sustenance.projects.bbdgrad.com",
@@ -42,10 +45,6 @@ public class Function
     private static readonly string LambdaFunctionName2 = "RandomEvent";
     private readonly LambdaTrigger _LambdaTrigger;
 
-    private const string SecretName = "Certification";
-    private const string Region = "eu-west-1";
-    private readonly IAmazonSecretsManager _secretsManager;
-
     public Function()
     {
         _LambdaTrigger = new LambdaTrigger();
@@ -53,87 +52,100 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        var cert = await GetCertificate();
-        Console.WriteLine(cert);
-        Console.WriteLine(cert.ToString());
+        
+        // Parse the request body to get the person ID
+        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, bool>>(request.Body);
+        if (requestBody == null || !requestBody.ContainsKey("action"))
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 400,
+                Body = JsonConvert.SerializeObject(new { message = "Invalid request. bool is required." }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
+        }
 
-        //// Parse the request body to get the person ID
-        //var requestBody = JsonConvert.DeserializeObject<Dictionary<string, bool>>(request.Body);
-        //if (requestBody == null || !requestBody.ContainsKey("action"))
-        //{
-        //    return new APIGatewayProxyResponse
+        bool action = requestBody["action"];
+        CertClass certs = await CertHandler.GetCertAndKey();
+
+        //if (certs != null) {
+        //    if (action)
         //    {
-        //        StatusCode = 400,
-        //        Body = JsonConvert.SerializeObject(new { message = "Invalid request. bool is required." }),
-        //        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-        //    };
+        //        await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
+        //        await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName2, context);
+
+        //        string startTime = await GetStartTimeFromDB.GetStartTime();
+        //        OtherApiUrls.ForEach(url =>
+        //        {
+        //            RequestHandler.SendPutRequestAsync(url, true, startTime);
+        //        });
+
+
+        //    }
+        //    else
+        //    {
+        //        OtherApiUrls.ForEach(url =>
+        //        {
+        //            RequestHandler.SendPutRequestAsync(url, false, "");
+        //        });
+        //    }
         //}
 
-        //bool action = requestBody["action"];
 
-        //if (action)
+        // Create HttpClientHandler with client certificate
+        var handler = new HttpClientHandler();
+
+        // Convert certificate and key to X509Certificate2
+        var certificate = new X509Certificate2(Convert.FromBase64String(certs.Cert),
+                                               certs.Key);
+
+        // Add the certificate to the handler
+        handler.ClientCertificates.Add(certificate);
+        foreach (var cert in handler.ClientCertificates)
+        {
+            LambdaLogger.Log($"Certificate Subject: {cert.Subject}");
+            LambdaLogger.Log($"Certificate Thumbprint: {cert.GetCertHashString()}");
+            // Add more properties as needed to verify the certificate
+        }
+
+        // Create HttpClient with handler
+        //using (var client = new HttpClient(handler))
         //{
-        //    await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
+        //    // Example PUT request
+        //    var apiUrl = "https://example.com/api/resource"; // Replace with your API endpoint
+        //    var content = new StringContent("{ \"key\": \"value\" }", Encoding.UTF8, "application/json");
 
-        //    string startTime = await GetStartTimeFromDB.GetStartTime();
-        //    OtherApiUrls.ForEach(url =>
+        //    var response = await client.PutAsync(apiUrl, content);
+
+        //    if (response.IsSuccessStatusCode)
         //    {
-        //        RequestHandler.SendPutRequestAsync(url, true, startTime);
-        //    });
+        //        LambdaLogger.Log("Success: HTTPS request sent.");
+        //        return new APIGatewayProxyResponse
+        //        {
+        //            StatusCode = 200,
+        //            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        //        };
 
-
-        //}
-        //else
-        //{
-        //    OtherApiUrls.ForEach(url =>
+        //    }
+        //    else
         //    {
-        //        RequestHandler.SendPutRequestAsync(url, false, "");
-        //    });
+        //        LambdaLogger.Log($"Error: {response.StatusCode} - {response.ReasonPhrase}");
+        //        return new APIGatewayProxyResponse
+        //        {
+        //            StatusCode = 500,
+        //            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        //        };
+        //    }
         //}
-
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
+
+
+
     }
 
-    public async Task<X509Certificate2> GetCertificate()
-    {
-        var secretValue = await GetSecretAsync(SecretName);
-
-        // Parse the secret (assuming JSON format)
-        var secretJson = JsonConvert.DeserializeObject<Dictionary<string, string>>(secretValue);
-
-        // Load the certificate from the secret
-        var cert = new X509Certificate2(Convert.FromBase64String(secretJson["cert"]));
-        Console.WriteLine(cert);
-        return cert;
-    }
-
-    public async Task<string> GetSecretAsync(string secretName)
-    {
-        GetSecretValueRequest request = new GetSecretValueRequest
-        {
-            SecretId = secretName,
-            VersionStage = "AWSCURRENT" // VersionStage defaults to AWSCURRENT if unspecified.
-        };
-
-        GetSecretValueResponse response;
-
-        try
-        {
-            response = await _secretsManager.GetSecretValueAsync(request);
-        }
-        catch (Exception e)
-        {
-            // For a list of the exceptions thrown, see
-            // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-            throw e;
-        }
-
-        Console.WriteLine(response.SecretString.ToString());
-        return response.SecretString;
-    }
 }

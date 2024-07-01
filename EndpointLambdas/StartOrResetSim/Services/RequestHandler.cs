@@ -3,8 +3,10 @@ using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
 using StartOrResetSim.Interfaces;
+using StartOrResetSim.Models;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -15,56 +17,15 @@ namespace StartOrResetSim.Services
     public class RequestHandler : IRequestHandler
     {
         private readonly HttpClient client;
-        private const string SecretName = "Certification";
-        private const string Region = "eu-west-1";
-        private readonly IAmazonSecretsManager _secretsManager;
 
         public RequestHandler()
         {
-            client = new HttpClient(new HttpClientHandler { ClientCertificates = { GetCertificate().Result } });
-            _secretsManager = new AmazonSecretsManagerClient(RegionEndpoint.GetBySystemName(Region));
-        }
-
-        public async Task<X509Certificate2> GetCertificate()
-        {
-            var secretValue = await GetSecretAsync(SecretName);
-
-            // Parse the secret (assuming JSON format)
-            var secretJson = JsonConvert.DeserializeObject<Dictionary<string, string>>(secretValue);
-
-            // Load the certificate from the secret
-            var cert = new X509Certificate2(Convert.FromBase64String(secretJson["cert"]));
-            Console.WriteLine(cert);
-            return cert;
-        }
-
-        public async Task<string> GetSecretAsync(string secretName)
-        {
-            GetSecretValueRequest request = new GetSecretValueRequest
-            {
-                SecretId = secretName,
-                VersionStage = "AWSCURRENT" // VersionStage defaults to AWSCURRENT if unspecified.
-            };
-
-            GetSecretValueResponse response;
-
-            try
-            {
-                response = await _secretsManager.GetSecretValueAsync(request);
-            }
-            catch (Exception e)
-            {
-                // For a list of the exceptions thrown, see
-                // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-                throw e;
-            }
-
-            Console.WriteLine(response.SecretString.ToString());
-            return response.SecretString;
+           client = new HttpClient();
         }
 
         public async Task<bool> SendPutRequestAsync(string url, bool value, string startTime)
         {
+
             // Prepare the query parameter based on the boolean value
             string param = value ? "start" : "reset";
 
