@@ -52,7 +52,7 @@ namespace LendingRate
       Random randomSeed = new Random();
       int seed = randomSeed.Next(int.MinValue, int.MaxValue);
       Random random = new Random(seed);
-      pushDB("prime_lending_rate", random.Next(5, 15));
+      pushDB("prime_lending_rate", random.Next(5, 15)+"");
       return;
     }
 

@@ -48,7 +48,7 @@ namespace LifeInsurance
       Random randomSeed = new Random();
       int seed = randomSeed.Next(int.MinValue, int.MaxValue);
       Random random = new Random(seed);
-      pushDB("life_insurance", random.Next());
+      pushDB("life_insurance", random.Next()+"");
       return;
     }
 

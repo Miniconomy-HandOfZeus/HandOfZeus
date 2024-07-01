@@ -52,7 +52,7 @@ namespace HealthInsurance
       Random randomSeed = new Random();
       int seed = randomSeed.Next(int.MinValue, int.MaxValue);
       Random random = new Random(seed);
-      pushDB("health_insurance", random.Next());
+      pushDB("health_insurance", random.Next()+"");
       return;
     }
 

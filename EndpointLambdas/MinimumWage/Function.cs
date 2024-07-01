@@ -53,7 +53,7 @@ namespace MinimumWage
       Random randomSeed = new Random();
       int seed = randomSeed.Next(int.MinValue, int.MaxValue);
       Random random = new Random(seed);
-      pushDB("minimum_wage", random.Next(10, 30));
+      pushDB("minimum_wage", random.Next(10, 30)+"");
       return;
     }
     public static async Task<string> grabKey()

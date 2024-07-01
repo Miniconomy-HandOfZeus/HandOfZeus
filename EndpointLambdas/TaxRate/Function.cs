@@ -49,7 +49,7 @@ namespace TaxRate
       Random randomSeed = new Random();
       int seed = randomSeed.Next(int.MinValue, int.MaxValue);
       Random random = new Random(seed);
-      pushDB("tax_rate", random.Next(10, 30));
+      pushDB("tax_rate", random.Next(10, 30)+"");
       return;
     }
 
