@@ -16,21 +16,65 @@ namespace RandomEvent
   {
     private static readonly Random random = new Random();
     private static readonly List<string> events = new List<string>
-        {
-            "Death",
-            "Marriage",
-            "Birth",
-            "Hunger",
-            "Sickness",
-            "Breakages",
-            "Salary",
-            "Fired from job",
-            "Famine",
-            "Plague",
-            "War",
-            "Apocalypse",
-            "Inflation"
-        };
+    {
+        "Death",
+        "Marriage",
+        "Birth",
+        "Hunger",
+        "Sickness",
+        "Breakages",
+        "Salary",
+        "Fired from job",
+        "FamineStart",
+        "FamineEnd",
+        "PlagueStart",
+        "PlagueEnd",
+        "WarStart",
+        "WarEnd",
+        "Apocalypse",
+        "Inflation"
+    };
+
+
+    private static readonly Dictionary<string, int> eventWeights = new Dictionary<string, int>
+    {
+        { "Death", 10 },
+        { "Marriage", 20 },
+        { "Birth", 30 },
+        { "Hunger", 15 },
+        { "Sickness", 15 },
+        { "Breakages", 5 },
+        { "Salary", 25 },
+        { "Fired from job", 5 },
+        { "FamineStart", 1 },
+        { "FamineEnd", 0 },
+        { "PlagueStart", 1 },
+        { "PlagueEnd", 0 },
+        { "WarStart", 1 },
+        { "WarEnd", 0 },
+        { "Apocalypse", 1 },
+        { "Inflation", 10 }
+    };
+
+    private static readonly Dictionary<string, string[]> eventEndpoints = new Dictionary<string, string[]>
+    {
+        { "Death", new[] { "https://persona.projects.bbdgrad.com" } },
+        { "Marriage", new[] { "https://persona.projects.bbdgrad.com" } },
+        { "Birth", new[] { "https://persona.projects.bbdgrad.com" } },
+        { "Hunger", new[] { "https://sustenance.projects.bbdgrad.com" } },
+        { "Sickness", new[] { "https://api.health.projects.bbdgrad.com", "https://persona.projects.bbdgrad.com" } },
+        { "Breakages", new[] { "https://api.insurance.projects.bbdgrad.com" } },
+        { "Salary", new[] { "https://labour.projects.bbdgrad.com" } },
+        { "Fired from job", new[] { "https://labour.projects.bbdgrad.com" } },
+        { "FamineStart", new[] { "https://sustenance.projects.bbdgrad.com" } },
+        { "FamineEnd", new[] { "https://sustenance.projects.bbdgrad.com" } },
+        { "PlagueStart", new[] { "https://api.health.projects.bbdgrad.com", "https://persona.projects.bbdgrad.com" } },
+        { "PlagueEnd", new[] { "https://api.health.projects.bbdgrad.com", "https://persona.projects.bbdgrad.com" } },
+        { "WarStart", new string[] { } }, // No notification for start
+        { "WarEnd", new string[] { } }, // No notification for end
+        { "Apocalypse", new[] { "https://persona.projects.bbdgrad.com" } },
+        { "Inflation", new[] { "https://api.commercialbank.projects.bbdgrad.com" } }
+    };
 
     private static readonly List<long> people = new List<long>
         {
@@ -51,19 +95,65 @@ namespace RandomEvent
 
     public async Task FunctionHandler(string input, ILambdaContext context)
     {
-      var selectedEvent = events[random.Next(events.Count)];
+      var selectedEvent = SelectWeightedRandomEvent();
       context.Logger.LogLine($"Selected Event: {selectedEvent}");
 
       var eventRate = await GetEventRateAsync(selectedEvent);
       context.Logger.LogLine($"Event Rate: {eventRate}");
 
-      // For illustration, randomly selecting affected people based on event rate
+
       var affectedPeopleCount = GetAffectedPeopleCount(eventRate);
       var affectedPeople = GetRandomPeople(affectedPeopleCount);
+
       context.Logger.LogLine($"Affected People: {string.Join(", ", affectedPeople)}");
 
-      // Call the other service's endpoint
-      await CallServiceEndpointAsync(selectedEvent, eventRate, affectedPeople);
+      await CallServiceEndpointsAsync(selectedEvent, eventRate, affectedPeople);
+
+      // Handle start and end events logic
+      if (selectedEvent.EndsWith("Start"))
+      {
+        var endEvent = selectedEvent.Replace("Start", "End");
+        eventWeights[endEvent] = 100; // Increase end event weight
+        await UpdateEventRateInDynamoDB(endEvent, "100");
+      }
+      else if (selectedEvent.EndsWith("End"))
+      {
+        eventWeights[selectedEvent] = 0; // Set end event weight to 0 after ending
+        await UpdateEventRateInDynamoDB(selectedEvent, "0");
+      }
+
+      if (selectedEvent == "FamineStart" || selectedEvent == "FamineEnd")
+      {
+        await UpdateEventRateInDynamoDB("Hunger", selectedEvent == "FamineStart" ? "50" : "15");
+        await UpdateEventRateInDynamoDB("Inflation", selectedEvent == "FamineStart" ? "20" : "10");
+      }
+      else if (selectedEvent == "PlagueStart" || selectedEvent == "PlagueEnd")
+      {
+        await UpdateEventRateInDynamoDB("Sickness", selectedEvent == "PlagueStart" ? "50" : "15");
+        await UpdateEventRateInDynamoDB("Inflation", selectedEvent == "PlagueStart" ? "20" : "10");
+      }
+      else if (selectedEvent == "WarStart" || selectedEvent == "WarEnd")
+      {
+        await UpdateEventRateInDynamoDB("Death", selectedEvent == "WarStart" ? "50" : "10");
+        await UpdateEventRateInDynamoDB("Inflation", selectedEvent == "WarStart" ? "20" : "10");
+      }
+
+    }
+
+    private string SelectWeightedRandomEvent()
+    {
+      int totalWeight = eventWeights.Values.Sum();
+      int randomValue = random.Next(totalWeight);
+
+      foreach (var kvp in eventWeights)
+      {
+        if (randomValue < kvp.Value)
+        {
+          return kvp.Key;
+        }
+        randomValue -= kvp.Value;
+      }
+      return events[random.Next(events.Count)]; // Fallback
     }
 
     private async Task<string> GetEventRateAsync(string eventName)
@@ -72,9 +162,9 @@ namespace RandomEvent
       {
         TableName = "EventRates",
         Key = new Dictionary<string, AttributeValue>
-                {
-                    { "EventName", new AttributeValue { S = eventName } }
-                }
+        {
+            { "EventName", new AttributeValue { S = eventName } }
+        }
       };
 
       var response = await dynamoDbClient.GetItemAsync(request);
@@ -89,8 +179,7 @@ namespace RandomEvent
 
     private int GetAffectedPeopleCount(string eventRate)
     {
-      // This method converts the event rate into an integer count.
-      // Adjust the logic here based on the actual structure of your event rates.
+
       if (int.TryParse(eventRate, out int count))
       {
         return count;
@@ -121,7 +210,7 @@ namespace RandomEvent
       return selectedPeople;
     }
 
-    private async Task CallServiceEndpointAsync(string eventName, string eventRate, List<long> affectedPeople)
+    private async Task CallServiceEndpointsAsync(string eventName, string eventRate, List<long> affectedPeople)
     {
       var requestBody = new
       {
@@ -130,15 +219,43 @@ namespace RandomEvent
         AffectedPeople = affectedPeople
       };
 
-      // Replace with the actual service endpoint URL
-      string serviceEndpointUrl = "https://your-service-endpoint-url.com/event";
-
-      var response = await httpClient.PostAsJsonAsync(serviceEndpointUrl, requestBody);
-
-      if (!response.IsSuccessStatusCode)
+      if (eventEndpoints.TryGetValue(eventName, out var endpoints))
       {
-        throw new Exception($"Failed to call service endpoint. Status code: {response.StatusCode}");
+        foreach (var endpoint in endpoints)
+        {
+          var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
+
+          if (!response.IsSuccessStatusCode)
+          {
+            throw new Exception($"Failed to call service endpoint {endpoint}. Status code: {response.StatusCode}");
+          }
+        }
       }
     }
+
+    private async Task UpdateEventRateInDynamoDB(string eventName, string newRate)
+    {
+      var request = new UpdateItemRequest
+      {
+        TableName = "EventRates",
+        Key = new Dictionary<string, AttributeValue>
+        {
+            { "EventName", new AttributeValue { S = eventName } }
+        },
+        AttributeUpdates = new Dictionary<string, AttributeValueUpdate>
+        {
+            {
+                "EventRate",
+                new AttributeValueUpdate
+                {
+                    Action = AttributeAction.PUT,
+                    Value = new AttributeValue { S = newRate }
+                }
+            }
+        }
+      };
+      await dynamoDbClient.UpdateItemAsync(request);
+    }
+
   }
 }
