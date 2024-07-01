@@ -52,7 +52,7 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        
+        DateTime currentTime; 
         // Parse the request body to get the person ID
         var requestBody = JsonConvert.DeserializeObject<Dictionary<string, bool>>(request.Body);
         if (requestBody == null || !requestBody.ContainsKey("action"))
@@ -74,7 +74,7 @@ public class Function
             {
                 if (action)
                 {
-                    DateTime currentTime = DateTime.Now;
+                    currentTime = DateTime.Now;
                     await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
                     await DeterminePrice.setPrices();
 
@@ -87,6 +87,20 @@ public class Function
                         RequestHandler.SendPutRequestAsync(url, true, startTime, certs);
                     });
 
+                    var body = new
+                    {
+                        startTime = currentTime
+                    };
+
+                    // Serialize the response object to JSON
+                    string responseBody = JsonConvert.SerializeObject(body);
+
+                    return new APIGatewayProxyResponse
+                    {
+                        StatusCode = 200,
+                        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
+                        Body = responseBody
+                    };
 
                 }
                 else
@@ -95,6 +109,13 @@ public class Function
                     {
                         RequestHandler.SendPutRequestAsync(url, false, "", certs);
                     });
+
+                    return new APIGatewayProxyResponse
+                    {
+                        StatusCode = 200,
+                        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                        
+                    };
                 }
             }
             catch (Exception ex)
@@ -115,15 +136,6 @@ public class Function
                 Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
             };
         }
-
-
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = 200,
-            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-        };
-
-
     }
 
 }
