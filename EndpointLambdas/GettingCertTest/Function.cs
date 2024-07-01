@@ -80,7 +80,8 @@ public class Function
             byte[] pfxBytes = Convert.FromBase64String(pfxBase64);
 
             // Extract certificate and key from PFX with password
-            
+            LambdaLogger.Log($"PFX Bytes (Base64): {pfxBase64}");
+            LambdaLogger.Log($"Password: {password}");
             X509Certificate2 cert =  new X509Certificate2(pfxBytes, password);
             LambdaLogger.Log($"Certificate Subject: {cert.Subject}");
             LambdaLogger.Log($"Certificate Thumbprint: {cert.Thumbprint}");
