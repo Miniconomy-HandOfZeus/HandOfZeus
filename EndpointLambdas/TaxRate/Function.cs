@@ -49,12 +49,11 @@ namespace TaxRate
       Random randomSeed = new Random();
       int seed = randomSeed.Next(int.MinValue, int.MaxValue);
       Random random = new Random(seed);
-      pushDB("tax_rate", random.Next(10, 30));
+      pushDB("tax_rate", random.Next(10, 30)+"");
       return;
     }
 
-
-    private void pushDB(string key, object value)
+    private void pushDB(string key, string value)
     {
       var request = new UpdateItemRequest
       {
@@ -73,17 +72,22 @@ namespace TaxRate
             },
         UpdateExpression = "SET #V = :newval"
       };
+      RequestDB(request);
+    }
 
+    private async Task<UpdateItemResponse> RequestDB(UpdateItemRequest request)
+    {
       try
       {
-        var response = await client.UpdateItemAsync(request);
+        var response = await _dynamoDbClient.UpdateItemAsync(request);
         Console.WriteLine("Update succeeded.");
+        return response;
       }
       catch (Exception e)
       {
         Console.WriteLine("Update failed. Exception: " + e.Message);
+        throw e;
       }
-
     }
 
     private async static Task<string> fetchFromDB(string key)
