@@ -93,7 +93,7 @@ namespace RandomEvent
       dynamoDbClient = new AmazonDynamoDBClient();
     }
 
-    public async Task FunctionHandler(string input, ILambdaContext context)
+    public async Task FunctionHandler(ILambdaContext context)
     {
       var selectedEvent = SelectWeightedRandomEvent();
       context.Logger.LogLine($"Selected Event: {selectedEvent}");
