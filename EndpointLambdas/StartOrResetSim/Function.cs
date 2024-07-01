@@ -1,9 +1,12 @@
 using Amazon.Lambda;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.SecretsManager;
+using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
 using StartOrResetSim.Services;
 using System;
+using System.Security.Cryptography.X509Certificates;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -39,6 +42,10 @@ public class Function
     private static readonly string LambdaFunctionName2 = "RandomEvent";
     private readonly LambdaTrigger _LambdaTrigger;
 
+    private const string SecretName = "Certification";
+    private const string Region = "eu-west-1";
+    private readonly IAmazonSecretsManager _secretsManager;
+
     public Function()
     {
         _LambdaTrigger = new LambdaTrigger();
@@ -46,39 +53,43 @@ public class Function
 
     public async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        // Parse the request body to get the person ID
-        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, bool>>(request.Body);
-        if (requestBody == null || !requestBody.ContainsKey("action"))
-        {
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 400,
-                Body = JsonConvert.SerializeObject(new { message = "Invalid request. bool is required." }),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
-        }
+        var cert = await GetCertificate();
+        Console.WriteLine(cert);
+        Console.WriteLine(cert.ToString());
 
-        bool action = requestBody["action"];
+        //// Parse the request body to get the person ID
+        //var requestBody = JsonConvert.DeserializeObject<Dictionary<string, bool>>(request.Body);
+        //if (requestBody == null || !requestBody.ContainsKey("action"))
+        //{
+        //    return new APIGatewayProxyResponse
+        //    {
+        //        StatusCode = 400,
+        //        Body = JsonConvert.SerializeObject(new { message = "Invalid request. bool is required." }),
+        //        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        //    };
+        //}
 
-        if (action)
-        {
-            await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
+        //bool action = requestBody["action"];
 
-            string startTime = await GetStartTimeFromDB.GetStartTime();
-            OtherApiUrls.ForEach(url =>
-            {
-                RequestHandler.SendPutRequestAsync(url, true, startTime);
-            });
+        //if (action)
+        //{
+        //    await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
+
+        //    string startTime = await GetStartTimeFromDB.GetStartTime();
+        //    OtherApiUrls.ForEach(url =>
+        //    {
+        //        RequestHandler.SendPutRequestAsync(url, true, startTime);
+        //    });
 
 
-        }
-        else
-        {
-            OtherApiUrls.ForEach(url =>
-            {
-                RequestHandler.SendPutRequestAsync(url, false, "");
-            });
-        }
+        //}
+        //else
+        //{
+        //    OtherApiUrls.ForEach(url =>
+        //    {
+        //        RequestHandler.SendPutRequestAsync(url, false, "");
+        //    });
+        //}
 
 
         return new APIGatewayProxyResponse
@@ -88,5 +99,41 @@ public class Function
         };
     }
 
+    public async Task<X509Certificate2> GetCertificate()
+    {
+        var secretValue = await GetSecretAsync(SecretName);
 
+        // Parse the secret (assuming JSON format)
+        var secretJson = JsonConvert.DeserializeObject<Dictionary<string, string>>(secretValue);
+
+        // Load the certificate from the secret
+        var cert = new X509Certificate2(Convert.FromBase64String(secretJson["cert"]));
+        Console.WriteLine(cert);
+        return cert;
+    }
+
+    public async Task<string> GetSecretAsync(string secretName)
+    {
+        GetSecretValueRequest request = new GetSecretValueRequest
+        {
+            SecretId = secretName,
+            VersionStage = "AWSCURRENT" // VersionStage defaults to AWSCURRENT if unspecified.
+        };
+
+        GetSecretValueResponse response;
+
+        try
+        {
+            response = await _secretsManager.GetSecretValueAsync(request);
+        }
+        catch (Exception e)
+        {
+            // For a list of the exceptions thrown, see
+            // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+            throw e;
+        }
+
+        Console.WriteLine(response.SecretString.ToString());
+        return response.SecretString;
+    }
 }
