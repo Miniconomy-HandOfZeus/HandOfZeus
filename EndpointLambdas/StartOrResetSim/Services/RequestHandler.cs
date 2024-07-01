@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Net.Http;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,44 +18,48 @@ namespace StartOrResetSim.Services
 {
     public class RequestHandler : IRequestHandler
     {
-        private readonly HttpClient client;
+        private readonly HttpClientHandler client;
 
         public RequestHandler()
         {
-           client = new HttpClient();
+           client = new HttpClientHandler();
         }
 
-        public async Task<bool> SendPutRequestAsync(string url, bool value, string startTime)
+        public async Task<bool> SendPutRequestAsync(string url, bool value, string startTime, X509Certificate2 cert)
         {
-
+            client.ClientCertificates.Add(cert);
             // Prepare the query parameter based on the boolean value
             string param = value ? "start" : "reset";
 
             // Build the request URL with the query parameter
             string requestUrl = $"{url}?action={param}";
 
-            try
+            using (var httpClient = new HttpClient(client))
             {
-                HttpContent content = null;
-
-                if (value)
+                try
                 {
-                    var requestBody = new { startTime };
-                    var json = JsonConvert.SerializeObject(requestBody);
-                    content = new StringContent(json, Encoding.UTF8, "application/json");
+                    HttpContent content = null;
+
+                    if (value)
+                    {
+                        var requestBody = new { startTime };
+                        var json = JsonConvert.SerializeObject(requestBody);
+                        content = new StringContent(json, Encoding.UTF8, "application/json");
+                    }
+
+                    var response = await httpClient.PutAsync(requestUrl, content);
+
+                    response.EnsureSuccessStatusCode();
+
+                    return true; // Return true to indicate success
                 }
-
-                var response = await client.PutAsync(requestUrl, content);
-
-                response.EnsureSuccessStatusCode();
-
-                return true; // Return true to indicate success
+                catch (HttpRequestException e)
+                {
+                    Console.WriteLine($"Error sending PUT request: {e.Message}");
+                    return false; // Return false if there was an error
+                }
             }
-            catch (HttpRequestException e)
-            {
-                Console.WriteLine($"Error sending PUT request: {e.Message}");
-                return false; // Return false if there was an error
-            }
+                
         }
     }
 }

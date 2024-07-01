@@ -10,6 +10,6 @@ namespace StartOrResetSim.Interfaces
 {
     public interface IRequestHandler
     {
-        public Task<bool> SendPutRequestAsync(string url, bool value, string startTime);
+        public Task<bool> SendPutRequestAsync(string url, bool value, string startTime, X509Certificate2 cert);
     }
 }

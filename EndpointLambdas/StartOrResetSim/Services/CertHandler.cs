@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 using Amazon;
 using StartOrResetSim.Models;
 using Amazon.Runtime.Internal;
+using Newtonsoft.Json;
+using System.Security.Cryptography.X509Certificates;
 
 namespace StartOrResetSim.Services
 {
@@ -22,7 +24,7 @@ namespace StartOrResetSim.Services
             secretsManagerClient = new AmazonSecretsManagerClient(RegionEndpoint.EUWest1); // Replace with your region
         }
 
-        public async Task<CertClass> FunctionHandler()
+        public async Task<X509Certificate2> FunctionHandler()
         {
             try
             {
@@ -32,12 +34,6 @@ namespace StartOrResetSim.Services
                 {
                     return null;
                 }
-
-                // Use certAndKey.Cert and certAndKey.Key in your HTTPS request
-                // Example: Create HTTPS request with certAndKey.Cert and certAndKey.Key
-
-                LambdaLogger.Log("KEY: " + certAndKey.Key);
-                LambdaLogger.Log("CERT: " + certAndKey.Cert);
                 return certAndKey;
             }
             catch (Exception ex)
@@ -47,7 +43,7 @@ namespace StartOrResetSim.Services
             }
         }
 
-        public async Task<CertClass> GetCertAndKey()
+        public async Task<X509Certificate2> GetCertAndKey()
         {
             GetSecretValueRequest request = new GetSecretValueRequest
             {
@@ -57,12 +53,25 @@ namespace StartOrResetSim.Services
 
             GetSecretValueResponse response = await secretsManagerClient.GetSecretValueAsync(request);
 
-            string secretString = response.SecretString;
+            var secretObject = JsonConvert.DeserializeObject<Dictionary<string, string>>(response.SecretString);
 
-            // Deserialize JSON containing cert and key
-            var certAndKey = Newtonsoft.Json.JsonConvert.DeserializeObject<CertClass>(secretString);
+            if (secretObject.TryGetValue("pfx", out string pfxBase64) && secretObject.TryGetValue("password", out string password))
+            {
+                // Decode base64 string to byte array
+                byte[] pfxBytes = Convert.FromBase64String(pfxBase64);
 
-            return certAndKey;
+                // Extract certificate and key from PFX with password
+                LambdaLogger.Log($"PFX Bytes (Base64): {pfxBase64}");
+                LambdaLogger.Log($"Password: {password}");
+                X509Certificate2 cert = new X509Certificate2(pfxBytes, password);
+                LambdaLogger.Log($"Certificate Subject: {cert.Subject}");
+                LambdaLogger.Log($"Certificate Thumbprint: {cert.Thumbprint}");
+                return cert;
+            }
+            else
+            {
+                throw new Exception("PFX certificate or password not found in secret.");
+            }
         }
 
         //private class CertificateSecret
