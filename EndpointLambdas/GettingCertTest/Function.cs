@@ -3,6 +3,7 @@ using Amazon.Lambda.Core;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
+using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.X509Certificates;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
@@ -25,7 +26,7 @@ public class Function
     {
         try
         {
-            var certAndKey = await GetCertAndKey();
+            X509Certificate2 certAndKey = await GetCertAndKey();
 
             if (certAndKey == null)
             {
@@ -35,7 +36,8 @@ public class Function
             // Use certAndKey.Cert and certAndKey.Key in your HTTPS request
             // Example: Create HTTPS request with certAndKey.Cert and certAndKey.Key
 
-
+            LambdaLogger.Log($"Certificate Subject: {certAndKey.Subject}");
+            LambdaLogger.Log($"Certificate Thumbprint: {certAndKey.Thumbprint}");
             return "Success: HTTPS request sent: " + certAndKey;
         }
         catch (Exception ex)
