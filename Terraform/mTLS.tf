@@ -15,33 +15,21 @@ resource "aws_s3_bucket_policy" "mtls" {
   bucket = aws_s3_bucket.mtls.bucket
   policy = jsonencode({
     Version = "2012-10-17",
-    Statement = [
-      {
-        Effect    = "Allow",
-        Principal = "*",
-        Action    = "s3:GetObject",
-        Resource = [
-          "${aws_s3_bucket.mtls.arn}/*",
-        ],
-        Condition = {
-          StringEquals = {
-            "aws:PrincipalAccount" = var.trusted_account_ids
-          }
-        }
-      },
-      {
-        Effect    = "Deny",
-        Principal = "*",
-        Action    = "s3:*",
-        Resource = [
-          "${aws_s3_bucket.mtls.arn}/*",
-        ],
-        Condition = {
-          StringNotEquals = {
-            "aws:PrincipalAccount" = var.trusted_account_ids
-          }
-        }
+    Statement = [{
+      Sid = "AllowOrganizationToReadBucket",
+      Effect = "Allow",
+      Principal = "*",
+      Action = [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      Resource: [
+        aws_s3_bucket.mtls.arn,
+        "${aws_s3_bucket.mtls.arn}/*"
+      ],
+      "Condition": {
+        "StringEquals": {"aws:PrincipalOrgID":["ou-t4b2-wl5wlvk1"]}
       }
-    ],
+    }]
   })
 }
