@@ -98,7 +98,12 @@ namespace RandomEvent
       var selectedEvent = SelectWeightedRandomEvent();
       context.Logger.LogLine($"Selected Event: {selectedEvent}");
 
-      var eventRate = await GetEventRateAsync(selectedEvent);
+      var eventRate = await GetEventRateAsync(selectedEvent, context);
+      if (eventRate == null)
+      {
+        context.Logger.LogLine($"Event rate for {selectedEvent} is null. Exiting function.");
+        return;
+      }
       context.Logger.LogLine($"Event Rate: {eventRate}");
 
 
@@ -161,7 +166,7 @@ namespace RandomEvent
       return events[random.Next(events.Count)]; // Fallback
     }
 
-    private async Task<string> GetEventRateAsync(string eventName)
+    private async Task<string> GetEventRateAsync(string eventName, ILambdaContext context)
     {
       var request = new GetItemRequest
       {
@@ -172,15 +177,25 @@ namespace RandomEvent
         }
       };
 
-      var response = await dynamoDbClient.GetItemAsync(request);
-
-      if (response.Item == null || !response.Item.ContainsKey("EventRate"))
+      try
       {
-        throw new Exception($"Event rate for {eventName} not found");
-      }
+        var response = await dynamoDbClient.GetItemAsync(request);
+        
+        if (response.Item == null || !response.Item.ContainsKey("EventRate"))
+        {
+          context.Logger.LogLine($"Event rate for {eventName} not found");
+          return null;
+        }
 
-      return response.Item["EventRate"].S;
+        return response.Item["EventRate"].S;
+      }
+      catch (Exception ex)
+      {
+        context.Logger.LogLine($"Error retrieving event rate for {eventName}: {ex.Message}");
+        return null;
+      }
     }
+
 
     private int GetAffectedPeopleCount(string eventRate)
     {
