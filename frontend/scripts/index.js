@@ -10,7 +10,6 @@ document.getElementById('logout-button').addEventListener('click', logout);
 //   headers: {'Content-Type': 'application/json'}
 // }));
 
-
 const testData = [
   {id: "12344", description: "", type: "sickness"},
   {id: "45666", description: "", type: "death"},
@@ -55,3 +54,65 @@ function updateTimer() {
 
 // Update the timer every second
 //setInterval(updateTimer, 5000);
+
+// Function to add a new event element
+function addEventElement(eventData) {
+  // Create a new section element
+  const newEvent = document.createElement('section');
+  newEvent.classList.add('eventObject');
+
+  // Create and append the first <a> element
+  const idLink = document.createElement('a');
+  idLink.textContent = eventData.id;
+  newEvent.appendChild(idLink);
+
+  // Create and append the second <a> element
+  const descriptionLink = document.createElement('a');
+  descriptionLink.textContent = eventData.description;
+  newEvent.appendChild(descriptionLink);
+
+  // Create and append the third <a> element with the "pill" class
+  const pillLink = document.createElement('a');
+  pillLink.textContent = eventData.type;
+  pillLink.classList.add('pill');
+  newEvent.appendChild(pillLink);
+  switch(type){
+    case 'sickness':
+      pillLink.classList.add('pill-blue');
+    case 'death':
+      pillLink.classList.add('pill-red');
+      
+    case 'birth':
+      pillLink.classList.add('pill-green');
+      
+    case 'marriage':
+      pillLink.classList.add('pill-yellow');
+      
+    case 'hunger':
+      pillLink.classList.add('pill-lightBlue');
+      
+    case 'breakage':
+      pillLink.classList.add('pill-orange');
+      
+    case 'fired':
+      pillLink.classList.add('pill-red');
+      
+    case 'Famine':
+      pillLink.classList.add('pill-purple');
+      
+    case 'plague':
+      pillLink.classList.add('pill-purple');
+      
+    case 'apocalypse':
+      pillLink.classList.add('pill-purple');
+      
+    case 'war':
+      pillLink.classList.add('pill-purple');
+      
+    default:
+      pillLink.classList.add('pill-blue');
+  }
+  
+  // Append the new section to the existing eventHolder section
+  document.getElementById('eventHolder').appendChild(newEvent);
+}

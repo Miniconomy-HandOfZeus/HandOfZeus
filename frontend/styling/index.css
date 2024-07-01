@@ -3,6 +3,33 @@
     font-weight: 400;
     font-style: normal;
 }
+.header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5rem 1rem 0rem 1rem;
+}
+
+.mainBody{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100vw;
+}
+
+.infoHolder{
+    width: 25vw;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow: hidden;
+}
+
+.infoObect{
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: #c674e7;
+}
 
 .eventHolder{
     display: flex;
@@ -10,6 +37,7 @@
     flex-wrap: nowrap;
     height: 100vh;
     justify-content: flex-start;
+    width: 75vw;
 }
 
 .eventHeadingSection{
@@ -28,11 +56,51 @@
     height: 10vh;
 }
 
+.button{
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: medium;
+    cursor: pointer;
+}
+
 
 .pill{
-    background-color: #74b1e7;
     padding: 0.5rem 1rem;
     border-radius: 10rem;
     color: white;
+}
+
+.pill-blue {
+    background-color: #74b1e7;
     border-color: #3184ce;
 }
+.pill-purple {
+    background-color: #c674e7;
+    border-color: #9b50b9;
+}
+.pill-green {
+    background-color: #74e784;
+    border-color: #31ce55;
+}
+.pill-yellow {
+    background-color: #e7d874;
+    border-color: #ceb831;
+}
+.pill-pink {
+    background-color: #e774c8;
+    border-color: #c153a4;
+}
+.pill-red {
+    background-color: #e77474;
+    border-color: #cb5454;
+}
+.pill-orange {
+    background-color: #e7a074;
+    border-color: #c67f54;
+}
+.pill-lightBlue {
+    background-color: #74e7d6;
+    border-color: #53c7b6;
+}
+
+
