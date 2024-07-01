@@ -41,3 +41,16 @@ data "aws_iam_policy_document" "scheduler_assume_role" {
     actions = ["sts:AssumeRole"]
   }
 }
+
+data "aws_iam_policy_document" "gateway_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["apigateway.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}

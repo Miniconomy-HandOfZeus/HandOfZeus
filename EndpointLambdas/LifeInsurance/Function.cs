@@ -1,20 +1,21 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Amazon.Lambda.Core;
-using Amazon.Lambda.APIGatewayEvents;
+using System.Linq;
 using System.Text.Json;
-using Amazon.Lambda.Core;
-using Amazon.DynamoDBv2;
+using System.Threading.Tasks;
 using Amazon.DynamoDBv2.Model;
+using Amazon.DynamoDBv2;
+using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.Core;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace MinimumWage
+namespace LifeInsurance
 {
   public class Function
   {
+
     private static readonly AmazonDynamoDBClient _dynamoDbClient = new AmazonDynamoDBClient();
     private static readonly string tableName = "hand-of-zeus-db";
 
@@ -29,55 +30,35 @@ namespace MinimumWage
 
       Function function = new Function();
       string date = "01|01|01";
-      string ans = function.getWage(date);
+      string ans = function.getInsurance(date);
       return response;
     }
-    private string getWage(string date)
+
+    private string getInsurance(string date)
     {
-      if (semiAnnual(date))
+      if (YearEnd(date))
       {
-        generateWage();
+        generateRate();
       }
-      return fetchFromDB("minimum_wage").Result;
+      return fetchFromDB("life_insurance").Result;
     }
 
-    private bool semiAnnual(string date)
-    {
-      string[] dateSplit = date.Split('|');
-
-      return (dateSplit[1].Equals("01") && dateSplit[2].Equals("01")) || (dateSplit[1].Equals("06") && dateSplit[2].Equals("01"));
-    }
-
-    private void generateWage()
+    private void generateRate()
     {
       Random randomSeed = new Random();
       int seed = randomSeed.Next(int.MinValue, int.MaxValue);
       Random random = new Random(seed);
-      pushDB("minimum_wage", random.Next(10, 30)+"");
+      pushDB("life_insurance", random.Next()+"");
       return;
     }
-    public static async Task<string> grabKey()
+
+    private Boolean YearEnd(string date)
     {
-      var key = new Dictionary<string, AttributeValue>
-        {
-            { "Key", new AttributeValue { S = "minimum_wage" } }
-        };
-      GetItemRequest request = new GetItemRequest
-      {
-        TableName = tableName,
-        Key = key
-      };
-      try
-      {
-        var response = await _dynamoDbClient.GetItemAsync(request);
-        System.Console.WriteLine(response.ToString(), response.Item);
-        return response.ToString();
-      }
-      catch
-      {
-        return null;
-      }
+      string[] dateSplit = date.Split('|');
+
+      return dateSplit[1].Equals("01") && dateSplit[2].Equals("01");
     }
+
     private void pushDB(string key, string value)
     {
       var request = new UpdateItemRequest
@@ -128,11 +109,6 @@ namespace MinimumWage
       try
       {
         var response = await _dynamoDbClient.GetItemAsync(dbRequest);
-        if (response.Item == null || !response.Item.ContainsKey("value"))
-        {
-          throw new Exception("Minimum wage not found in the database.");
-        }
-
         System.Console.WriteLine(response.ToString(), response.Item);
         return response.Item["value"].S;
       }
@@ -140,8 +116,7 @@ namespace MinimumWage
       {
         throw e;
       }
-      string value = "";
-      return value;
     }
   }
 }
+

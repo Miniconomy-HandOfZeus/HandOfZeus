@@ -1,16 +1,33 @@
+# Cloudwatch logs
+resource "aws_api_gateway_account" "api-gateway" {
+  cloudwatch_role_arn = aws_iam_role.api_gateway.arn
+}
+
+resource "aws_iam_role" "api_gateway" {
+  name               = "${var.naming_prefix}-api-gateway-role"
+  assume_role_policy = data.aws_iam_policy_document.gateway_assume_role.json
+}
+
+resource "aws_iam_role_policy_attachment" "api_gateway" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonAPIGatewayPushToCloudWatchLogs"
+  role       = aws_iam_role.api_gateway.name
+}
+
+resource "aws_cloudwatch_log_group" "service_log_group" {
+  name              = "/aws/apigateway/${aws_apigatewayv2_api.service_api.name}"
+  retention_in_days = 7
+}
+
+resource "aws_cloudwatch_log_group" "user_log_group" {
+  name              = "/aws/apigateway/${aws_apigatewayv2_api.user_api.name}"
+  retention_in_days = 7
+}
+
 # SERVICE API
 resource "aws_apigatewayv2_api" "service_api" {
   name          = "${var.naming_prefix}-service-api"
   description   = "API Gateway for the service endpoints"
   protocol_type = "HTTP"
-
-  cors_configuration {
-    allow_credentials = true
-    allow_headers     = ["Content-Type", "Authorization"]
-    allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    allow_origins     = var.cors_allowed_origins
-    max_age           = 3000
-  }
 }
 
 resource "aws_apigatewayv2_domain_name" "service_api" {
@@ -31,15 +48,20 @@ resource "aws_apigatewayv2_authorizer" "service_api" {
   api_id                            = aws_apigatewayv2_api.service_api.id
   authorizer_type                   = "REQUEST"
   authorizer_uri                    = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:625366111301:function:AuthLambda/invocations"
-  identity_sources                  = ["$context.identity.clientCert.clientCertPem"]
   name                              = "common-name-extractor"
   authorizer_payload_format_version = "2.0"
+  authorizer_result_ttl_in_seconds  = 0
 }
 
 resource "aws_apigatewayv2_stage" "service_api" {
   api_id      = aws_apigatewayv2_api.service_api.id
   name        = "$default"
   auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.service_log_group.arn
+    format          = "$context.requestId $context.identity.sourceIp $context.identity.caller $context.identity.user $context.requestTime $context.httpMethod $context.resourcePath $context.status $context.protocol $context.responseLength $context.error.message"
+  }
 }
 
 resource "aws_apigatewayv2_api_mapping" "service_api" {
@@ -123,6 +145,11 @@ resource "aws_apigatewayv2_stage" "user_api" {
   api_id      = aws_apigatewayv2_api.user_api.id
   name        = "$default"
   auto_deploy = true
+
+  access_log_settings {
+    destination_arn = aws_cloudwatch_log_group.user_log_group.arn
+    format          = "$context.requestId $context.identity.sourceIp $context.identity.caller $context.identity.user $context.requestTime $context.httpMethod $context.resourcePath $context.status $context.protocol $context.responseLength $context.error.message"
+  }
 }
 
 resource "aws_apigatewayv2_api_mapping" "user_api" {

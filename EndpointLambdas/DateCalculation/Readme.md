@@ -38,12 +38,12 @@ If already installed check if new version is available.
 
 Execute unit tests
 ```
-    cd "DoesSickPersonaDie/test/DoesSickPersonaDie.Tests"
+    cd "DateCalculation/test/DateCalculation.Tests"
     dotnet test
 ```
 
 Deploy function to AWS Lambda
 ```
-    cd "DoesSickPersonaDie/src/DoesSickPersonaDie"
+    cd "DateCalculation/src/DateCalculation"
     dotnet lambda deploy-function
 ```
