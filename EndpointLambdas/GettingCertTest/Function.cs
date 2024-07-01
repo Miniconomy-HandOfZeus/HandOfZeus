@@ -1,3 +1,4 @@
+using Amazon;
 using Amazon.Lambda.Core;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
@@ -12,61 +13,31 @@ namespace GettingCertTest;
 public class Function
 {
 
-    private const string SecretName = "Certification";
-    private const string Region = "eu-west-1";
-
-    private readonly IAmazonSecretsManager _secretsManager;
+    private static readonly string secretName = "Certification";
+    private static readonly string region = "eu-west-1";
+    private readonly IAmazonSecretsManager secretsManagerClient;
 
     public Function()
     {
-        _secretsManager = new AmazonSecretsManagerClient(Amazon.RegionEndpoint.GetBySystemName(Region));
-    }
-
-    public async Task<X509Certificate2> GetCertificateAsync()
-    {
-        var secretValue = await GetSecretAsync(SecretName);
-
-        // Parse the secret JSON (assuming JSON format)
-        var secretJson = JsonConvert.DeserializeObject<Dictionary<string, string>>(secretValue);
-
-        // Load the certificate from the secret (assuming it is base64 encoded)
-        var cert = new X509Certificate2(Convert.FromBase64String(secretJson["cert"]));
-        return cert;
-    }
-
-    private async Task<string> GetSecretAsync(string secretName)
-    {
-        GetSecretValueRequest request = new GetSecretValueRequest
-        {
-            SecretId = secretName,
-            VersionStage = "AWSCURRENT" // VersionStage defaults to AWSCURRENT if unspecified.
-        };
-
-        GetSecretValueResponse response;
-
-        try
-        {
-            response = await _secretsManager.GetSecretValueAsync(request);
-        }
-        catch (Exception e)
-        {
-            // Handle exceptions (logging, rethrowing, etc.)
-            throw e;
-        }
-
-        return response.SecretString;
+        secretsManagerClient = new AmazonSecretsManagerClient(RegionEndpoint.GetBySystemName(region));
     }
 
     public async Task<string> FunctionHandler(ILambdaContext context)
     {
         try
         {
-            var certificate = await GetCertificateAsync();
-            LambdaLogger.Log("Certificate retrieved successfully");
+            string secretString = await GetSecret();
+            LambdaLogger.Log($"Secret retrieved successfully: {secretString}");
 
-            // Log certificate details for debugging purposes (optional)
-            LambdaLogger.Log($"Certificate Subject: {certificate.Subject}");
-            LambdaLogger.Log($"Certificate Issuer: {certificate.Issuer}");
+            // Process the secret as needed (e.g., decode base-64, parse JSON)
+            var secretObject = JsonConvert.DeserializeObject<CertificateSecret>(secretString);
+
+            // Example: Decode the certificate and key from base-64
+            byte[] certificateBytes = Convert.FromBase64String(secretObject.Certificate);
+            byte[] keyBytes = Convert.FromBase64String(secretObject.Key);
+
+            // Use the certificate and key bytes as needed
+            // Example: var certificate = new X509Certificate2(certificateBytes);
 
             return "Certificate retrieved successfully";
         }
@@ -75,5 +46,24 @@ public class Function
             LambdaLogger.Log($"Error retrieving certificate: {ex.Message}");
             return $"Error: {ex.Message}";
         }
+    }
+
+    private async Task<string> GetSecret()
+    {
+        GetSecretValueRequest request = new GetSecretValueRequest
+        {
+            SecretId = secretName,
+            VersionStage = "AWSCURRENT",
+        };
+
+        GetSecretValueResponse response = await secretsManagerClient.GetSecretValueAsync(request);
+
+        return response.SecretString;
+    }
+
+    private class CertificateSecret
+    {
+        public string Certificate { get; set; }
+        public string Key { get; set; }
     }
 }
