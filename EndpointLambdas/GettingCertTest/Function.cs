@@ -14,41 +14,36 @@ public class Function
 {
 
     private static readonly string secretName = "Certification";
-    private static readonly string region = "eu-west-1";
     private readonly IAmazonSecretsManager secretsManagerClient;
 
     public Function()
     {
-        secretsManagerClient = new AmazonSecretsManagerClient(RegionEndpoint.GetBySystemName(region));
+        secretsManagerClient = new AmazonSecretsManagerClient(RegionEndpoint.EUWest1); // Replace with your region
     }
 
     public async Task<string> FunctionHandler(ILambdaContext context)
     {
         try
         {
-            string secretString = await GetSecret();
-            LambdaLogger.Log($"Secret retrieved successfully: {secretString}");
+            var certAndKey = await GetCertAndKey();
+            if (certAndKey == null)
+            {
+                return "Error: Certificate and key not retrieved.";
+            }
 
-            // Process the secret as needed (e.g., decode base-64, parse JSON)
-            var secretObject = JsonConvert.DeserializeObject<CertificateSecret>(secretString);
+            // Use certAndKey.Cert and certAndKey.Key in your HTTPS request
+            // Example: Create HTTPS request with certAndKey.Cert and certAndKey.Key
 
-            // Example: Decode the certificate and key from base-64
-            byte[] certificateBytes = Convert.FromBase64String(secretObject.Certificate);
-            byte[] keyBytes = Convert.FromBase64String(secretObject.Key);
-
-            // Use the certificate and key bytes as needed
-            // Example: var certificate = new X509Certificate2(certificateBytes);
-
-            return "Certificate retrieved successfully";
+            return "Success: HTTPS request sent.";
         }
         catch (Exception ex)
         {
-            LambdaLogger.Log($"Error retrieving certificate: {ex.Message}");
+            LambdaLogger.Log($"Error: {ex.Message}");
             return $"Error: {ex.Message}";
         }
     }
 
-    private async Task<string> GetSecret()
+    private async Task<CertificateSecret> GetCertAndKey()
     {
         GetSecretValueRequest request = new GetSecretValueRequest
         {
@@ -58,12 +53,17 @@ public class Function
 
         GetSecretValueResponse response = await secretsManagerClient.GetSecretValueAsync(request);
 
-        return response.SecretString;
+        string secretString = response.SecretString;
+
+        // Deserialize JSON containing cert and key
+        var certAndKey = Newtonsoft.Json.JsonConvert.DeserializeObject<CertificateSecret>(secretString);
+
+        return certAndKey;
     }
 
     private class CertificateSecret
     {
-        public string Certificate { get; set; }
         public string Key { get; set; }
+        public string Cert { get; set; }
     }
 }
