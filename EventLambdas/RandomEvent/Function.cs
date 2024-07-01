@@ -180,13 +180,20 @@ namespace RandomEvent
       try
       {
         var response = await dynamoDbClient.GetItemAsync(request);
-        
-        if (response.Item == null || !response.Item.ContainsKey("EventRate"))
+
+        if (response.Item == null)
         {
-          context.Logger.LogLine($"Event rate for {eventName} not found");
+          context.Logger.LogLine($"Event rate for {eventName} not found: Item is null");
           return null;
         }
 
+        if (!response.Item.ContainsKey("EventRate"))
+        {
+          context.Logger.LogLine($"Event rate for {eventName} not found: 'EventRate' key not found");
+          return null;
+        }
+
+        context.Logger.LogLine($"Event rate for {eventName}: {response.Item["EventRate"].S}");
         return response.Item["EventRate"].S;
       }
       catch (Exception ex)
@@ -195,6 +202,7 @@ namespace RandomEvent
         return null;
       }
     }
+
 
 
     private int GetAffectedPeopleCount(string eventRate)
