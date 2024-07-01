@@ -66,84 +66,58 @@ public class Function
         }
 
         bool action = requestBody["action"];
-        CertClass certs = await CertHandler.GetCertAndKey();
+        X509Certificate2 certs = await CertHandler.GetCertAndKey();
 
-        //if (certs != null) {
-        //    if (action)
-        //    {
-        //        await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
-        //        await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName2, context);
-
-        //        string startTime = await GetStartTimeFromDB.GetStartTime();
-        //        OtherApiUrls.ForEach(url =>
-        //        {
-        //            RequestHandler.SendPutRequestAsync(url, true, startTime);
-        //        });
-
-
-        //    }
-        //    else
-        //    {
-        //        OtherApiUrls.ForEach(url =>
-        //        {
-        //            RequestHandler.SendPutRequestAsync(url, false, "");
-        //        });
-        //    }
-        //}
-
-
-        // Create HttpClientHandler with client certificate
-        var handler = new HttpClientHandler();
-
-        // Convert certificate and key to X509Certificate2
-        var certificate = new X509Certificate2(Convert.FromBase64String(certs.Cert),
-                                               certs.Key);
-
-        // Add the certificate to the handler
-        handler.ClientCertificates.Add(certificate);
-        foreach (var cert in handler.ClientCertificates)
+        if (certs != null)
         {
-            LambdaLogger.Log($"Certificate Subject: {cert.Subject}");
-            LambdaLogger.Log($"Certificate Thumbprint: {cert.GetCertHashString()}");
-            // Add more properties as needed to verify the certificate
+            try
+            {
+                if (action)
+                {
+                    await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
+                    await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName2, context);
+
+                    string startTime = await GetStartTimeFromDB.GetStartTime();
+                    OtherApiUrls.ForEach(url =>
+                    {
+                        RequestHandler.SendPutRequestAsync(url, true, startTime, certs);
+                    });
+
+
+                }
+                else
+                {
+                    OtherApiUrls.ForEach(url =>
+                    {
+                        RequestHandler.SendPutRequestAsync(url, false, "", certs);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 400,
+                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                };
+            }
+            
+        }
+        else
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 400,
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
         }
 
-        // Create HttpClient with handler
-        //using (var client = new HttpClient(handler))
-        //{
-        //    // Example PUT request
-        //    var apiUrl = "https://example.com/api/resource"; // Replace with your API endpoint
-        //    var content = new StringContent("{ \"key\": \"value\" }", Encoding.UTF8, "application/json");
-
-        //    var response = await client.PutAsync(apiUrl, content);
-
-        //    if (response.IsSuccessStatusCode)
-        //    {
-        //        LambdaLogger.Log("Success: HTTPS request sent.");
-        //        return new APIGatewayProxyResponse
-        //        {
-        //            StatusCode = 200,
-        //            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-        //        };
-
-        //    }
-        //    else
-        //    {
-        //        LambdaLogger.Log($"Error: {response.StatusCode} - {response.ReasonPhrase}");
-        //        return new APIGatewayProxyResponse
-        //        {
-        //            StatusCode = 500,
-        //            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-        //        };
-        //    }
-        //}
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
-
 
 
     }

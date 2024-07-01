@@ -55,22 +55,20 @@ public class Function
                 }
             }
 
-            //// Create an HttpClient using the handler
-            //using (var httpClient = new HttpClient(handler))
-            //{
-            //    var requestUri = "https://your.api.endpoint/your/put/endpoint"; // Replace with your actual API endpoint
-            //    var content = new StringContent("{\"key\":\"value\"}", System.Text.Encoding.UTF8, "application/json"); // Replace with your actual payload
+            // Create an HttpClient using the handler
+            using (var httpClient = new HttpClient(handler))
+            {
+                var requestUri = "https://api.zeus.projects.bbdgrad.com/food-price"; // Replace with your actual API endpoint
+                var content = new StringContent("{\"key\":\"value\"}", System.Text.Encoding.UTF8, "application/json"); // Replace with your actual payload
 
-            //    // Make the PUT request
-            //    var response = await httpClient.PutAsync(requestUri, content);
-            //    response.EnsureSuccessStatusCode();
+                // Make the PUT request
+                var response = await httpClient.GetAsync(requestUri);
+                response.EnsureSuccessStatusCode();
 
-            //    var responseBody = await response.Content.ReadAsStringAsync();
-            //    LambdaLogger.Log($"Response: {responseBody}");
-            //    return $"Success: HTTPS request sent. Response: {responseBody}";
-            //}
-
-            return cert.ToString();
+                var responseBody = await response.Content.ReadAsStringAsync();
+                LambdaLogger.Log($"Response: {responseBody}");
+                return $"Success: HTTPS request sent. Response: {responseBody}";
+            }
         }
         catch (Exception ex)
         {
