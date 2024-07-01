@@ -1,8 +1,11 @@
 using Amazon;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.Core;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.X509Certificates;
 
@@ -16,16 +19,38 @@ public class Function
 
     private static readonly string secretName = "Certificate_PFX";
     private readonly IAmazonSecretsManager secretsManagerClient;
+    private readonly AmazonDynamoDBClient client;
 
     public Function()
     {
         secretsManagerClient = new AmazonSecretsManagerClient(RegionEndpoint.EUWest1); // Replace with your region
+        client = new AmazonDynamoDBClient();
     }
 
     public async Task<string> FunctionHandler(ILambdaContext context)
     {
         try
         {
+            var request = new PutItemRequest
+            {
+                TableName = "hand-of-zeus-db",
+                Item = new Dictionary<string, AttributeValue>
+                    {
+                        { "Key", new AttributeValue { S = "food_price" } },
+                        { "value", new AttributeValue { N = "200" } }
+                    }
+            };
+
+            try
+            {
+                await client.PutItemAsync(request);
+                LambdaLogger.Log("Start time updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                LambdaLogger.Log($"Error updating start time: {ex.Message}");
+            }
+
             X509Certificate2 cert = await GetCertAndKey();
 
             if (cert == null)
