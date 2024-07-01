@@ -124,7 +124,7 @@ public class Function
         var temp = JsonConvert.DeserializeObject<Dictionary<string, string>>(secert);
 
 
-        if (temp.TryGetValue("pfx", out string pfxBase64) && secretObject.TryGetValue("password", out string password))
+        if (temp.TryGetValue("pfx", out string pfxBase64) && temp.TryGetValue("password", out string password))
         {
             // Decode base64 string to byte array
             byte[] pfxBytes = Convert.FromBase64String(pfxBase64);
