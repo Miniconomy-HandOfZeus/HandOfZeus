@@ -4,7 +4,6 @@ using Amazon.Lambda.Core;
 using Amazon.SecretsManager;
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
-using StartOrResetSim.Models;
 using StartOrResetSim.Services;
 using System;
 using System.Security.Cryptography.X509Certificates;
