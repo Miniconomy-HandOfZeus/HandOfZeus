@@ -18,7 +18,6 @@ namespace StartOrResetSim;
 public class Function
 {
     private readonly RequestHandler RequestHandler = new RequestHandler();
-    private readonly DBHelper GetStartTimeFromDB = new DBHelper();
     private readonly CertHandler CertHandler = new CertHandler();
     private readonly DeterminePrice DeterminePrice = new DeterminePrice();
     private readonly DBHelper DBHelper = new DBHelper();

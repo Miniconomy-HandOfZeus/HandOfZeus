@@ -11,7 +11,6 @@ namespace StartOrResetSim.Services
     public class DBHelper
     {
         private static readonly string tableName = "hand-of-zeus-db";
-        private static readonly string foodKey = "SimulationStartTime";
 
         private readonly AmazonDynamoDBClient client;
 
@@ -51,7 +50,7 @@ namespace StartOrResetSim.Services
 
         }
 
-        public async Task SetStartTime(string key, string value)
+        public async Task SetInDbString(string key, string value)
         {
                 var request = new PutItemRequest
                 {
@@ -59,7 +58,7 @@ namespace StartOrResetSim.Services
                     Item = new Dictionary<string, AttributeValue>
                     {
                         { "Key", new AttributeValue { S = key } }, 
-                        { "Value", new AttributeValue { S = value } }
+                        { "value", new AttributeValue { S = value } }
                     }
                 };
 
@@ -72,6 +71,29 @@ namespace StartOrResetSim.Services
                 {
                     Console.WriteLine($"Error updating start time: {ex.Message}");
                 }
+        }
+
+        public async Task SetInDbNumber(string key, string value)
+        {
+            var request = new PutItemRequest
+            {
+                TableName = tableName,
+                Item = new Dictionary<string, AttributeValue>
+                    {
+                        { "Key", new AttributeValue { S = key } },
+                        { "value", new AttributeValue { N = value } }
+                    }
+            };
+
+            try
+            {
+                await client.PutItemAsync(request);
+                Console.WriteLine("Start time updated successfully.");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating start time: {ex.Message}");
+            }
         }
     }
 }

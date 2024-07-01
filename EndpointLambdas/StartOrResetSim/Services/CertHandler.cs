@@ -73,11 +73,5 @@ namespace StartOrResetSim.Services
                 throw new Exception("PFX certificate or password not found in secret.");
             }
         }
-
-        //private class CertificateSecret
-        //{
-        //    public string Key { get; set; }
-        //    public string Cert { get; set; }
-        //}
     }
 }
