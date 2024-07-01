@@ -14,7 +14,7 @@ namespace GettingCertTest;
 public class Function
 {
 
-    private static readonly string secretName = "Certification";
+    private static readonly string secretName = "Certificate_PFX";
     private readonly IAmazonSecretsManager secretsManagerClient;
 
     public Function()
@@ -74,7 +74,7 @@ public class Function
 
         var secretObject = JsonConvert.DeserializeObject<Dictionary<string, string>>(response.SecretString);
 
-        if (secretObject.TryGetValue("PFXBase64", out string pfxBase64) && secretObject.TryGetValue("Password", out string password))
+        if (secretObject.TryGetValue("pfx", out string pfxBase64) && secretObject.TryGetValue("password", out string password))
         {
             // Decode base64 string to byte array
             byte[] pfxBytes = Convert.FromBase64String(pfxBase64);
