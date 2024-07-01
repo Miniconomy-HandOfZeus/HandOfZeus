@@ -66,10 +66,10 @@ namespace RandomEvent
         { "Breakages", new[] { "https://api.insurance.projects.bbdgrad.com" } },
         { "Salary", new[] { "https://labour.projects.bbdgrad.com" } },
         { "Fired from job", new[] { "https://labour.projects.bbdgrad.com" } },
-        { "FamineStart", new[] { "https://sustenance.projects.bbdgrad.com" } },
-        { "FamineEnd", new[] { "https://sustenance.projects.bbdgrad.com" } },
-        { "PlagueStart", new[] { "https://api.health.projects.bbdgrad.com", "https://persona.projects.bbdgrad.com" } },
-        { "PlagueEnd", new[] { "https://api.health.projects.bbdgrad.com", "https://persona.projects.bbdgrad.com" } },
+        { "FamineStart", new string[] { } }, // No notification for end
+        { "FamineEnd", new string[] { } }, // No notification for end
+        { "PlagueStart", new string[] { } }, // No notification for end
+        { "PlagueEnd", new string[] { } }, // No notification for end
         { "WarStart", new string[] { } }, // No notification for start
         { "WarEnd", new string[] { } }, // No notification for end
         { "Apocalypse", new[] { "https://persona.projects.bbdgrad.com" } },
@@ -136,6 +136,11 @@ namespace RandomEvent
       {
         await UpdateEventRateInDynamoDB("Death", selectedEvent == "WarStart" ? "50" : "10");
         await UpdateEventRateInDynamoDB("Inflation", selectedEvent == "WarStart" ? "20" : "10");
+      }
+      else if (selectedEvent == "Inflation")
+      {
+        var newRate = AdjustInflationRate(eventRate);
+        await UpdateEventRateInDynamoDB("Inflation", newRate);
       }
 
     }
@@ -255,6 +260,14 @@ namespace RandomEvent
         }
       };
       await dynamoDbClient.UpdateItemAsync(request);
+    }
+
+    private string AdjustInflationRate(string currentRate)
+    {
+      double rate = double.Parse(currentRate);
+      double randomPercentage = random.Next(1, 6);
+      double newRate = rate * (1 + randomPercentage / 100);
+      return newRate.ToString("F2");
     }
 
   }
