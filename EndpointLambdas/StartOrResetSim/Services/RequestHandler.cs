@@ -1,18 +1,7 @@
-﻿using Amazon;
-using Amazon.SecretsManager;
-using Amazon.SecretsManager.Model;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using StartOrResetSim.Interfaces;
-using StartOrResetSim.Models;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net.Http;
-using System.Runtime.ConstrainedExecution;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace StartOrResetSim.Services
 {
