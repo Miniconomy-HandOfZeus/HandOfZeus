@@ -33,12 +33,6 @@ public class Function
                 return "Error: Certificate and key not retrieved.";
             }
 
-            // Use certAndKey.Cert and certAndKey.Key in your HTTPS request
-            // Example: Create HTTPS request with certAndKey.Cert and certAndKey.Key
-
-            LambdaLogger.Log($"Certificate Subject: {cert.Subject}");
-            LambdaLogger.Log($"Certificate Thumbprint: {cert.Thumbprint}");
-
             var handler = new HttpClientHandler();
             handler.ClientCertificates.Add(cert);
 
@@ -70,7 +64,7 @@ public class Function
             using (var httpClient = new HttpClient(handler))
             {
                 //var requestUri = "https://api.zeus.projects.bbdgrad.com/date"; // Replace with your actual API endpoint
-                var content = new StringContent("{\"key\":\"value\"}", System.Text.Encoding.UTF8, "application/json"); // Replace with your actual payload
+                //var content = new StringContent("{\"key\":\"value\"}", System.Text.Encoding.UTF8, "application/json"); // Replace with your actual payload
 
                 // Make the PUT request
                 var response = await httpClient.GetAsync(requestUri);
@@ -90,21 +84,6 @@ public class Function
 
     private async Task<X509Certificate2> GetCertAndKey()
     {
-        //GetSecretValueRequest request = new GetSecretValueRequest
-        //{
-        //    SecretId = secretName,
-        //    VersionStage = "AWSCURRENT",
-        //};
-
-        //GetSecretValueResponse response = await secretsManagerClient.GetSecretValueAsync(request);
-
-        //string secretString = response.SecretString;
-
-        //// Deserialize JSON containing cert and key
-        //var certAndKey = Newtonsoft.Json.JsonConvert.DeserializeObject<CertificateSecret>(secretString);
-
-        //return certAndKey;
-
         GetSecretValueRequest request = new GetSecretValueRequest
         {
             SecretId = secretName,
@@ -119,24 +98,14 @@ public class Function
         {
             // Decode base64 string to byte array
             byte[] pfxBytes = Convert.FromBase64String(pfxBase64);
-
-            // Extract certificate and key from PFX with password
-            LambdaLogger.Log($"PFX Bytes (Base64): {pfxBase64}");
-            LambdaLogger.Log($"Password: {password}");
+         
             X509Certificate2 cert =  new X509Certificate2(pfxBytes, password);
-            LambdaLogger.Log($"Certificate Subject: {cert.Subject}");
-            LambdaLogger.Log($"Certificate Thumbprint: {cert.Thumbprint}");
+           
             return cert;
         }
         else
         {
             throw new Exception("PFX certificate or password not found in secret.");
         }
-    }
-
-    private class CertificateSecret
-    {
-        public string Key { get; set; }
-        public string Cert { get; set; }
     }
 }
