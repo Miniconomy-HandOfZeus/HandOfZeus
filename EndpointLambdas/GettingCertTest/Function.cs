@@ -35,9 +35,8 @@ public class Function
             // Use certAndKey.Cert and certAndKey.Key in your HTTPS request
             // Example: Create HTTPS request with certAndKey.Cert and certAndKey.Key
 
-            LambdaLogger.Log("KEY: " + certAndKey.Key);
-            LambdaLogger.Log("CERT: " + certAndKey.Cert);
-            return "Success: HTTPS request sent. Cert: " + certAndKey.Cert + " Key: " + certAndKey.Key;
+
+            return "Success: HTTPS request sent: " + certAndKey;
         }
         catch (Exception ex)
         {
@@ -46,8 +45,23 @@ public class Function
         }
     }
 
-    private async Task<CertificateSecret> GetCertAndKey()
+    private async Task<string> GetCertAndKey()
     {
+        //GetSecretValueRequest request = new GetSecretValueRequest
+        //{
+        //    SecretId = secretName,
+        //    VersionStage = "AWSCURRENT",
+        //};
+
+        //GetSecretValueResponse response = await secretsManagerClient.GetSecretValueAsync(request);
+
+        //string secretString = response.SecretString;
+
+        //// Deserialize JSON containing cert and key
+        //var certAndKey = Newtonsoft.Json.JsonConvert.DeserializeObject<CertificateSecret>(secretString);
+
+        //return certAndKey;
+
         GetSecretValueRequest request = new GetSecretValueRequest
         {
             SecretId = secretName,
@@ -56,12 +70,8 @@ public class Function
 
         GetSecretValueResponse response = await secretsManagerClient.GetSecretValueAsync(request);
 
-        string secretString = response.SecretString;
-
-        // Deserialize JSON containing cert and key
-        var certAndKey = Newtonsoft.Json.JsonConvert.DeserializeObject<CertificateSecret>(secretString);
-
-        return certAndKey;
+        LambdaLogger.Log(response.ToString());
+        return response.ToString();
     }
 
     private class CertificateSecret

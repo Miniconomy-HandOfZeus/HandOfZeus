@@ -1,4 +1,5 @@
-﻿using System;
+﻿using StartOrResetSim.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -10,7 +11,5 @@ namespace StartOrResetSim.Interfaces
     public interface IRequestHandler
     {
         public Task<bool> SendPutRequestAsync(string url, bool value, string startTime);
-        public Task<X509Certificate2> GetCertificate();
-        public Task<string> GetSecretAsync(string secretName);
     }
 }
