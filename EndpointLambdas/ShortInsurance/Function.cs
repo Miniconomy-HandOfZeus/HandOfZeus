@@ -57,13 +57,36 @@ namespace ShortInsurance
 
     private void pushDB(string key, object value)
     {
-      Dictionary<string, AttributeValue> item = new Dictionary<string, AttributeValue>
-        {
-            { "Key", new AttributeValue { S = key } },
-            { "Value", new AttributeValue { S = JsonSerializer.Serialize(new { value = value }) } }
-        };
+      var request = new UpdateItemRequest
+      {
+        TableName = tableName,
+        Key = new Dictionary<string, AttributeValue>
+            {
+                { "Key", new AttributeValue { S = key } }
+            },
+        ExpressionAttributeNames = new Dictionary<string, string>
+            {
+                { "#V", "value" }
+            },
+        ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+            {
+                { ":newval", new AttributeValue { S = value } }
+            },
+        UpdateExpression = "SET #V = :newval"
+      };
+
+      try
+      {
+        var response = await client.UpdateItemAsync(request);
+        Console.WriteLine("Update succeeded.");
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine("Update failed. Exception: " + e.Message);
+      }
 
     }
+ 
     private async static Task<string> fetchFromDB(string key)
     {
       var dbRequest = new GetItemRequest
