@@ -26,9 +26,9 @@ public class Function
     {
         try
         {
-            X509Certificate2 certAndKey = await GetCertAndKey();
+            X509Certificate2 cert = await GetCertAndKey();
 
-            if (certAndKey == null)
+            if (cert == null)
             {
                 return "Error: Certificate and key not retrieved.";
             }
@@ -36,9 +36,41 @@ public class Function
             // Use certAndKey.Cert and certAndKey.Key in your HTTPS request
             // Example: Create HTTPS request with certAndKey.Cert and certAndKey.Key
 
-            LambdaLogger.Log($"Certificate Subject: {certAndKey.Subject}");
-            LambdaLogger.Log($"Certificate Thumbprint: {certAndKey.Thumbprint}");
-            return "Success: HTTPS request sent: " + certAndKey;
+            LambdaLogger.Log($"Certificate Subject: {cert.Subject}");
+            LambdaLogger.Log($"Certificate Thumbprint: {cert.Thumbprint}");
+
+            var handler = new HttpClientHandler();
+            handler.ClientCertificates.Add(cert);
+
+            foreach (X509Certificate clientCert in handler.ClientCertificates)
+            {
+                var cert2 = clientCert as X509Certificate2;
+                if (cert2 != null)
+                {
+                    LambdaLogger.Log($"Added Certificate: Subject - {cert2.Subject}, Thumbprint - {cert2.Thumbprint}");
+                }
+                else
+                {
+                    LambdaLogger.Log("Added Certificate: Unable to cast to X509Certificate2.");
+                }
+            }
+
+            //// Create an HttpClient using the handler
+            //using (var httpClient = new HttpClient(handler))
+            //{
+            //    var requestUri = "https://your.api.endpoint/your/put/endpoint"; // Replace with your actual API endpoint
+            //    var content = new StringContent("{\"key\":\"value\"}", System.Text.Encoding.UTF8, "application/json"); // Replace with your actual payload
+
+            //    // Make the PUT request
+            //    var response = await httpClient.PutAsync(requestUri, content);
+            //    response.EnsureSuccessStatusCode();
+
+            //    var responseBody = await response.Content.ReadAsStringAsync();
+            //    LambdaLogger.Log($"Response: {responseBody}");
+            //    return $"Success: HTTPS request sent. Response: {responseBody}";
+            //}
+
+            return cert.ToString();
         }
         catch (Exception ex)
         {
