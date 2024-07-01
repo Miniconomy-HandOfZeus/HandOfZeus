@@ -14,7 +14,7 @@ namespace GettingCertTest;
 public class Function
 {
 
-    private static readonly string secretName = "Certification";
+    private static readonly string secretName = "Certificate_PFX";
     private readonly IAmazonSecretsManager secretsManagerClient;
 
     public Function()
