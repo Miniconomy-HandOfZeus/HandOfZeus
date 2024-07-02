@@ -40,6 +40,7 @@ variable "service_lambda_endpoint_config" {
     description       = string
     lambda_invoke_arn = string
     query_string_key  = string
+    allowed_services  = list(string)
   }))
   description = "The configuration for the integration of Lambda functions into API gateway."
 
