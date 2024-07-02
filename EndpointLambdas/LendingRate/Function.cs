@@ -42,12 +42,12 @@ public class Function
             };
         }
 
-        int healthInsurancePrice = await db.GetValue("prime_lending_rate");
+        int price = await db.GetValue("prime_lending_rate");
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonConvert.SerializeObject(new { price = healthInsurancePrice }),
+            Body = JsonConvert.SerializeObject(new { price }),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
     }
