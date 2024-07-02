@@ -40,6 +40,7 @@ public class Function
         context.Logger.Log($"DB key: {key}");
 
         // Validate calling service
+        context.Logger.Log("Keys: " + string.Join(", ", input.RequestContext.Authorizer.Keys) + "Values: " + string.Join(", ", input.RequestContext.Authorizer.Values));
         if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
         {
             string callingService = callingServiceObject?.ToString() ?? string.Empty;
