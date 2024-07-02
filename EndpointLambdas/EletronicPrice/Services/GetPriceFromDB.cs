@@ -3,25 +3,24 @@ using Amazon.DynamoDBv2.Model;
 
 namespace EletronicPrice.Services
 {
-    public class GetPriceFromDB
+    public class GetValueFromDB
     {
         private static readonly string tableName = "hand-of-zeus-db";
-        private static readonly string eletronicKey = "eletronic_price";
         private readonly AmazonDynamoDBClient client;
 
-        public GetPriceFromDB()
+        public GetValueFromDB()
         {
             client = new AmazonDynamoDBClient();
         }
 
-        public async Task<int> GetFoodPrice()
+        public async Task<int> GetValue(string key)
         {
             var request = new GetItemRequest
             {
                 TableName = tableName,
                 Key = new Dictionary<string, AttributeValue>
                 {
-                    { "Key", new AttributeValue { S = eletronicKey } }
+                    { "Key", new AttributeValue { S = key } }
                 }
             };
 

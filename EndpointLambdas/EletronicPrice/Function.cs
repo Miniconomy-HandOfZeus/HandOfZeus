@@ -11,7 +11,7 @@ namespace EletronicPrice;
 public class Function
 {
     private readonly List<string> allowedServices = ["electronics_retailer", "zeus"];
-    private readonly GetPriceFromDB GetPriceFromDB = new();
+    private readonly GetValueFromDB db = new();
 
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
@@ -40,7 +40,7 @@ public class Function
             };
         }
 
-        int eletronicPrice = await GetEletronicPriceAsync();
+        int eletronicPrice = await db.GetValue("eletronic_price");
 
         return new APIGatewayProxyResponse
         {
@@ -48,11 +48,5 @@ public class Function
             Body = JsonConvert.SerializeObject(new { price = eletronicPrice }),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
-    }
-
-    public async Task<int> GetEletronicPriceAsync()
-    {
-        int eletronicPrice = await GetPriceFromDB.GetFoodPrice();
-        return eletronicPrice;
     }
 }
