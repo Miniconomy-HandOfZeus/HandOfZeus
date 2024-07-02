@@ -40,7 +40,6 @@ public class Function
         context.Logger.Log($"DB key: {key}");
 
         // Validate calling service
-        context.Logger.Log("Keys: " + string.Join(", ", input.RequestContext.Authorizer.Keys) + "Values: " + string.Join(", ", input.RequestContext.Authorizer.Values));
         if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
         {
             string callingService = callingServiceObject?.ToString() ?? string.Empty;
@@ -57,7 +56,6 @@ public class Function
         }
         else
         {
-            context.Logger.LogError("Could not extract clientCertCN from request context");
             return new APIGatewayProxyResponse
             {
                 StatusCode = 403,
@@ -66,12 +64,12 @@ public class Function
             };
         }
 
-        int price = await db.GetValue(key);
+        int value = await db.GetValue(key);
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonConvert.SerializeObject(new { price }),
+            Body = JsonConvert.SerializeObject(new { value }),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
     }
