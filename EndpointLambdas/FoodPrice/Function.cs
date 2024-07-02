@@ -10,11 +10,35 @@ namespace FoodPrice;
 
 public class Function
 {
-    private readonly GetPriceFromDB GetPriceFromDB = new GetPriceFromDB();
+    private readonly List<string> allowedServices = ["food_retailer", "zeus"];
+    private readonly GetPriceFromDB GetPriceFromDB = new();
 
-
-    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
+        // Validate calling service
+        if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
+        {
+            string callingService = callingServiceObject?.ToString() ?? string.Empty;
+            context.Logger.Log($"{callingService} requested the food price");
+            if (!allowedServices.Contains(callingService))
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 403,
+                    Body = JsonConvert.SerializeObject(new { message = "Forbidden service" }),
+                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                };
+            }
+        }
+        else
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 403,
+                Body = JsonConvert.SerializeObject(new { message = "Forbidden" }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
+        }
 
         int foodPrice = await GetFoodPriceAsync();
 
