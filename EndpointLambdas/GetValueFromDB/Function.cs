@@ -10,11 +10,35 @@ namespace GetValueFromDB;
 
 public class Function
 {
-    private readonly List<string> allowedServices = ["commercial_bank", "zeus"];
     private readonly Repository db = new();
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
+        if (input.QueryStringParameters == null)
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 500,
+                Body = JsonConvert.SerializeObject(new { message = "Internal server error" }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
+        }
+
+        // Parse the custom query parameters set by API gateway
+        if (!input.QueryStringParameters.TryGetValue("allowed_services", out string? allowedServicesString) || !input.QueryStringParameters.TryGetValue("key", out string? key))
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 500,
+                Body = JsonConvert.SerializeObject(new { message = "Internal server error" }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
+        }
+        List<string> allowedServices = [.. allowedServicesString.Split(",")];
+
+        context.Logger.Log($"Allowed services: {allowedServices}");
+        context.Logger.Log($"DB key: {key}");
+
         // Validate calling service
         if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
         {
@@ -36,17 +60,6 @@ public class Function
             {
                 StatusCode = 403,
                 Body = JsonConvert.SerializeObject(new { message = "Forbidden" }),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
-        }
-
-        // Extract 'key' from query parameters set by API gateway
-        if (!input.QueryStringParameters.TryGetValue("key", out var key) || string.IsNullOrEmpty(key))
-        {
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 500,
-                Body = JsonConvert.SerializeObject(new { message = "Internal server error" }),
                 Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
             };
         }
