@@ -36,7 +36,7 @@ public class Function
         }
         List<string> allowedServices = [.. allowedServicesString.Split(",")];
 
-        context.Logger.Log($"Allowed services: {allowedServices}");
+        context.Logger.Log($"Allowed services: {string.Join(", ", allowedServices) }");
         context.Logger.Log($"DB key: {key}");
 
         // Validate calling service
