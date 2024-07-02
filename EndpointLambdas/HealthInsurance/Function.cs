@@ -1,122 +1,54 @@
-using System;
 using System.Collections.Generic;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using HealthInsurance.Services;
+using Newtonsoft.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace HealthInsurance
+namespace HealthInsurance;
+
+public class Function
 {
-  public class Function
-  {
+    private readonly List<string> allowedServices = ["health_insurance", "zeus"];
+    private readonly GetPriceFromDB GetPriceFromDB = new();
 
-    private static readonly AmazonDynamoDBClient _dynamoDbClient = new AmazonDynamoDBClient();
-    private static readonly string tableName = "hand-of-zeus-db";
-
-    public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
-      var response = new APIGatewayProxyResponse
-      {
-        StatusCode = 200,
-        Body = JsonSerializer.Serialize(new { message = input.Body }),
-        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-      };
-      Function function = new Function();
-      string date = "01|01|01";
-      string ans = function.getInsurance(date);
-      return response;
-    }
-    private string getInsurance(string date)
-    {
-      if (YearEnd(date))
-      {
-        generateRate();
-      }
-      return fetchFromDB("health_insurance").Result;
-    }
-    private Boolean YearEnd(string date)
-    {
-      string[] dateSplit = date.Split('|');
-
-      return dateSplit[1].Equals("01") && dateSplit[2].Equals("01");
-    }
-
-    private void generateRate()
-    {
-      Random randomSeed = new Random();
-      int seed = randomSeed.Next(int.MinValue, int.MaxValue);
-      Random random = new Random(seed);
-      pushDB("health_insurance", random.Next()+"");
-      return;
-    }
-
-    private void pushDB(string key, string value)
-    {
-      var request = new UpdateItemRequest
-      {
-        TableName = tableName,
-        Key = new Dictionary<string, AttributeValue>
-            {
-                { "Key", new AttributeValue { S = key } }
-            },
-        ExpressionAttributeNames = new Dictionary<string, string>
-            {
-                { "#V", "value" }
-            },
-        ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-            {
-                { ":newval", new AttributeValue { S = value } }
-            },
-        UpdateExpression = "SET #V = :newval"
-      };
-      RequestDB(request);
-    }
-
-    private async Task<UpdateItemResponse> RequestDB(UpdateItemRequest request)
-    {
-      try
-      {
-        var response = await _dynamoDbClient.UpdateItemAsync(request);
-        Console.WriteLine("Update succeeded.");
-        return response;
-      }
-      catch (Exception e)
-      {
-        Console.WriteLine("Update failed. Exception: " + e.Message);
-        throw e;
-      }
-    }
-
-    private async static Task<string> fetchFromDB(string key)
-    {
-      var dbRequest = new GetItemRequest
-      {
-        TableName = tableName,
-        Key = new Dictionary<string, AttributeValue>
-                {
-                    { "Key", new AttributeValue { S = key } }
-                }
-      };
-      try
-      {
-        var response = await _dynamoDbClient.GetItemAsync(dbRequest);
-        if (response.Item == null || !response.Item.ContainsKey("value"))
+        // Validate calling service
+        if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
         {
-          throw new Exception("Minimum wage not found in the database.");
+            string callingService = callingServiceObject?.ToString() ?? string.Empty;
+            context.Logger.Log($"{callingService} requested the electronics price");
+            if (!allowedServices.Contains(callingService))
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 403,
+                    Body = JsonConvert.SerializeObject(new { message = "Forbidden service" }),
+                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                };
+            }
+        }
+        else
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 403,
+                Body = JsonConvert.SerializeObject(new { message = "Forbidden" }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
         }
 
-        System.Console.WriteLine(response.ToString(), response.Item);
-        return response.Item["value"].S + "";
-      }
-      catch (Exception e)
-      {
-        throw e;
-      }
+        int healthInsurancePrice = await GetPriceFromDB.GetHealthInsurancePrice();
+
+        return new APIGatewayProxyResponse
+        {
+            StatusCode = 200,
+            Body = JsonConvert.SerializeObject(new { price = healthInsurancePrice }),
+            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        };
     }
-  }
 }
