@@ -40,12 +40,12 @@ public class Function
             };
         }
 
-        int eletronicPrice = await db.GetValue("eletronic_price");
+        int price = await db.GetValue("eletronic_price");
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonConvert.SerializeObject(new { price = eletronicPrice }),
+            Body = JsonConvert.SerializeObject(new { price }),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
     }
