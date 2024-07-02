@@ -17,33 +17,24 @@ namespace IncreasingPrices
 
     private static readonly AmazonDynamoDBClient _dynamoDbClient = new AmazonDynamoDBClient();
     private static readonly string tableName = "hand-of-zeus-db";
-    //public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
-    //{
-    //  var response = new APIGatewayProxyResponse
-    //  {
-    //    StatusCode = 200,
-    //    Body = JsonSerializer.Serialize(new { message = input.Body }),
-    //    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-    //  };
-
-    //  Function function = new Function();
-    //  string date = "01|01|01";
-    //  string ans = function.getRate(date);
-    //  return response;
-    //}
-
-    public string FunctionHandler(string input, ILambdaContext context)
+    public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
-      string date = "01|12|30";
-      processDate(date);
-      return input?.ToUpper();
+      new Function().processDate("");
+      var response = new APIGatewayProxyResponse
+      {
+        StatusCode = 200,
+        Body = JsonSerializer.Serialize(new { message = input.Body }),
+        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+      };
+      return response;
     }
 
     private void processDate(string date)
     {
       string[] dateSplit = date.Split("|");
       string period = determineCalendarPeriod(dateSplit);
-      switch (period){
+      switch (period)
+      {
         case "yearEnd":
           pushDB("life_insurance", generateRate(100, 300));
           pushDB("health_insurance", generateRate(200, 500));
@@ -51,15 +42,16 @@ namespace IncreasingPrices
           pushDB("minimum_wage", generateRate(1500, 2000));
           //housing();
           //salaries();
-          pushDB("minimum_wage", generateRate(10, 30));
+
+          pushDB("taxes", 0);
           goto case "monthEnd";
         case "monthEnd":
-          pushDB("food_price", generateRate(300,400));
-          pushDB("electronics_price", generateRate(500,750));
+          pushDB("food_price", generateRate(300, 400));
+          pushDB("electronics_price", generateRate(500, 750));
           pushDB("prime_lending_rate", generateRate(5, 15));
           break;
       }
-      
+
     }
     private int generateRate(int upper, int lower)
     {
@@ -67,30 +59,70 @@ namespace IncreasingPrices
       int seed = randomSeed.Next(int.MinValue, int.MaxValue);
       Random random = new Random(seed);
       int rate = random.Next(upper, lower);
-      //pushDB("tax_rate", random.Next(10, 30) + "");
       return rate;
     }
 
     private async void pushDB(string key, int value)
     {
+      if (key = "taxes")
+      {
+        increaseTax(key);
+      }
+      else
+      {
+        var request = new UpdateItemRequest
+        {
+          TableName = tableName,
+          Key = new Dictionary<string, AttributeValue>
+            {
+                { "Key", new AttributeValue { S = key } }
+            },
+          ExpressionAttributeNames = new Dictionary<string, string>
+            {
+                { "#V", "value" }
+            },
+          ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+            {
+                { ":newval", new AttributeValue { S = value+"" } }
+            },
+          UpdateExpression = "SET #V = :newval"
+        };
+        await RequestDB(request);
+      }
+    }
+    private async void increaseTax(string key)
+    {
+      var taxes = new Dictionary<string, int>
+        {
+            { "business", generateRate(15,25)},
+            { "income", generateRate(20,30) },
+            { "vat", generateRate(10,18)}
+        };
+      var updateExpression = new List<string>();
+      var expressionAttributeValues = new Dictionary<string, AttributeValue>();
+
+      foreach (var t in taxes)
+      {
+        updateExpression.Add($"{t.Key} = :{t.Key}");
+        expressionAttributeValues[$":{t.Key}"] = new AttributeValue
+        {
+          S = t.Value.ToString()
+        };
+      }
+
       var request = new UpdateItemRequest
       {
         TableName = tableName,
         Key = new Dictionary<string, AttributeValue>
             {
-                { "Key", new AttributeValue { S = key } }
+                { partitionKeyName, new AttributeValue { S = key } }
             },
-        ExpressionAttributeNames = new Dictionary<string, string>
-            {
-                { "#V", "value" }
-            },
-        ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-            {
-                { ":newval", new AttributeValue { S = value+"" } }
-            },
-        UpdateExpression = "SET #V = :newval"
+        UpdateExpression = "SET " + string.Join(", ", updateExpression),
+        ExpressionAttributeValues = expressionAttributeValues
       };
+
       await RequestDB(request);
+
     }
     private async Task<UpdateItemResponse> RequestDB(UpdateItemRequest request)
     {

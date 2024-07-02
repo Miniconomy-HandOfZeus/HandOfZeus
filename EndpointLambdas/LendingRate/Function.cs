@@ -20,16 +20,15 @@ namespace LendingRate
 
     public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
+      Function function = new Function(); 
+      string lendingRate = function.getRate("");
       var response = new APIGatewayProxyResponse
       {
         StatusCode = 200,
-        Body = JsonSerializer.Serialize(new { message = input.Body }),
+        Body = JsonSerializer.Serialize(new { rate = lendingRate }),
         Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
       };
 
-      Function function = new Function();
-      string date = "01|01|01";
-      string ans = function.getRate(date);
       return response;
     }
 

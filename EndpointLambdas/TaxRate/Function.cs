@@ -19,60 +19,20 @@ namespace TaxRate
 
     public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
+      string[] rate = new Function().getRate("");
       var response = new APIGatewayProxyResponse
       {
         StatusCode = 200,
-        Body = JsonSerializer.Serialize(new { message = input.Body }),
+        Body = JsonSerializer.Serialize(new { business = rate[0], income = rate[1], vat = rate[2] }),
         Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
       };
 
-      string rate = new Function().getRate("01|01|01");
       return response;
     }
 
-    private string getRate(string date)
+    private string[] getRate(string date)
     {
-      if (YearEnd(date))
-      {
-        generateRate();
-      }
-      return fetchFromDB("tax_rate").Result;
-    }
-    private Boolean YearEnd(string date)
-    {
-      string[] dateSplit = date.Split('|');
-
-      return dateSplit[1].Equals("01") && dateSplit[2].Equals("01");
-    }
-    private void generateRate()
-    {
-      Random randomSeed = new Random();
-      int seed = randomSeed.Next(int.MinValue, int.MaxValue);
-      Random random = new Random(seed);
-      pushDB("tax_rate", random.Next(10, 30)+"");
-      return;
-    }
-
-    private void pushDB(string key, string value)
-    {
-      var request = new UpdateItemRequest
-      {
-        TableName = tableName,
-        Key = new Dictionary<string, AttributeValue>
-            {
-                { "Key", new AttributeValue { S = key } }
-            },
-        ExpressionAttributeNames = new Dictionary<string, string>
-            {
-                { "#V", "value" }
-            },
-        ExpressionAttributeValues = new Dictionary<string, AttributeValue>
-            {
-                { ":newval", new AttributeValue { S = value } }
-            },
-        UpdateExpression = "SET #V = :newval"
-      };
-      RequestDB(request);
+      return fetchFromDB("taxes").Result;
     }
 
     private async Task<UpdateItemResponse> RequestDB(UpdateItemRequest request)
@@ -90,7 +50,7 @@ namespace TaxRate
       }
     }
 
-    private async static Task<string> fetchFromDB(string key)
+    private async static Task<string[]> fetchFromDB(string key)
     {
       var dbRequest = new GetItemRequest
       {
@@ -104,7 +64,8 @@ namespace TaxRate
       {
         var response = await _dynamoDbClient.GetItemAsync(dbRequest);
         System.Console.WriteLine(response.ToString(), response.Item);
-        return response.Item["value"].S;
+        string[] arr = { response.Item["business"].S, response.Item["income"].S, response.Item["vat"].S };
+        return arr;
       }
       catch (Exception e)
       {

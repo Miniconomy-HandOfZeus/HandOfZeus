@@ -21,16 +21,15 @@ namespace LifeInsurance
 
     public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
+      Function function = new Function();
+      string ans = function.getInsurance("");
       var response = new APIGatewayProxyResponse
       {
         StatusCode = 200,
-        Body = JsonSerializer.Serialize(new { message = input.Body }),
+        Body = JsonSerializer.Serialize(new { price = insurance }),
         Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
       };
 
-      Function function = new Function();
-      string date = "01|01|01";
-      string ans = function.getInsurance(date);
       return response;
     }
 

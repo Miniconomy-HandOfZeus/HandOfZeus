@@ -20,16 +20,15 @@ namespace MinimumWage
 
     public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
+      Function function = new Function();
+      string wage = function.getWage("");
       var response = new APIGatewayProxyResponse
       {
         StatusCode = 200,
-        Body = JsonSerializer.Serialize(new { message = input.Body }),
+        Body = JsonSerializer.Serialize(new { minwage = wage }),
         Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
       };
 
-      Function function = new Function();
-      string date = "01|01|01";
-      string ans = function.getWage(date);
       return response;
     }
     private string getWage(string date)
