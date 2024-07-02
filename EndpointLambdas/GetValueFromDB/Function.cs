@@ -56,6 +56,7 @@ public class Function
         }
         else
         {
+            context.Logger.LogError("Could not extract clientCertCN from request context");
             return new APIGatewayProxyResponse
             {
                 StatusCode = 403,
