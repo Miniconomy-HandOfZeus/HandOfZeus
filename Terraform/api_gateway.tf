@@ -79,6 +79,11 @@ resource "aws_apigatewayv2_integration" "service_api" {
   description        = each.value.description
   integration_method = each.value.method
   integration_uri    = each.value.lambda_invoke_arn
+
+  request_parameters = {
+    "integration.request.querystring.key"              = each.value.db_key,
+    "integration.request.querystring.allowed_services" = join(",", each.value.allowed_services)
+  }
 }
 
 resource "aws_apigatewayv2_route" "service_api" {
