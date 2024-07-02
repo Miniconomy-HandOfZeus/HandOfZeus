@@ -53,6 +53,16 @@ namespace DateCalculation
             
             long systemTimeMilliseconds;
 
+            if (input.QueryStringParameters == null)
+            {
+                response.StatusCode = 400;
+                response.Body = JsonSerializer.Serialize(new
+                {
+                    message = "Missing required query parameter 'time'"
+                });
+                return response;
+            }
+
             if (input.QueryStringParameters.TryGetValue("time", out string systemTimeMillisecondsString)) 
             {
                 if (long.TryParse(systemTimeMillisecondsString, out systemTimeMilliseconds)) 
@@ -90,6 +100,16 @@ namespace DateCalculation
             DateTime simulationStartDate = await getSimulationStartDate();
             DateTime currentDate = DateTimeOffset.FromUnixTimeMilliseconds(systemTimeMilliseconds).LocalDateTime;
 
+            if (currentDate <  simulationStartDate)
+            {
+                response.StatusCode = 400;
+                response.Body = JsonSerializer.Serialize(new
+                {
+                    message = "The time sent must be greater than the simulation start time"
+                });
+                return response;
+            }
+
             string date = calculateDate(simulationStartDate, currentDate);
             response.Body = JsonSerializer.Serialize(new
             {
@@ -113,7 +133,7 @@ namespace DateCalculation
             };
             var response = await _dynamoDbClient.GetItemAsync(request);
 
-            if (response.Item != null && response.Item.TryGetValue("Value", out AttributeValue? value))
+            if (response.Item != null && response.Item.TryGetValue("value", out AttributeValue? value))
             {
                 string simulationStartTimeString = value.S;
                 DateTime simulationStartTime = DateTime.ParseExact(simulationStartTimeString, "yyyy-MM-ddTHH:mm:ss", null, System.Globalization.DateTimeStyles.None);
