@@ -19,37 +19,62 @@
     <button class="button start/resetButton" id="start/resetButton">Start</button>
 
     <section class="mainBody">
+        <section class="infoHolder">
+            <section class="timeHolder">
+                <a>Simulation time:</a>
+                <a class="time">01/01/01</a>
+            </section>
+        </section>
         <section class="eventHolder" id="eventHolder">
             <h2>Events</h2>
             <section class="eventHeadingSection">
                 <a>Persona:</a>
                 <a>Description:</a>
-                <a>Type:</a>
-            </section>
-            <section class="eventObject" id="eventObject">
-                <a>12344</a>
-                <a>The person got sick and died</a>
-                <a class="pill pill-blue">Sickness</a>
-            </section>
-    
-            <section class="eventObject" id="eventObject">
-                <a>12344</a>
-                <a>The person got sick and died</a>
-                <a class="pill pill-blue">Sickness</a>
-            </section>
-    
-            <section class="eventObject" id="eventObject">
-                <a>12344</a>
-                <a>The person got sick and died</a>
-                <a class="pill pill-blue">Sickness</a>
+                <div>
+                    <label for="filterType">Filter by Type:</label>
+                    <select class="filterSelect" id="filterType">
+                        <option value="all">All</option>
+                        <option value="Sickness">Sickness</option>
+                        <option value="Death">Death</option>
+                        <option value="Birth">Birth</option>
+                        <option value="Hunger">Hunger</option>
+                    </select>
+                </div>
             </section>
 
+            <section class="eventList" id="eventList">
+                <section class="eventObject" id="eventObject">
+                    <a>12344</a>
+                    <a>The person got sick and died</a>
+                    <a class="pill pill-blue">Sickness</a>
+                </section>
+        
+                <section class="eventObject" id="eventObject">
+                    <a>12344</a>
+                    <a>The person got sick and died</a>
+                    <a class="pill pill-blue">Sickness</a>
+                </section>
+        
+                <section class="eventObject" id="eventObject">
+                    <a>12344</a>
+                    <a>The person got sick and died</a>
+                    <a class="pill pill-red">Death</a>
+                </section>
+    
+                <section class="eventObject" id="eventObject">
+                    <a>12344</a>
+                    <a>The person got sick and died</a>
+                    <a class="pill pill-purple">Birth</a>
+                </section>
+    
+                <section class="eventObject" id="eventObject">
+                    <a>12344</a>
+                    <a>The person got sick and died</a>
+                    <a class="pill pill-red">Death</a>
+                </section>
+            </section>
+           
             
-        </section>
-        <section class="infoHolder"> 
-            <h2 class="infoObect" id="timeDisplay">00/00/00</h2>
-            <h2 class="infoObect" >Dead people: 54</h2>
-            <h2 class="infoObect" >Births: 65</h2>
         </section>
     </section>
     

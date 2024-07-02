@@ -1,8 +1,27 @@
 *{
     font-family: "Roboto", sans-serif;
-    font-weight: 400;
     font-style: normal;
 }
+
+h1{
+    font-weight: 600;
+}
+
+h2{
+    font-weight: 600;
+}
+
+hr{
+    border: 3px solid #d3d3d3;
+    margin: 0.5rem 0;
+    width: 90vw;
+    border-radius: 1rem;   
+}
+
+body{
+    background-color: #efefef;
+}
+
 .header{
     display: flex;
     align-items: center;
@@ -12,17 +31,19 @@
 
 .mainBody{
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100vw;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 }
 
 .infoHolder{
-    width: 25vw;
+    width: 90vw;
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
     overflow: hidden;
+    height: 20vh;
+    justify-content: center;
 }
 
 .infoObect{
@@ -31,13 +52,22 @@
     background-color: #c674e7;
 }
 
+.timeHolder{
+    width: 12rem;
+    background-color: rgb(255, 255, 255);
+    padding: 2rem;
+    border-radius: 1.5rem;
+    text-align: center;
+    font-size: x-large;
+}
+
 .eventHolder{
     display: flex;
     flex-direction: column;
     flex-wrap: nowrap;
     height: 100vh;
-    justify-content: flex-start;
-    width: 75vw;
+    width: 90vw;
+    justify-content: space-around;
 }
 
 .eventHeadingSection{
@@ -46,6 +76,21 @@
     justify-content: space-around;
     align-items: center;
     height: 10vh;
+    background-color: white;
+    border-radius: 1rem;
+    font-weight: 500;
+}
+
+.filterSelect{
+    border-radius: 0.5rem;
+    padding: 0.3rem;
+}
+
+.eventList{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100vh;
 }
 
 .eventObject{
@@ -54,6 +99,20 @@
     justify-content: space-around;
     align-items: center;
     height: 10vh;
+    background-color: white;
+    border-radius: 1rem;
+    margin: 0.8rem;
+    font-weight: 300;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+.page-item {
+    margin: 0 5px;
+    cursor: pointer;
 }
 
 .button{
@@ -63,11 +122,21 @@
     cursor: pointer;
 }
 
+.button-red{
+    background-color: #cb5454;
+}
+
+.button-green{
+    background-color: #74e784;
+}
+
 
 .pill{
     padding: 0.5rem 1rem;
     border-radius: 10rem;
     color: white;
+    width: 4rem;
+    text-align: center;
 }
 
 .pill-blue {

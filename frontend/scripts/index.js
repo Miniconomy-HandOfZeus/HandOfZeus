@@ -3,12 +3,15 @@ import { fetchWithAuth } from "./apiHandler.js";
 
 //document.addEventListener('DOMContentLoaded', async () => {console.log(`Email: ${await getEmail()}`);});
 
+let startResetButton = document.getElementById('startResetButton');
 document.getElementById('logout-button').addEventListener('click', logout);
 
 // console.log(await fetchWithAuth('/helloworld', { 
 //   method: 'GET',
 //   headers: {'Content-Type': 'application/json'}
 // }));
+let hasSimStarted = false;
+let pollingIntervalId;
 
 const testData = [
   {id: "12344", description: "", type: "sickness"},
@@ -55,6 +58,79 @@ function updateTimer() {
 // Update the timer every second
 //setInterval(updateTimer, 5000);
 
+
+
+async function checkToSeeIfSimulationHasStarted(){
+  let response = await fetchWithAuth('/', {
+    method: 'GET',
+    headers: {'Content-Type': 'application/json'}
+  });
+
+  let tasks = await response.json();
+
+  if(start){
+    hasSimStarted = true;
+    startResetButton.textContent = "Reset Simulation";
+    if(startResetButton.classList.contains('button-green')){
+      startResetButton.classList.remove('button-green');
+      startResetButton.classList.add('button-red');
+    }
+    startPolling();
+  }else{
+    hasSimStarted = false;
+    startResetButton.textContent = "Start Simulation";
+    if(startResetButton.classList.contains('button-red')){
+      startResetButton.classList.remove('button-red');
+      startResetButton.classList.add('button-green');
+    }
+    stopPolling();
+  }
+}
+
+async function startOrResetSim(state){
+  let data = {action: state};
+  try{
+    const response = await fetchWithAuth('/', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error("API error: " + response.text());
+    }
+  }catch (err){
+    //something went wrong pop-up
+  }
+  
+}
+
+async function retrieveEventData(){
+  try {
+    const response = await fetchWithAuth('/');
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const newData = await response.json();
+    
+    if(newData.length >=1){
+      newData.array.forEach(event => {
+        addEventElement(event);
+      });
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
+}
+
+function startPolling(interval = 5000) {
+  retrieveEventData(); // Initial fetch
+  pollingIntervalId = setInterval(retrieveEventData, interval); // Polling interval
+}
+
+function stopPolling() {
+  clearInterval(pollingIntervalId);
+}
+
 // Function to add a new event element
 function addEventElement(eventData) {
   // Create a new section element
@@ -76,12 +152,13 @@ function addEventElement(eventData) {
   pillLink.textContent = eventData.type;
   pillLink.classList.add('pill');
   newEvent.appendChild(pillLink);
-  switch(type){
+  switch( eventData.type){
     case 'sickness':
       pillLink.classList.add('pill-blue');
+
     case 'death':
       pillLink.classList.add('pill-red');
-      
+
     case 'birth':
       pillLink.classList.add('pill-green');
       
@@ -116,3 +193,26 @@ function addEventElement(eventData) {
   // Append the new section to the existing eventHolder section
   document.getElementById('eventHolder').appendChild(newEvent);
 }
+
+const filterType = document.getElementById('filterType');
+    const eventList = document.getElementById('eventList');
+    const allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
+
+    filterType.addEventListener('change', () => {
+        const selectedType = filterType.value;
+        filterEvents(selectedType);
+    });
+
+    function filterEvents(type) {
+        eventList.innerHTML = ''; // Clear current list
+        allEvents.forEach(event => {
+            const eventType = event.querySelector('.pill').textContent;
+            if (type === 'all' || eventType === type) {
+                eventList.appendChild(event);
+            }
+        });
+    }
+    
+    // Initial filter setup
+    filterEvents('all');
+
