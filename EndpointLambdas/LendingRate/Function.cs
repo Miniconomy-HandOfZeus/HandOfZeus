@@ -13,7 +13,7 @@ namespace LendingRate;
 public class Function
 {
     private readonly List<string> allowedServices = ["commercial_bank", "zeus"];
-    private readonly GetPriceFromDB GetPriceFromDB = new();
+    private readonly GetValueFromDB db = new();
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
@@ -42,7 +42,7 @@ public class Function
             };
         }
 
-        int healthInsurancePrice = await GetPriceFromDB.GetLendingRatePrice();
+        int healthInsurancePrice = await db.GetValue("prime_lending_rate");
 
         return new APIGatewayProxyResponse
         {
