@@ -17,7 +17,7 @@ namespace GettingCertTest;
 public class Function
 {
 
-    private static readonly string secretName = "Certificate_PFX";
+    private static readonly string secretName = "Certificate";
     private readonly IAmazonSecretsManager secretsManagerClient;
     private readonly AmazonDynamoDBClient client;
 
