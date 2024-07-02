@@ -45,7 +45,7 @@ public class Function
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonConvert.SerializeObject(foodPrice),
+            Body = JsonConvert.SerializeObject(new { price = foodPrice }),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
     }
