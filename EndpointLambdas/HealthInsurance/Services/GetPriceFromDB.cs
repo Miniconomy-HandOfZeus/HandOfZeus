@@ -6,18 +6,17 @@ using System;
 
 namespace HealthInsurance.Services
 {
-    public class GetPriceFromDB
+    public class GetValueFromDB
     {
         private static readonly string tableName = "hand-of-zeus-db";
-        private static readonly string key = "health_insurance";
         private readonly AmazonDynamoDBClient client;
 
-        public GetPriceFromDB()
+        public GetValueFromDB()
         {
             client = new AmazonDynamoDBClient();
         }
 
-        public async Task<int> GetHealthInsurancePrice()
+        public async Task<int> GetValue(string key)
         {
             var request = new GetItemRequest
             {

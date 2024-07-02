@@ -13,7 +13,7 @@ namespace HealthInsurance;
 public class Function
 {
     private readonly List<string> allowedServices = ["health_insurance", "zeus"];
-    private readonly GetPriceFromDB GetPriceFromDB = new();
+    private readonly GetValueFromDB db = new();
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
@@ -42,7 +42,7 @@ public class Function
             };
         }
 
-        int healthInsurancePrice = await GetPriceFromDB.GetHealthInsurancePrice();
+        int healthInsurancePrice = await db.GetValue("health_insurance");
 
         return new APIGatewayProxyResponse
         {
