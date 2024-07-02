@@ -28,7 +28,7 @@ namespace EletronicPrice.Services
 
             if (response.Item == null || !response.Item.ContainsKey("value"))
             {
-                throw new Exception("Item not found");
+                throw new Exception($"{key} not found in the db.");
             }
 
             Console.WriteLine(response.Item["value"].N);
