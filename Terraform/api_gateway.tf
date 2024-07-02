@@ -81,8 +81,8 @@ resource "aws_apigatewayv2_integration" "service_api" {
   integration_uri    = each.value.lambda_invoke_arn
 
   request_parameters = {
-    "integration.request.querystring.key"              = each.value.db_key,
-    "integration.request.querystring.allowed_services" = join(",", each.value.allowed_services)
+    "overwrite:querystring.key"              = each.value.db_key,
+    "overwrite:querystring.allowed_services" = join(",", each.value.allowed_services)
   }
 }
 
