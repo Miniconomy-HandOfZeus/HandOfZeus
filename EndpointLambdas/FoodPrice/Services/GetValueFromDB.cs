@@ -30,7 +30,7 @@ namespace FoodPrice.Services
 
                 if (response.Item == null || !response.Item.ContainsKey("value"))
                 {
-                    throw new Exception("Minimum wage not found in the database.");
+                    throw new Exception($"{key} not found in the db.");
                 }
 
                 return int.Parse(response.Item["value"].N);
