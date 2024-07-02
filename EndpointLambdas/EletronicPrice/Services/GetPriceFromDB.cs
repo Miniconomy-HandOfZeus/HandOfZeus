@@ -1,11 +1,5 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace EletronicPrice.Services
 {
@@ -35,7 +29,7 @@ namespace EletronicPrice.Services
 
             if (response.Item == null || !response.Item.ContainsKey("value"))
             {
-                throw new Exception("Itme not found " + response?.Item.Count);
+                throw new Exception("Item not found");
             }
 
             Console.WriteLine(response.Item["value"].N);
