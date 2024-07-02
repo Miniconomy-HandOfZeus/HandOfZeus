@@ -36,10 +36,10 @@ namespace LifeInsurance
 
     private string getInsurance(string date)
     {
-      if (YearEnd(date))
-      {
-        generateRate();
-      }
+      //if (YearEnd(date))
+      //{
+      //  generateRate();
+      //}
       return fetchFromDB("life_insurance").Result;
     }
 

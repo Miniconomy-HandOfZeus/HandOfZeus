@@ -35,10 +35,10 @@ namespace LendingRate
 
     private string getRate(string date)
     {
-      if (MonthEnd(date))
-      {
-        generateRate();
-      }
+      //if (MonthEnd(date))
+      //{
+      //  generateRate();
+      //}
       return fetchFromDB("prime_lending_rate").Result;
     }
     private Boolean MonthEnd(string date)

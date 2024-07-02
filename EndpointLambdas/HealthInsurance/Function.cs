@@ -34,10 +34,10 @@ namespace HealthInsurance
     }
     private string getInsurance(string date)
     {
-      if (YearEnd(date))
-      {
-        generateRate();
-      }
+      //if (YearEnd(date))
+      //{
+      //  generateRate();
+      //}
       return fetchFromDB("health_insurance").Result;
     }
     private Boolean YearEnd(string date)

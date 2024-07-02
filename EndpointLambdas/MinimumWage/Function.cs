@@ -34,10 +34,10 @@ namespace MinimumWage
     }
     private string getWage(string date)
     {
-      if (semiAnnual(date))
-      {
-        generateWage();
-      }
+      //if (semiAnnual(date))
+      //{
+      //  generateWage();
+      //}
       return fetchFromDB("minimum_wage").Result;
     }
 

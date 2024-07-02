@@ -32,10 +32,10 @@ namespace ShortInsurance
 
     private string getInsurance(string date)
     {
-      if (YearEnd(date))
-      {
-        generateRate();
-      }
+      //if (YearEnd(date))
+      //{
+      //  generateRate();
+      //}
       return fetchFromDB("short_term_insurance").Result;
     }
 
