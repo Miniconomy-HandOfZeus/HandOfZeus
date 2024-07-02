@@ -6,12 +6,7 @@ namespace GetValueFromDB.Services
     public class Repository
     {
         private static readonly string tableName = "hand-of-zeus-db";
-        private readonly AmazonDynamoDBClient client;
-
-        public Repository()
-        {
-            client = new AmazonDynamoDBClient();
-        }
+        private readonly AmazonDynamoDBClient client = new();
 
         public async Task<int> GetValue(string key)
         {
@@ -28,12 +23,12 @@ namespace GetValueFromDB.Services
             {
                 var response = await client.GetItemAsync(request);
 
-                if (response.Item == null || !response.Item.ContainsKey("value"))
+                if (response.Item == null || !response.Item.TryGetValue("value", out AttributeValue? value))
                 {
                     throw new Exception($"{key} not found in the db.");
                 }
 
-                return int.Parse(response.Item["value"].N);
+                return int.Parse(value.N);
 
             }
             catch (Exception ex)
