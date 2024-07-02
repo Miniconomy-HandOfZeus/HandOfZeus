@@ -20,7 +20,7 @@ public class Function
         if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
         {
             string callingService = callingServiceObject?.ToString() ?? string.Empty;
-            context.Logger.Log($"{callingService} requested the electronics price");
+            context.Logger.Log($"{callingService} requested the price");
             if (!allowedServices.Contains(callingService))
             {
                 return new APIGatewayProxyResponse
