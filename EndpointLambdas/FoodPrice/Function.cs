@@ -11,7 +11,7 @@ namespace FoodPrice;
 public class Function
 {
     private readonly List<string> allowedServices = ["food_retailer", "zeus"];
-    private readonly GetPriceFromDB GetPriceFromDB = new();
+    private readonly GetValueFromDB db = new();
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
@@ -40,7 +40,7 @@ public class Function
             };
         }
 
-        int foodPrice = await GetFoodPriceAsync();
+        int foodPrice = await db.GetValue("food_price");
 
         return new APIGatewayProxyResponse
         {
@@ -49,11 +49,4 @@ public class Function
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
     }
-
-    public async Task<int> GetFoodPriceAsync()
-    {
-        int foodPrice = await GetPriceFromDB.GetFoodPrice();
-        return foodPrice;
-    }
-
 }
