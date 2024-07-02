@@ -81,7 +81,7 @@ public class Function
         };
         var response = await _dynamoDbClient.GetItemAsync(request);
 
-        if (response.Item != null && response.Item.TryGetValue("Value", out AttributeValue? value))
+        if (response.Item != null && response.Item.TryGetValue("value", out AttributeValue? value))
         {
             string simulationStartTimeString = value.S;
             DateTime simulationStartTime = DateTime.ParseExact(simulationStartTimeString, "yyyy-MM-ddTHH:mm:ss", null, System.Globalization.DateTimeStyles.None);
