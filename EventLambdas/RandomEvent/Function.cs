@@ -484,7 +484,7 @@ namespace RandomEvent
 
     private async Task<List<long>> FetchCanBeKilled(ILambdaContext context)
     {
-      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonaIds");
+      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonasIDs");
       var responseContent = response.Content.ReadAsStringAsync().Result; ;
 
       if (!response.IsSuccessStatusCode)
@@ -511,7 +511,7 @@ namespace RandomEvent
 
     private async Task<List<long>> FetchCanGetSick(ILambdaContext context)
     {
-      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonaIds");
+      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonasIDs");
       var responseContent = response.Content.ReadAsStringAsync().Result; ;
 
       if (!response.IsSuccessStatusCode)
