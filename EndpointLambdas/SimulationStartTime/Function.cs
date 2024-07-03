@@ -47,31 +47,6 @@ public class Function
         context.Logger.Log($"Allowed services: {string.Join(", ", allowedServices)}");
         context.Logger.Log($"DB key: {key}");
 
-        // Validate calling service
-        if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
-        {
-            string callingService = callingServiceObject?.ToString() ?? string.Empty;
-            context.Logger.Log($"{callingService} called this endpoint!");
-            if (!allowedServices.Contains(callingService))
-            {
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 403,
-                    Body = JsonConvert.SerializeObject(new { message = "Forbidden service" }),
-                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-                };
-            }
-        }
-        else
-        {
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 403,
-                Body = JsonConvert.SerializeObject(new { message = "Forbidden" }),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
-        }
-
         DateTime simulationStartDate = await getSimulationStartDate();
 
         response.Body = JsonConvert.SerializeObject(new
