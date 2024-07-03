@@ -90,9 +90,10 @@ async function checkToSeeIfSimulationHasStarted(){
   }
 }
 
-async function startOrResetSim(state){
+async function startOrResetSim(){
+  startResetButton.disabled = true;
   let data = {action: startResetButton.value};
-  console.log(data);
+
   try{
     const response = await fetchWithAuth('/reset', {
       method: 'POST',
@@ -105,6 +106,27 @@ async function startOrResetSim(state){
   }catch (err){
     //something went wrong pop-up
   }
+
+  switch(data.action){
+    case "true":
+      startResetButton.value = "false";
+      startResetButton.textContent = "Reset Simulation";
+      if(startResetButton.classList.contains('button-green')){
+        startResetButton.classList.remove('button-green');
+        startResetButton.classList.add('button-red');
+      }
+      break;
+    case "false":
+      startResetButton.value = "true";
+      startResetButton.textContent = "Start Simulation";
+      if(startResetButton.classList.contains('button-red')){
+        startResetButton.classList.remove('button-red');
+        startResetButton.classList.add('button-green');
+      }
+      break;
+    }
+
+    startResetButton.disabled = false;
   
 }
 
