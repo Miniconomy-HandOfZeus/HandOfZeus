@@ -2,7 +2,7 @@ import { getEmail, logout } from "./authManager.js";
 import { fetchWithAuth } from "./apiHandler.js";
 import { updateTimer, startTimeFromApi } from "./timeHandler.js";
 import {
-  deathDescriptions, 
+  deathDescriptions,
   marriedDescriptions,
   birthDescriptions,
   warDescriptions,
@@ -21,20 +21,20 @@ let timerTxt = document.getElementById('timeDisplay');
 //Event Listeners\\
 document.getElementById('logout-button').addEventListener('click', logout);
 startResetButton.addEventListener('click', startOrResetSim);
-SacrificeButton.addEventListener('click', retrieveEventData)
+SacrificeButton.addEventListener('click', sacrificeSomeone);
 
 //Variables\\
 let hasSimStarted = false;
 let pollingIntervalId;
 let testData = [
-  {id: "12344", description: "", type: "sickness"},
-  {id: "45666", description: "", type: "death"},
-  {id: "34562", description: "", type: "marriage"},
-  {id: "13567", description: "", type: "breakage"},
-  {id: "56789", description: "", type: "sickness"},
-  {id: "09875", description: "", type: "birth"},
-  {id: "43567", description: "", type: "marriage"},
-  {id: "12678", description: "", type: "birth"}
+  { id: "12344", description: "", type: "sickness" },
+  { id: "45666", description: "", type: "death" },
+  { id: "34562", description: "", type: "marriage" },
+  { id: "13567", description: "", type: "breakage" },
+  { id: "56789", description: "", type: "sickness" },
+  { id: "09875", description: "", type: "birth" },
+  { id: "43567", description: "", type: "marriage" },
+  { id: "12678", description: "", type: "birth" }
 ]
 
 const eventTypes = {
@@ -49,7 +49,7 @@ const eventTypes = {
   Apocalypse: "apocalypse"
 
 }
-  
+
 eventCountTxt.innerText = testData.length;
 
 //Time stuff\\
@@ -89,28 +89,28 @@ if(simulationStartDate != null){
 
 
 //Start and Reset Logic\\
-async function checkToSeeIfSimulationHasStarted(){
+async function checkToSeeIfSimulationHasStarted() {
   let response = await fetchWithAuth('/', {
     method: 'GET',
-    headers: {'Content-Type': 'application/json'}
+    headers: { 'Content-Type': 'application/json' }
   });
 
   let tasks = await response.json();
 
-  if(tasks.start){
+  if (tasks.start) {
     hasSimStarted = true;
     startResetButton.value = false;
     startResetButton.textContent = "Reset Simulation";
-    if(startResetButton.classList.contains('button-green')){
+    if (startResetButton.classList.contains('button-green')) {
       startResetButton.classList.remove('button-green');
       startResetButton.classList.add('button-red');
     }
     startPolling();
-  }else{
+  } else {
     hasSimStarted = false;
     startResetButton.value = true;
     startResetButton.textContent = "Start Simulation";
-    if(startResetButton.classList.contains('button-red')){
+    if (startResetButton.classList.contains('button-red')) {
       startResetButton.classList.remove('button-red');
       startResetButton.classList.add('button-green');
     }
@@ -118,14 +118,38 @@ async function checkToSeeIfSimulationHasStarted(){
   }
 }
 
-async function startOrResetSim(){
-  startResetButton.disabled = true;
-  let data = {action: startResetButton.value};
+async function sacrificeSomeone() {
+  let inputText = document.getElementById('userInput').value;
+  if (!inputText) {
+    alert("Please add a number to the input field.");
+  } else {
+    console.log(inputText);
+    let number = 10;
+    console.log(number);
+    try {
+      let data = {"number":number};
+      const response = await fetchWithAuth(`/sacrifice`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error("API error: " + response.text());
+      }
+    } catch (err) {
+      alert("Unavailable for sacrifice at this time" + err);
+    }
+  }
+}
 
-  try{
+async function startOrResetSim() {
+  startResetButton.disabled = true;
+  let data = { action: startResetButton.value };
+
+  try {
     const response = await fetchWithAuth('/reset', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
     if (!response.ok) {
@@ -140,11 +164,11 @@ async function startOrResetSim(){
     //something went wrong pop-up
   }
 
-  switch(data.action){
+  switch (data.action) {
     case "true":
       startResetButton.value = "false";
       startResetButton.textContent = "Reset Simulation";
-      if(startResetButton.classList.contains('button-green')){
+      if (startResetButton.classList.contains('button-green')) {
         startResetButton.classList.remove('button-green');
         startResetButton.classList.add('button-red');
       }
@@ -152,19 +176,19 @@ async function startOrResetSim(){
     case "false":
       startResetButton.value = "true";
       startResetButton.textContent = "Start Simulation";
-      if(startResetButton.classList.contains('button-red')){
+      if (startResetButton.classList.contains('button-red')) {
         startResetButton.classList.remove('button-red');
         startResetButton.classList.add('button-green');
       }
       break;
-    }
+  }
 
-    startResetButton.disabled = false;
-  
+  startResetButton.disabled = false;
+
 }
 
 //Retrieving event data\\
-async function retrieveEventData(){
+async function retrieveEventData() {
   console.log("retrieving data!");
   try {
     const response = await fetchWithAuth('/get-events');
@@ -243,41 +267,41 @@ function addEventElement(eventData) {
     case 'Birth':
       pillLink.classList.add('pill-green');
       
-    case 'Marriage':
+    case 'marriage':
       pillLink.classList.add('pill-yellow');
       
-    case 'Hunger':
+    case 'hunger':
       pillLink.classList.add('pill-lightBlue');
       
-    case 'Breakage':
+    case 'breakage':
       pillLink.classList.add('pill-orange');
       
-    case 'Fired':
+    case 'fired':
       pillLink.classList.add('pill-red');
-      
+
     case 'Famine':
       pillLink.classList.add('pill-purple');
       
-    case 'Plague':
+    case 'plague':
       pillLink.classList.add('pill-purple');
       
-    case 'Apocalypse':
+    case 'apocalypse':
       pillLink.classList.add('pill-purple');
       
-    case 'War':
+    case 'war':
       pillLink.classList.add('pill-purple');
-      
+
     default:
       pillLink.classList.add('pill-blue');
   }
-  
+
   // Append the new section to the existing eventHolder section
   document.getElementById('eventHolder').appendChild(newEvent);
 }
 
-function addRandomDescriptionToEvent(eventType){
+function addRandomDescriptionToEvent(eventType) {
   let description;
-  switch(eventType){
+  switch (eventType) {
     case eventTypes.Sickness:
       description = randomPicker(sicknessDescription);
       return description;
@@ -311,9 +335,9 @@ function addRandomDescriptionToEvent(eventType){
   }
 }
 
-function randomPicker(list){
+function randomPicker(list) {
   if (list.length === 0) {
-    return null; 
+    return null;
   }
   const randomIndex = Math.floor(Math.random() * list.length);
   return list[randomIndex];
@@ -338,22 +362,22 @@ function filterEvents(type) {
     }
   });
 }
-    
+
 filterEvents('all');
 
 //human sacrifice\\
 
-async function sacrificePersona(){
+async function sacrificePersona() {
   const response = await fetchWithAuth('/');
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-    const data = await response.json();
+  if (!response.ok) {
+    throw new Error(`HTTP error! Status: ${response.status}`);
+  }
+  const data = await response.json();
 
-    if(data){
+  if (data) {
 
-    }else{
-      
-    }
+  } else {
+
+  }
 }
 

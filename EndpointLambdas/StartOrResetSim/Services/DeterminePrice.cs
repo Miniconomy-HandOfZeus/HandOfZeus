@@ -15,21 +15,21 @@ namespace StartOrResetSim.Services
 
     List<Item> prices = new List<Item>
 {
-            new Item { Name = "health_insurance", Price = 100 },
-            new Item { Name = "prime_lending_rate", Price = 100 },
-            new Item { Name = "food_price", Price = 400 },
-            new Item { Name = "life_insurance", Price = 400 },
-            new Item { Name = "short_term_insurance", Price = 400 },
-            new Item { Name = "minimum_wage", Price = 600 },
-            new Item { Name = "eletronic_price", Price = 400 },
-            new Item { Name = "house_price", Price = 400 }
+            new Item { Name = "health_insurance", Price = 100 *1024},
+            new Item { Name = "prime_lending_rate", Price = 10 },
+            new Item { Name = "food_price", Price = 300*1024 },
+            new Item { Name = "life_insurance", Price = 20*1024 },
+            new Item { Name = "short_term_insurance", Price = 50*1024 },
+            new Item { Name = "minimum_wage", Price = 1500*1024 },
+            new Item { Name = "eletronic_price", Price = 400*1024 },
+            new Item { Name = "house_price", Price = 50000*1024 }
         };
 
     public async Task setPrices()
     {
       int business = 10;
       int income = 20;
-      int vat = 30;
+      int vat = 12;
       DBHelper.setTaxes("taxes", business, income, vat);
       prices.ForEach(item =>
       {
