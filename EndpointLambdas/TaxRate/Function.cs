@@ -84,21 +84,6 @@ namespace TaxRate
       return fetchFromDB("taxes").Result;
     }
 
-    private async Task<UpdateItemResponse> RequestDB(UpdateItemRequest request)
-    {
-      try
-      {
-        var response = await _dynamoDbClient.UpdateItemAsync(request);
-        Console.WriteLine("Update succeeded.");
-        return response;
-      }
-      catch (Exception e)
-      {
-        Console.WriteLine("Update failed. Exception: " + e.Message);
-        throw e;
-      }
-    }
-
     private async static Task<string[]> fetchFromDB(string key)
     {
       var dbRequest = new GetItemRequest
@@ -112,7 +97,7 @@ namespace TaxRate
       try
       {
         var response = await _dynamoDbClient.GetItemAsync(dbRequest);
-        System.Console.WriteLine(response.ToString(), response.Item);
+        context.Logger.Log(response.ToString(), response.Item);
         string[] arr = { response.Item["business"].N, response.Item["income"].N, response.Item["vat"].N };
         return arr;
       }

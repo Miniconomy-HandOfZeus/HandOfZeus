@@ -17,11 +17,7 @@ resource "aws_iam_policy" "lambda_access" {
       {
         Effect = "Allow",
         Action = [
-          "dynamodb:*",
-          "s3:*",
-          "secretsmanager:*",
-          "events:*",
-          "scheduler:*"
+          "*"
         ],
         Resource = "*"
       }

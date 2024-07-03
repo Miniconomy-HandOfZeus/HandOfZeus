@@ -102,6 +102,8 @@ public class Function
                 }
                 else
                 {
+                    await _ScheduleTrigger.StopAsync();
+
                     OtherApiUrls.ForEach(async url =>
                     {
                         try

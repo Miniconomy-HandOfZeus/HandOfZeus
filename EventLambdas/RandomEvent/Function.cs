@@ -146,6 +146,10 @@ namespace RandomEvent
         string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x.Item1}, {x.Item2})"));
         await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
       } 
+      else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages" || selectedEvent == "Hunger") {
+        string Affectedresult = string.Join(", ", affectedPeople);
+        await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
+      }
       else
       {
         await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
@@ -265,7 +269,7 @@ namespace RandomEvent
       }
       else
       {
-        return 0; // Default fallback
+        return 0;
       }
     }
 
