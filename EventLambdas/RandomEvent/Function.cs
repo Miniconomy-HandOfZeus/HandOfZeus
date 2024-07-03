@@ -20,7 +20,7 @@ namespace RandomEvent
         {
             "Death",
             "Marriage",
-            "Birth"
+            "Birth",
             //"Hunger",
             //"Sickness",
             //"Breakages",
@@ -30,8 +30,8 @@ namespace RandomEvent
             //"FamineEnd",
             //"PlagueStart",
             //"PlagueEnd",
-            //"WarStart",
-            //"WarEnd",
+            "WarStart",
+            "WarEnd"
             //"Apocalypse",
             //"Inflation"
         };
@@ -39,22 +39,22 @@ namespace RandomEvent
 
     private static readonly Dictionary<string, int> eventWeights = new Dictionary<string, int>
         {
-            { "Death", 10 },
-            { "Marriage", 20 },
-            { "Birth", 30 },
-            { "Hunger", 15 },
-            { "Sickness", 15 },
-            { "Breakages", 5 },
-            { "Salary", 25 },
-            { "Fired from job", 5 },
-            { "FamineStart", 1 },
-            { "FamineEnd", 0 },
-            { "PlagueStart", 1 },
-            { "PlagueEnd", 0 },
+            { "Death", 0 },
+            { "Marriage", 0 },
+            { "Birth", 0 },
+            //{ "Hunger", 15 },
+            //{ "Sickness", 15 },
+            //{ "Breakages", 5 },
+            //{ "Salary", 25 },
+            //{ "Fired from job", 5 },
+            //{ "FamineStart", 1 },
+            //{ "FamineEnd", 0 },
+            //{ "PlagueStart", 1 },
+            //{ "PlagueEnd", 0 },
             { "WarStart", 1 },
             { "WarEnd", 0 },
-            { "Apocalypse", 1 },
-            { "Inflation", 10 }
+            //{ "Apocalypse", 1 },
+            //{ "Inflation", 10 }
         };
 
     private static readonly Dictionary<string, string[]> eventEndpoints = new Dictionary<string, string[]>
