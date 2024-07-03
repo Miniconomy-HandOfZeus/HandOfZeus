@@ -22,7 +22,7 @@ public class Function
 
             bool hasStarted = await dbHelper.GetValue("hasStarted");
 
-            if(hasStarted)
+            if (hasStarted)
             {
                 string startTime = await dbHelper.GetStartTime("SimulationStartTime");
 
@@ -50,7 +50,7 @@ public class Function
                     Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
                 };
             }
-            
+
         }
         catch (Exception ex)
         {
