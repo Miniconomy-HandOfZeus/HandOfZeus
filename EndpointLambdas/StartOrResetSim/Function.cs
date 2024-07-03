@@ -17,30 +17,22 @@ public class Function
     private readonly DBHelper DBHelper = new DBHelper();
 
     List<string> OtherApiUrls = new List<string> {
-        "https://sustenance.projects.bbdgrad.com",
-        "https://electronics.projects.bbdgrad.com",
-        "https://api.bonds.projects.bbdgrad.com",
-        "https://api.loans.projects.bbdgrad.com",
-        "https://rentals.projects.bbdgrad.com",
-        "https://sales.projects.bbdgrad.com",
-        "https://mese.projects.bbdgrad.com",
-        "https://labour.projects.bbdgrad.com",
-        "https://api.mers.projects.bbdgrad.com",
-        "https://care.projects.bbdgrad.com",
-        "https://api.insurance.projects.bbdgrad.com",
-        "https://api.life.projects.bbdgrad.com",
-        "https://api.health.projects.bbdgrad.com",
-        "https://api.commercialbank.projects.bbdgrad.com",
-        "https://api.retailbank.projects.bbdgrad.com",
-        "https://property.projects.bbdgrad.com",
-        "https://persona.projects.bbdgrad.com",
+         "https://property-manager.projects.bbdgrad.com/PropertyManager/reset",
+         "https://api.care.projects.bbdgrad.com/api/simulation",
+         "https://service.electronics.projects.bbdgrad.com/zeus/control",
+         "https://api.mers.projects.bbdgrad.com/api/simulation/startNewSimulation",
+         "https://api.health.projects.bbdgrad.com/control-simulation",
+         "https://api.life.projects.bbdgrad.com/control-simulation",
+         "https://api.insurance.projects.bbdgrad.com/api/time",
+         "https://api.loans.projects.bbdgrad.com/mng/reset"
+
     };
 
     private readonly ScheduleTrigger _ScheduleTrigger = new();
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        DateTime currentTime; 
+        string currentTime; 
         // Parse the request body to get the person ID
         var requestBody = JsonConvert.DeserializeObject<Dictionary<string, bool>>(request.Body);
         if (requestBody == null || !requestBody.ContainsKey("action"))
@@ -62,7 +54,7 @@ public class Function
             {
                 if (action)
                 {
-                    currentTime = DateTime.Now;
+                    currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
                     await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
 
                     try
@@ -80,7 +72,15 @@ public class Function
 
                     OtherApiUrls.ForEach(async url =>
                     {
-                        await RequestHandler.SendPutRequestAsync(url, true, startTime, certs);
+                        try
+                        {
+                            await RequestHandler.SendPutRequestAsync(url, true, startTime, certs);
+                        }catch (Exception ex)
+                        {
+                            LambdaLogger.Log($"error while sending request to {url}: " + ex.Message);
+                        }
+
+
                     });
 
                     var body = new
@@ -103,7 +103,15 @@ public class Function
                 {
                     OtherApiUrls.ForEach(async url =>
                     {
-                        await RequestHandler.SendPutRequestAsync(url, false, "", certs);
+                        try
+                        {
+                            await RequestHandler.SendPutRequestAsync(url, false, "", certs);
+                        }catch (Exception ex)
+                        {
+                            LambdaLogger.Log($"error while sending request to {url}: " + ex.Message);
+                        }
+
+
                     });
 
                     return new APIGatewayProxyResponse

@@ -53,18 +53,17 @@ namespace StartOrResetSim.Services
                     Item = new Dictionary<string, AttributeValue>
                     {
                         { "Key", new AttributeValue { S = key } }, 
-                        { "value", new AttributeValue { S = value } }
+                        { "value", new AttributeValue { S = value + ""} }
                     }
                 };
 
                 try
                 {
                     await client.PutItemAsync(request);
-                    Console.WriteLine("Start time updated successfully.");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Error updating start time: {ex.Message}");
+                    Console.WriteLine($"Error updating {key}: {ex.Message}");
                 }
         }
 
@@ -83,11 +82,10 @@ namespace StartOrResetSim.Services
             try
             {
                 await client.PutItemAsync(request);
-                Console.WriteLine("Start time updated successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error updating start time: {ex.Message}");
+                Console.WriteLine($"Error updating {key}: {ex.Message}");
             }
         }
     }
