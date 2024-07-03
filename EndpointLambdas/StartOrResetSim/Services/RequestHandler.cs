@@ -38,6 +38,16 @@ namespace StartOrResetSim.Services
                         var json = JsonConvert.SerializeObject(requestBody);
                         content = new StringContent(json, Encoding.UTF8, "application/json");
                     }
+                    else
+                    {
+                        var requestBody = new
+                        {
+                            action = action,
+                        };
+
+                        var json = JsonConvert.SerializeObject(requestBody);
+                        content = new StringContent(json, Encoding.UTF8, "application/json");
+                    }
 
                     var response = await httpClient.PostAsync(url, content);
                     LambdaLogger.Log(response.ToString());
