@@ -42,10 +42,7 @@ public class Function
       }
 
       List<long> personIds = requestBody["people"];
-      foreach(var i in personIds)
-      {
-        context.Logger.Log(i+"");
-      }
+      
       // Get the minimum wage from the db
       var request = new GetItemRequest
       {
@@ -62,7 +59,8 @@ public class Function
         throw new Exception("Item Not found");
       }
 
-      int minimumWage = int.Parse(response.Item["value"].N);
+      int minimumWage = int.Parse(response.Item["value"].S);
+
 
       // Determine wages
       List<PersonaWages> personaWages = personIds.Select(id => random.NextDouble() < 0.5 ? new PersonaWages { personaId = id, wage = minimumWage } : new PersonaWages { personaId = id, wage = minimumWage + random.Next(minimumWage / 2) }).ToList();
