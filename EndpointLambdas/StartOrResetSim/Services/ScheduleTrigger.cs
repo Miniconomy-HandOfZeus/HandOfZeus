@@ -6,7 +6,7 @@ namespace StartOrResetSim.Services
     public class ScheduleTrigger
     {
         private readonly AmazonSchedulerClient _client = new AmazonSchedulerClient();
-        private readonly List<string> scheduleNames = new List<string> { "RandomEventSchedule-scheduler" };
+        private readonly List<string> scheduleNames = new List<string> { "RandomEventSchedule-scheduler", "MonthlyIncreaseSchedule-scheduler", "YearlyIncreaseSchedule-scheduler" };
         private readonly string scheduleGroupName = "hand-of-zeus-events-scheduler-group";
 
         public async Task StartAsync()
