@@ -138,12 +138,13 @@ async function retrieveEventData(){
     const response = await fetchWithAuth('/get-events');
     console.log(response);
     const responseBody = await response.json(); // Parse the response body as JSON
+    console.log("responseBody: " + responseBody);
 
     if (!response.ok) {
       console.error("Error response:", responseBody);
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-
+    console.log("responseBody: " + responseBody.body);
     const newData = JSON.parse(responseBody.body); // Parse the body JSON string
 
     console.log("Data received:", newData);
