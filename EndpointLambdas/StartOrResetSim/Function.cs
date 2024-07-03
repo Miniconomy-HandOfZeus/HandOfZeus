@@ -110,7 +110,7 @@ public class Function
         await _ScheduleTrigger.StopAsync();
         await DeterminePrice.setHasStarted("hasStarted", "false");
         context.Logger.Log("clear DB");
-        clearDB();
+        clearDB(context);
         context.Logger.Log("Fnish clear, broadcasting reset");
         OtherApiUrls.ForEach(async url =>
                 {
@@ -144,7 +144,7 @@ public class Function
     }
   }
 
-  private async Task clearDB()
+  private async Task clearDB(ILambdaContext context)
   {
     //start clear events db
 
@@ -155,7 +155,7 @@ public class Function
       Console.WriteLine("Table is already empty.");
       return;
     }
-
+    context.Logger.Log("Items: " + scanResponse.Items.Count);
     // Iterate over each item and delete it
     foreach (var item in scanResponse.Items)
     {
