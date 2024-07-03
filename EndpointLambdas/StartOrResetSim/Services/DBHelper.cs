@@ -42,7 +42,13 @@ namespace StartOrResetSim.Services
     {
       var scanRequest = new ScanRequest
       {
-        TableName = "hand-of-zeus-events"
+        TableName = "hand-of-zeus-events",
+        FilterExpression = $"type = :eventType",
+        ExpressionAttributeValues = new Dictionary<string, AttributeValue>
+            {
+                { ":eventType", new AttributeValue { S = "event" } }
+            }
+
       };
       var scanResponse = await client.ScanAsync(scanRequest);
       return scanResponse;
@@ -147,24 +153,24 @@ namespace StartOrResetSim.Services
 
     public async Task setHasStarted(string key, string started)
     {
-            var request = new PutItemRequest
-            {
-                TableName = tableName,
-                Item = new Dictionary<string, AttributeValue>
+      var request = new PutItemRequest
+      {
+        TableName = tableName,
+        Item = new Dictionary<string, AttributeValue>
                 {
                     { "Key", new AttributeValue { S = key } },
                     { "value", new AttributeValue { S = started  } }
                 }
-            };
+      };
 
-            try
-            {
-                await client.PutItemAsync(request);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating {key}: {ex.Message}");
-            }
-        }
+      try
+      {
+        await client.PutItemAsync(request);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"Error updating {key}: {ex.Message}");
+      }
+    }
   }
 }
