@@ -68,6 +68,10 @@ resource "aws_scheduler_schedule" "lambda_schedules" {
     mode = "OFF"
   }
 
+  retry_policy {
+    maximum_retry_attempts = 0
+  }
+
   schedule_expression = "rate(${each.value.rate_expression})"
 
   state = "DISABLED"
