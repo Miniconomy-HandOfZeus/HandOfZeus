@@ -29,12 +29,12 @@ namespace StartOrResetSim.Services
             {
                 var response = await client.GetItemAsync(request);
 
-                if (response.Item == null || !response.Item.ContainsKey("Value"))
+                if (response.Item == null || !response.Item.ContainsKey("value"))
                 {
-                    throw new Exception("Minimum wage not found in the database.");
+                    throw new Exception($"cant get {key} from db");
                 }
 
-                return response.Item["Value"].ToString();
+                return response.Item["value"].ToString();
 
             }
             catch (Exception ex)
@@ -74,10 +74,10 @@ namespace StartOrResetSim.Services
             {
                 TableName = tableName,
                 Item = new Dictionary<string, AttributeValue>
-                    {
-                        { "Key", new AttributeValue { S = key } },
-                        { "value", new AttributeValue { N = value + "" } }
-                    }
+                {
+                    { "Key", new AttributeValue { S = key } },
+                    { "value", new AttributeValue { N = value + "" } }
+                }
             };
 
             try
