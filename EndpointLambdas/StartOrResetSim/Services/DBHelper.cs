@@ -1,5 +1,6 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Newtonsoft.Json.Linq;
 
 namespace StartOrResetSim.Services
 {
@@ -111,5 +112,27 @@ namespace StartOrResetSim.Services
         Console.WriteLine($"Error updating {key}: {ex.Message}");
       }
     }
+
+    public async Task setHasStarted(string key, bool started)
+    {
+            var request = new PutItemRequest
+            {
+                TableName = tableName,
+                Item = new Dictionary<string, AttributeValue>
+                {
+                    { "Key", new AttributeValue { S = key } },
+                    { "value", new AttributeValue { BOOL = started  } }
+                }
+            };
+
+            try
+            {
+                await client.PutItemAsync(request);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error updating {key}: {ex.Message}");
+            }
+        }
   }
 }
