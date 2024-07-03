@@ -31,7 +31,9 @@ jobs:
   deploy:
     needs: prepare-matrix
     runs-on: ubuntu-latest
+    continue-on-error: true
     strategy:
+      fail-fast: false
       matrix:
         lambda_dir: ${{fromJson(needs.prepare-matrix.outputs.directories)}}
     steps:
