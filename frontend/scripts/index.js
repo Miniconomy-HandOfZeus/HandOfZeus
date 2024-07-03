@@ -85,19 +85,24 @@ if(simulationStartDate != null){
   setInterval(calculateDate, 5000);
 }
 
-//checkToSeeIfSimulationHasStarted();
+checkToSeeIfSimulationHasStarted();
 
 
 //Start and Reset Logic\\
-async function checkToSeeIfSimulationHasStarted() {
-  let response = await fetchWithAuth('/', {
+async function checkToSeeIfSimulationHasStarted(){
+  let response = await fetchWithAuth('/sim-started', {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
   });
 
   let tasks = await response.json();
-
-  if (tasks.start) {
+  console.log(tasks);
+  console.log(tasks.json);
+  console.log(tasks.json.hasSatrted);
+  
+  if(tasks.json.hasSatrted){
+    console.log(tasks.json.startTime);
+    simulationStartDate = tasks.json.startTime;
     hasSimStarted = true;
     startResetButton.value = false;
     startResetButton.textContent = "Reset Simulation";
@@ -155,11 +160,16 @@ async function startOrResetSim() {
     if (!response.ok) {
       throw new Error("API error: " + response.text());
     }
-    const responseBody = await response.json();
-    console.log(responseBody);
-    const newData = responseBody.startTime;
-    console.log(newData);
-    simulationStartDate = newData;
+
+    if(startResetButton.value){
+      const responseBody = await response.json();
+      console.log(responseBody);
+      const newData = responseBody.json;
+      console.log(newData);
+      console.log(newData.startTime);
+      simulationStartDate = newData.startTime;
+    }
+    
   }catch (err){
     //something went wrong pop-up
   }

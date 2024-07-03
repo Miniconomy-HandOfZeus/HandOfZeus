@@ -28,13 +28,13 @@ public class Function
                 DateTime startTime = await dbHelper.getSimulationStartDate();
                 LambdaLogger.Log("startTime " + startTime);
 
-                var requestBody = new
+                var json = new
                 {
                     hasSatrted = hasStarted,
                     startTime = startTime
                 };
 
-                var json = JsonConvert.SerializeObject(requestBody);
+//var json = JsonConvert.SerializeObject(requestBody);
 
                 return new APIGatewayProxyResponse
                 {
@@ -45,10 +45,16 @@ public class Function
             }
             else
             {
+                var json = new
+                {
+                    hasSatrted = hasStarted
+                };
+
+                //var json = JsonConvert.SerializeObject(hasStarted);
                 return new APIGatewayProxyResponse
                 {
                     StatusCode = 200,
-                    Body = JsonConvert.SerializeObject(new { hasStarted }),
+                    Body = JsonConvert.SerializeObject(new { json }),
                     Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
                 };
             }

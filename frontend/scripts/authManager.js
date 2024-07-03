@@ -19,6 +19,11 @@ async function getEmail() {
 
 function checkToken() {
     getUserInfo()
+        .then(userInfo => {
+            if (!userInfo.email) {
+                throw new Error('No email could be extracted from the token.');
+            }
+        })
         .catch(error => {
             console.error('Token check failed:', error);
             window.location.href = "/views/login.html";

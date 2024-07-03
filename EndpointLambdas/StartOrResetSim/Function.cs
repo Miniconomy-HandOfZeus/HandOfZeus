@@ -87,27 +87,28 @@ public class Function
 
         });
 
-        var body = new
-        {
-          startTime = currentTime
-        };
+                var json = new
+                {
+                    startTime = currentTime
+                };
 
-        // Serialize the response object to JSON
-        string responseBody = JsonConvert.SerializeObject(body);
+                // Serialize the response object to JSON
+                
+                //var json = JsonConvert.SerializeObject(body);
 
-        return new APIGatewayProxyResponse
-        {
-          StatusCode = 200,
-          Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
-          Body = responseBody
-        };
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 200,
+                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
+                    Body = JsonConvert.SerializeObject(new { json }),
 
-      }
-      else
-      {
-        await _ScheduleTrigger.StopAsync();
-        await DeterminePrice.setHasStarted("hasStarted", false);
-        clearDB();
+                };
+
+            }
+            else
+            {
+                await _ScheduleTrigger.StopAsync();
+                await DeterminePrice.setHasStarted("hasStarted", "false");
 
         OtherApiUrls.ForEach(async url =>
                 {
