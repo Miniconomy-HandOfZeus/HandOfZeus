@@ -15,6 +15,38 @@ namespace StartOrResetSim.Services
       client = new AmazonDynamoDBClient();
     }
 
+    public async Task deleteFromDB(Dictionary<string, AttributeValue> item)
+    {
+      var key = new Dictionary<string, AttributeValue>
+            {
+                { "Key", item["Key"] }
+            };
+
+      var deleteItemRequest = new DeleteItemRequest
+      {
+        TableName = "hand-of-zeus-events",
+        Key = key
+      };
+      try
+      {
+        await client.DeleteItemAsync(deleteItemRequest);
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine($"Error: {e.Message}");
+        throw e;
+      }
+    }
+
+    public async Task<ScanResponse> scanDB()
+    {
+      var scanRequest = new ScanRequest
+      {
+        TableName = "hand-of-zeus-events"
+      };
+      var scanResponse = await client.ScanAsync(scanRequest);
+      return scanResponse;
+    }
     public async Task<string> GetFromDB(string key)
     {
       var request = new GetItemRequest

@@ -13,7 +13,7 @@ public class Function
 {
     private static readonly HttpClient client = new HttpClient();
     private static readonly Random random = new Random();
-    private string url = "https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonaIds"; //Personas endpoint url here\\
+    private string url = "https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonasIds"; //Personas endpoint url here\\
 
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
