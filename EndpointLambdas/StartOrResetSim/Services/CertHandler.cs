@@ -9,7 +9,7 @@ namespace StartOrResetSim.Services
 {
     public class CertHandler
     {
-        private static readonly string secretName = "Certification";
+        private static readonly string secretName = "Certificate";
         private readonly IAmazonSecretsManager secretsManagerClient;
 
         public CertHandler()
