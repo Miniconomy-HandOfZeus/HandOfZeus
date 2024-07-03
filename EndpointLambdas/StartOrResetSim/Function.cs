@@ -147,9 +147,9 @@ public class Function
   private async Task clearDB(ILambdaContext context)
   {
     //start clear events db
+    var scanResponse = DBHelper.scanDB().Result;
     do
     {
-      var scanResponse = DBHelper.scanDB().Result;
       context.Logger.Log("Items: " + scanResponse.Items.Count);
       // Iterate over each item and delete it
       if (scanResponse.Items.Count == 0)
