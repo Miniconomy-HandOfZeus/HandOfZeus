@@ -150,7 +150,7 @@ namespace RandomEvent
       var description = string.Format(eventDescriptions[selectedEvent], affectedPeopleCount);
       context.Logger.LogLine($"Event Description: {description}");
 
-      var marriagePairs = await CreateMarriagePairs(affectedPeopleCount);
+      var marriagePairs = await CreateMarriagePairs(affectedPeopleCount,context);
       context.Logger.LogLine($"marriagePairs : {marriagePairs}");
 
       if (selectedEvent == "Marriage")
@@ -397,11 +397,11 @@ namespace RandomEvent
       }
     }
 
-    private async Task<List<Dictionary<string, long>>> CreateMarriagePairs(int count)
+    private async Task<List<Dictionary<string, long>>> CreateMarriagePairs(int count, ILambdaContext context)
     {
       var pairs = new List<Dictionary<string, long>>();
       var availablePeople = await FetchCanBeMarriedPeople();
-
+      context.Logger.LogLine($"Event Description: {availablePeople}");
       while (count > 1 && availablePeople.Count > 1)
       {
         int index1 = random.Next(availablePeople.Count);
