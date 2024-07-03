@@ -15,21 +15,20 @@
 </head>
 
 <body>
-    <section class="header">
-        <h1>Hand of Zeus</h1>
-        <section class="titleSection">
-            <button class="button start/resetButton button-red" value="false" id="resetButton">Reset Simulation</button>
-            <button class="button start/resetButton button-green" value="true" id="startButton">Start Simulation</button>
-            <div class="vertical-line"></div>
-            <button class="button button-grey" id="logout-button">Logout</button>
-        </section>
-
-
-    </section>
-
-
-    <section class="mainBody">
+    <section class="sideBar">
+        <h1 class="sideBar-title">Hand of Zeus</h1>
         <section class="infoHolder">
+            <!-- <div class="dropdown">
+                <button id="Sacrifice" class="dropbtn">Human Sacrifice</button>
+                <div id="myDropdown" class="dropdown-content">
+                  <button class="dropDown-button" value="1">Sacrifice 1</button>
+                  <button class="dropDown-button" value="2">Sacrifice 2</button>
+                  <button class="dropDown-button" value="3">Sacrifice 3</button>
+                  <button class="dropDown-button" value="4">Sacrifice 4</button>
+                  <button class="dropDown-button" value="5">Sacrifice 5</button>
+                </div>
+            </div> -->
+            <button class="sacrific-btn" id="Sacrifice">Persona Sacrifice</button>
             <section class="timeHolder">
                 <a>Simulation time:</a>
                 <a class="time" id="timeDisplay">01/01/01</a>
@@ -38,67 +37,78 @@
                 <a>N.o of events:</a>
                 <a class="time" id="eventCountDisplay">0</a>
             </section>
-            <stack class="">
-            <button id="Sacrifice">Human Sacrifice</button>
-            <input type="number" id="userInput" class="numberField">
-            </stack>
-        </section>
-        <section class="eventHolder" id="eventHolder">
-            <h2>Events</h2>
-            <section class="eventHeadingSection">
-                <a>Time:</a>
-                <a>Description:</a>
-                <div>
-                    <label for="filterType">Filter by Type:</label>
-                    <select class="filterSelect" id="filterType">
-                        <option value="all">All</option>
-                        <option value="Sickness">Sickness</option>
-                        <option value="Death">Death</option>
-                        <option value="Birth">Birth</option>
-                        <option value="Hunger">Hunger</option>
-                    </select>
-                </div>
-            </section>
-
-            <section class="eventList" id="eventList">
-                <section class="eventObject" id="eventObject">
-                    <a>12344</a>
-                    <a>The person got sick and died</a>
-                    <a class="pill pill-blue">Sickness</a>
-                </section>
-
-                <section class="eventObject" id="eventObject">
-                    <a>12344</a>
-                    <a>The person got sick and died</a>
-                    <a class="pill pill-blue">Sickness</a>
-                </section>
-
-                <section class="eventObject" id="eventObject">
-                    <a>12344</a>
-                    <a>The person got sick and died</a>
-                    <a class="pill pill-red">Death</a>
-                </section>
-
-                <section class="eventObject" id="eventObject">
-                    <a>12344</a>
-                    <a>The person got sick and died</a>
-                    <a class="pill pill-purple">Birth</a>
-                </section>
-
-                <section class="eventObject" id="eventObject">
-                    <a>12344</a>
-                    <a>The person got sick and died</a>
-                    <a class="pill pill-red">Death</a>
-                </section>
-            </section>
-
-
         </section>
     </section>
-
-
+    <section class=" main">
+        <section class="header">
+            <section class="titleSection">
+                <button class="button start/resetButton button-red" value="false" id="resetButton">Reset Simulation</button>
+                <button class="button start/resetButton button-green" value="true" id="startButton">Start Simulation</button>
+                <div class="vertical-line"></div>
+                <button class="button button-grey" id="logout-button">Logout</button>
+            </section>
+        </section>
+    
+        <section class="mainBody">
+            
+            <section class="eventHolder" id="eventHolder">
+                <h2>Events</h2>
+                <section class="eventHeadingSection">
+                    <a>Time:</a>
+                    <a>Description:</a>
+                    <div>
+                        <label for="filterType">Filter by Type:</label>
+                        <select class="filterSelect" id="filterType">
+                            <option value="all">All</option>
+                            <option value="Sickness">Sickness</option>
+                            <option value="Death">Death</option>
+                            <option value="Birth">Birth</option>
+                            <option value="Hunger">Hunger</option>
+                            <option value="Plague">Plague</option>
+                            <option value="Famine">Famine</option>
+                            <option value="Apocalypse">Apocalypse</option>
+                        </select>
+                    </div>
+                </section>
+    
+                <section class="eventList" id="eventList">
+                    <section class="eventObject" id="eventObject">
+                        <a>12344</a>
+                        <a>The person got sick and died</a>
+                        <a class="pill pill-blue">Sickness</a>
+                    </section>
+    
+                    <section class="eventObject" id="eventObject">
+                        <a>12344</a>
+                        <a>The person got sick and died</a>
+                        <a class="pill pill-blue">Sickness</a>
+                    </section>
+    
+                    <section class="eventObject" id="eventObject">
+                        <a>12344</a>
+                        <a>The person got sick and died</a>
+                        <a class="pill pill-red">Death</a>
+                    </section>
+    
+                    <section class="eventObject" id="eventObject">
+                        <a>12344</a>
+                        <a>The person got sick and died</a>
+                        <a class="pill pill-purple">Birth</a>
+                    </section>
+    
+                    <section class="eventObject" id="eventObject">
+                        <a>12344</a>
+                        <a>The person got sick and died</a>
+                        <a class="pill pill-red">Death</a>
+                    </section>
+                </section>
+    
+    
+            </section>
+        </section>
+    </section>
     <script type="module" src="scripts/index.js"></script>
-    <script type="module" src="scripts/validateAuth.js"></script>
+    <!-- <script type="module" src="scripts/validateAuth.js"></script> -->
 </body>
 
 </html>

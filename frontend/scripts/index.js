@@ -22,12 +22,9 @@ let timerTxt = document.getElementById('timeDisplay');
 
 //Event Listeners\\
 document.getElementById('logout-button').addEventListener('click', logout);
-
 startResetButton.addEventListener('click', startOrResetSim);
 resetButton.addEventListener('click', startOrResetSim);
-SacrificeButton.addEventListener('click', sacrificeSomeone);
-
-
+SacrificeButton.addEventListener('click', myFunction); //sacrificeSomeone
 
 //Variables\\
 let hasSimStarted = false;
@@ -59,11 +56,7 @@ const eventTypes = {
 eventCountTxt.innerText = testData.length;
 
 //Time stuff\\
-let timeDisplay = document.getElementById('timeDisplay');
-
-
 let simulationStartDate;
-
 
 function calculateDate() {
   const currentDate = new Date();
@@ -86,7 +79,6 @@ function calculateDate() {
   console.log(formattedDate);
   timerTxt.innerText = formattedDate;
 }
-
 
 // Update the timer every second
 if(hasSimStarted){
@@ -262,7 +254,7 @@ function addEventElement(eventData) {
 
   // Create and append the first <a> element
   const idLink = document.createElement('a');
-  idLink.textContent = calculateDate(simulationStartDate, eventData.date);
+  idLink.textContent = calculateDateEvent(simulationStartDate, eventData.date);
   newEvent.appendChild(idLink);
 
   // Create and append the second <a> element
@@ -399,7 +391,7 @@ async function sacrificePersona() {
   }
 }
 
-function calculateDate(simulationStartDate, currentDate) {
+function calculateDateEvent(simulationStartDate, currentDate) {
   // Convert the dates to JavaScript Date objects if they are not already
   simulationStartDate = new Date(simulationStartDate);
   currentDate = new Date(currentDate);
@@ -424,3 +416,24 @@ function calculateDate(simulationStartDate, currentDate) {
   return formattedDate;
 }
 
+function myFunction() {
+  document.getElementById("myDropdown").classList.toggle("show");
+}
+
+// Close the dropdown menu if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+      var openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
+
+function DoSomething(){
+  console.log("HIIIIIII");
+}

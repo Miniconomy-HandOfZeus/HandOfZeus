@@ -26,7 +26,7 @@ function checkToken() {
         })
         .catch(error => {
             console.error('Token check failed:', error);
-            window.location.href = "/views/login.html";
+            //window.location.href = "/views/login.html";
         });
 }
 
