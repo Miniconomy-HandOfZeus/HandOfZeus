@@ -136,23 +136,25 @@ async function retrieveEventData(){
   console.log("retrieving data!");
   try {
     const response = await fetchWithAuth('/get-events');
-    let idk = await response.json();
+    console.log(response);
+    const responseBody = await response.json(); // Parse the response body as JSON
 
     if (!response.ok) {
-      console.log(response);
-      console.log(idk);
+      console.error("Error response:", responseBody);
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    const newData = await response.json();
-    
-    if(newData.length >=1){
-      newData.array.forEach(event => {
 
-        if(!isDuplicate(testData, event)){
+    const newData = JSON.parse(responseBody.body); // Parse the body JSON string
+
+    console.log("Data received:", newData);
+
+    // Process newData
+    if (newData.items.length >= 1) {
+      newData.items.forEach(event => {
+        if (!isDuplicate(testData, event)) {
           testData.unshift(event);
           addEventElement(event);
         }
-
       });
 
       eventCountTxt.innerText = testData.length;
