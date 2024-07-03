@@ -327,9 +327,10 @@ namespace RandomEvent
         Item = new Dictionary<string, AttributeValue>
         {
             { "Key", new AttributeValue { S = eventKey } },
-            { "EventName", new AttributeValue { S = eventName } },
-            { "Description", new AttributeValue { S = description } },
-            { "Date", new AttributeValue { S = DateTime.UtcNow.ToString("o") } }
+            { "event_name", new AttributeValue { S = eventName } },
+            { "type", new AttributeValue { S = "event" } },
+            { "description", new AttributeValue { S = description } },
+            { "date", new AttributeValue { S = DateTime.UtcNow.ToString("o") } }
         }
       };
 
