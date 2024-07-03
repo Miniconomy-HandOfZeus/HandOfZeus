@@ -21,6 +21,7 @@ let SacrificeButton = document.getElementById('Sacrifice');
 //Event Listeners\\
 document.getElementById('logout-button').addEventListener('click', logout);
 startResetButton.addEventListener('click', startOrResetSim);
+SacrificeButton.addEventListener('click', retrieveEventData)
 
 //Variables\\
 let hasSimStarted = false;
@@ -132,9 +133,14 @@ async function startOrResetSim(){
 
 //Retrieving event data\\
 async function retrieveEventData(){
+  console.log("retrieving data!");
   try {
     const response = await fetchWithAuth('/get-events');
+    let idk = await response.json();
+
     if (!response.ok) {
+      console.log(response);
+      console.log(idk);
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
     const newData = await response.json();
