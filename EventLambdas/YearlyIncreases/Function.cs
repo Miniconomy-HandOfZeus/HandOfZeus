@@ -34,11 +34,16 @@ namespace YearlyIncreases
 
     private void runTasks()
     {
-      pushDB("life_insurance", generateRate(100, 300));
-      pushDB("health_insurance", generateRate(200, 500));
-      pushDB("short_term_insurance", generateRate(30, 100));
-      pushDB("minimum_wage", generateRate(1500, 2000));
-      //housing();
+      int life_ins = generateRate(100, 300);
+      int health_ins = generateRate(200, 500);
+      int short_ins = generateRate(30, 100);
+      int min_wage = generateRate(1500, 2000);
+      int houses = generateRate(30 * min_wage, 40 * min_wage);
+      pushDB("life_insurance", life_ins);
+      pushDB("health_insurance", health_ins);
+      pushDB("short_term_insurance", short_ins);
+      pushDB("minimum_wage", min_wage);
+      housing("house_price", houses);
       //salaries();
 
       pushDB("taxes", 0);
