@@ -28,7 +28,8 @@ public class Function
          "https://api.insurance.projects.bbdgrad.com/api/time",
          "https://api.loans.projects.bbdgrad.com/mng/reset",
          "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/startSimulation",
-         "https://api.commercialbank.projects.bbdgrad.com/simulation/setup"
+         "https://api.commercialbank.projects.bbdgrad.com/simulation/setup",
+         "https://api.rentals.projects.bbdgrad.com/api/zeus"
 };
 
     private readonly ScheduleTrigger _ScheduleTrigger = new();
@@ -58,7 +59,7 @@ public class Function
                 currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
                 LambdaLogger.Log("the start time is: " + currentTime);
                 await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
-
+                await DeterminePrice.setHasStarted("hasStarted", true);
                 try
                 {
                     await DeterminePrice.setPrices();
@@ -106,6 +107,7 @@ public class Function
             else
             {
                 await _ScheduleTrigger.StopAsync();
+                await DeterminePrice.setHasStarted("hasStarted", false);
 
                 OtherApiUrls.ForEach(async url =>
                 {

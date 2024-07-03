@@ -38,12 +38,12 @@ If already installed check if new version is available.
 
 Execute unit tests
 ```
-    cd "YearlyIncreases/test/YearlyIncreases.Tests"
+    cd "HasSimStarted/test/HasSimStarted.Tests"
     dotnet test
 ```
 
 Deploy function to AWS Lambda
 ```
-    cd "YearlyIncreases/src/YearlyIncreases"
+    cd "HasSimStarted/src/HasSimStarted"
     dotnet lambda deploy-function
 ```

@@ -12,5 +12,5 @@
   "function-runtime": "dotnet8",
   "function-memory-size": 512,
   "function-timeout": 30,
-  "function-handler": "YearlyIncreases::YearlyIncreases.Function::FunctionHandler"
+  "function-handler": "HasSimStarted::HasSimStarted.Function::FunctionHandler"
 }
