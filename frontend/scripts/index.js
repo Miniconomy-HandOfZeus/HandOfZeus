@@ -89,8 +89,8 @@ checkToSeeIfSimulationHasStarted();
 
 
 //Start and Reset Logic\\
-async function checkToSeeIfSimulationHasStarted() {
-  let response = await fetchWithAuth('/', {
+async function checkToSeeIfSimulationHasStarted(){
+  let response = await fetchWithAuth('/sim-started', {
     method: 'GET',
     headers: { 'Content-Type': 'application/json' }
   });
