@@ -20,20 +20,20 @@ namespace RandomEvent
         {
             "Death",
             "Marriage",
-            "Birth",
-            "Hunger",
-            "Sickness",
-            "Breakages",
-            "Salary",
-            "Fired from job",
-            "FamineStart",
-            "FamineEnd",
-            "PlagueStart",
-            "PlagueEnd",
-            "WarStart",
-            "WarEnd",
-            "Apocalypse",
-            "Inflation"
+            "Birth"
+            //"Hunger",
+            //"Sickness",
+            //"Breakages",
+            //"Salary",
+            //"Fired from job",
+            //"FamineStart",
+            //"FamineEnd",
+            //"PlagueStart",
+            //"PlagueEnd",
+            //"WarStart",
+            //"WarEnd",
+            //"Apocalypse",
+            //"Inflation"
         };
 
 
@@ -182,9 +182,21 @@ namespace RandomEvent
         await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
       }
 
-      
+      if (selectedEvent == "Death")
+      {
+        var PeopleCanKill = await FetchCanBeKilled(context);
+        await SendKILLSToService(PeopleCanKill, context);
+      }
 
-      await CallServiceEndpointsAsync(selectedEvent, eventRate, affectedPeople);
+
+      //await CallServiceEndpointsAsync(selectedEvent, eventRate, affectedPeople);
+
+      if (selectedEvent == "Birth")
+      {
+        var PeopleToGiveBirth = await FetchChildlessPeople(context);
+        await SendBirthsToService(PeopleToGiveBirth, context);
+      }
+
 
       // Handle start and end events logic
       if (selectedEvent.EndsWith("Start"))
@@ -448,6 +460,47 @@ namespace RandomEvent
       }
     }
 
+    private async Task SendKILLSToService(List<long> personIDs, ILambdaContext context)
+    {
+      var requestBody = new
+      {
+        personaIds = personIDs
+      };
+
+
+
+      var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/killPersonas";
+      var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
+
+
+      //context.Logger.LogLine($"Response : {response}");
+
+      if (!response.IsSuccessStatusCode)
+      {
+        throw new Exception($"Failed to send KILLS to service endpoint. Status code: {response.StatusCode}");
+      }
+    }
+
+    private async Task SendBirthsToService(List<long> personIDs, ILambdaContext context)
+    {
+      var requestBody = new
+      {
+        personaIds = personIDs
+      };
+
+
+
+      var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/givePersonasChild";
+      var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
+
+
+      //context.Logger.LogLine($"Response : {response}");
+
+      if (!response.IsSuccessStatusCode)
+      {
+        throw new Exception($"Failed to send BIRTHS to service endpoint. Status code: {response.StatusCode}");
+      }
+    }
 
     private Dictionary<long, double> CalculateSalaryIncreases(int count)
     {
@@ -481,12 +534,9 @@ namespace RandomEvent
 
     private async Task<List<long>> FetchCanBeMarriedPeople(ILambdaContext context)
     {
-      context.Logger.LogLine($"GetFromJsonAsync BEFORE:");
-      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getSinglePersonas");
-      var responseContent = response.Content.ReadAsStringAsync().Result;
 
-      context.Logger.LogLine($"GetFromJsonAsync AFTER:" + response);
-      context.Logger.LogLine($"Raw JSON response: {responseContent}");
+      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getSinglePersonas");
+      var responseContent = response.Content.ReadAsStringAsync().Result;;
 
       if (!response.IsSuccessStatusCode)
       {
@@ -499,7 +549,8 @@ namespace RandomEvent
       var data = responseObject.RootElement.GetProperty("data");
       var personaIdsArray = data.GetProperty("personaIds");
 
-      context.Logger.LogLine($"DATA: {data}");
+
+      
 
       foreach (var id in personaIdsArray.EnumerateArray())
       {
@@ -511,7 +562,79 @@ namespace RandomEvent
         throw new Exception("No single personas found in the response.");
       }
 
-      context.Logger.LogLine($"personaIds: {personaIds}");
+ 
+
+      return personaIds;
+    }
+
+    private async Task<List<long>> FetchCanBeKilled(ILambdaContext context)
+    {
+
+      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonaIds");
+      var responseContent = response.Content.ReadAsStringAsync().Result; ;
+
+      if (!response.IsSuccessStatusCode)
+      {
+        throw new Exception($"Failed to fetch single personas. Status code: {response.StatusCode}, Response: {responseContent}");
+      }
+
+      var responseObject = JsonSerializer.Deserialize<JsonDocument>(responseContent);
+
+      var personaIds = new List<long>();
+      var data = responseObject.RootElement.GetProperty("data");
+      var personaIdsArray = data.GetProperty("personaIds");
+
+
+
+
+      foreach (var id in personaIdsArray.EnumerateArray())
+      {
+        personaIds.Add(id.GetInt64());
+      }
+
+      if (personaIds.Count == 0)
+      {
+        throw new Exception("No single personas found in the response.");
+      }
+
+
+
+      return personaIds;
+    }
+
+    private async Task<List<long>> FetchChildlessPeople(ILambdaContext context)
+    {
+
+      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getChildlessPersonas");
+      var responseContent = response.Content.ReadAsStringAsync().Result;
+
+
+
+      if (!response.IsSuccessStatusCode)
+      {
+        throw new Exception($"Failed to fetch childless personas. Status code: {response.StatusCode}, Response: {responseContent}");
+      }
+
+      var responseObject = JsonSerializer.Deserialize<JsonDocument>(responseContent);
+
+      var personaIds = new List<long>();
+      var data = responseObject.RootElement.GetProperty("data");
+      var personaIdsArray = data.GetProperty("personaIds");
+
+
+
+
+      foreach (var id in personaIdsArray.EnumerateArray())
+      {
+        personaIds.Add(id.GetInt64());
+      }
+
+      if (personaIds.Count == 0)
+      {
+        throw new Exception("No childless personas found in the response.");
+      }
+
+
 
       return personaIds;
     }
