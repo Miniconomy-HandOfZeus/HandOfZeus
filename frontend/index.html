@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
     <title>Hand of Zeus</title>
-    <link rel="stylesheet" href="styling/index.css"> 
+    <link rel="stylesheet" href="styling/index.css">
 </head>
+
 <body>
     <section class="header">
         <h1>Hand of Zeus</h1>
         <section class="titleSection">
-           
-            <button class="button start/resetButton button-green" value="true" id="startResetButton">Start Simulation</button>
+            <button class="button start/resetButton button-green" value="true" id="startResetButton">Start
+                Simulation</button>
             <div class="vertical-line"></div>
             <button class="button button-grey" id="logout-button">Logout</button>
         </section>
-        
-        
+
+
     </section>
 
-    
+
     <section class="mainBody">
         <section class="infoHolder">
             <section class="timeHolder">
@@ -38,7 +42,10 @@
                 <a>N.o of events:</a>
                 <a class="time" id="eventCountDisplay">0</a>
             </section>
+            <stack class="">
             <button id="Sacrifice">Human Sacrifice</button>
+            <input type="number" id="userInput" class="numberField">
+            </stack>
         </section>
         <section class="eventHolder" id="eventHolder">
             <h2>Events</h2>
@@ -63,37 +70,38 @@
                     <a>The person got sick and died</a>
                     <a class="pill pill-blue">Sickness</a>
                 </section>
-        
+
                 <section class="eventObject" id="eventObject">
                     <a>12344</a>
                     <a>The person got sick and died</a>
                     <a class="pill pill-blue">Sickness</a>
                 </section>
-        
+
                 <section class="eventObject" id="eventObject">
                     <a>12344</a>
                     <a>The person got sick and died</a>
                     <a class="pill pill-red">Death</a>
                 </section>
-    
+
                 <section class="eventObject" id="eventObject">
                     <a>12344</a>
                     <a>The person got sick and died</a>
                     <a class="pill pill-purple">Birth</a>
                 </section>
-    
+
                 <section class="eventObject" id="eventObject">
                     <a>12344</a>
                     <a>The person got sick and died</a>
                     <a class="pill pill-red">Death</a>
                 </section>
             </section>
-           
-            
+
+
         </section>
     </section>
-    
+
 
     <script type="module" src="scripts/index.js"></script>
 </body>
+
 </html>
