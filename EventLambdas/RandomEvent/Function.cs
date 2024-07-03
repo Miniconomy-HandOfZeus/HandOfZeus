@@ -319,16 +319,18 @@ namespace RandomEvent
 
     private async Task InsertEventIntoDynamoDB(string eventName, string description)
     {
+      string eventKey = DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ");
+
       var request = new PutItemRequest
       {
         TableName = "hand-of-zeus-db",
         Item = new Dictionary<string, AttributeValue>
-                {
-                    { "Key", new AttributeValue { S = "Event" } }, 
-                    { "EventName", new AttributeValue { S = eventName } },
-                    { "Description", new AttributeValue { S = description } },
-                    { "Date", new AttributeValue { S = DateTime.UtcNow.ToString("o") } }
-                }
+        {
+            { "Key", new AttributeValue { S = eventKey } },
+            { "EventName", new AttributeValue { S = eventName } },
+            { "Description", new AttributeValue { S = description } },
+            { "Date", new AttributeValue { S = DateTime.UtcNow.ToString("o") } }
+        }
       };
 
       try
@@ -340,5 +342,6 @@ namespace RandomEvent
         throw new Exception($"Failed to insert event into DynamoDB: {ex.Message}");
       }
     }
+
   }
 }
