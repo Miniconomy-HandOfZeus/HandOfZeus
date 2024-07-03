@@ -21,14 +21,27 @@ namespace StartOrResetSim.Services
         {
             try
             {
-                var request = new UpdateScheduleRequest
+                // Get the existing schedule
+                var getRequest = new GetScheduleRequest
+                {
+                    Name = scheduleName,
+                    GroupName = scheduleGroupName
+                };
+
+                var getResponse = await _client.GetScheduleAsync(getRequest);
+
+                // Update the state to ENABLED
+                var updateRequest = new UpdateScheduleRequest
                 {
                     Name = scheduleName,
                     GroupName = scheduleGroupName,
-                    State = ScheduleState.ENABLED
+                    State = ScheduleState.ENABLED,
+                    ScheduleExpression = getResponse.ScheduleExpression,
+                    FlexibleTimeWindow = getResponse.FlexibleTimeWindow,
+                    Target = getResponse.Target
                 };
 
-                await _client.UpdateScheduleAsync(request);
+                await _client.UpdateScheduleAsync(updateRequest);
                 Console.WriteLine($"Schedule {scheduleName} in group {scheduleGroupName} enabled successfully.");
             }
             catch (Exception ex)
