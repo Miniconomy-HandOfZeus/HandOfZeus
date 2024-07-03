@@ -26,10 +26,10 @@ namespace RandomEvent
             //"Breakages",
             //"Salary",
             //"Fired from job",
-            //"FamineStart",
-            //"FamineEnd",
-            "PlagueStart",
-            "PlagueEnd",
+            "FamineStart",
+            "FamineEnd",
+            //"PlagueStart",
+            //"PlagueEnd",
             //"WarStart",
             //"WarEnd"
             //"Apocalypse",
@@ -47,10 +47,10 @@ namespace RandomEvent
             //{ "Breakages", 5 },
             //{ "Salary", 25 },
             //{ "Fired from job", 5 },
-            //{ "FamineStart", 1 },
-            //{ "FamineEnd", 0 },
-            { "PlagueStart", 1 },
-            { "PlagueEnd", 0 },
+            { "FamineStart", 1 },
+            { "FamineEnd", 0 },
+            //{ "PlagueStart", 1 },
+            //{ "PlagueEnd", 0 },
             //{ "WarStart", 1 },
             //{ "WarEnd", 0 },
             //{ "Apocalypse", 1 },
@@ -123,15 +123,12 @@ namespace RandomEvent
       if (selectedEvent.EndsWith("Start"))
       {
         var endEvent = selectedEvent.Replace("Start", "End");
-        eventWeights[endEvent] = 100; // Increase end event weight
-        await UpdateEventRateInDynamoDB(endEvent, "100");
+        eventWeights[endEvent] = 100; 
       }
       else if (selectedEvent.EndsWith("End"))
       {
-        eventWeights[selectedEvent] = 0; // Set end event weight to 0 after ending
-        await UpdateEventRateInDynamoDB(selectedEvent, "0");
+        eventWeights[selectedEvent] = 0;
       }
-
       if (selectedEvent == "FamineStart" || selectedEvent == "FamineEnd")
       {
         await UpdateEventRateInDynamoDB("Hunger", selectedEvent == "FamineStart" ? "50" : "15");
