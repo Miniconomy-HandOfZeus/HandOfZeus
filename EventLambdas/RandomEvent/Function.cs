@@ -424,11 +424,13 @@ namespace RandomEvent
         marriagePairs = marriagePairs
       };
 
+      context.Logger.LogLine($"requestBody : {requestBody}");
+
       var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/marryPersonas";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
 
-      context.Logger.LogLine($"requestBody : {requestBody}");
-      context.Logger.LogLine($"Response : {response}");
+
+      //context.Logger.LogLine($"Response : {response}");
 
       if (!response.IsSuccessStatusCode)
       {
