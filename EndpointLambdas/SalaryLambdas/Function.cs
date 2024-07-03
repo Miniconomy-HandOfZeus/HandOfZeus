@@ -55,7 +55,7 @@ public class Function
 
       var response = await client.GetItemAsync(request);
       int minimumWage;
-      if (response.Item == null || !response.Item.ContainsKey("value") || response.Item["value"].S == null)
+      if (response.Item == null || !response.Item.ContainsKey("value") || response.Item["value"].N == null)
       {
         throw new Exception("Item Not found or minimum wage value is null");
       }
