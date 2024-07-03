@@ -418,9 +418,9 @@ namespace RandomEvent
     {
       var requestBody = new
       {
-        personaIds = personIDs
+        patentChildIds = personIDs
       };
-      var endpoint = "https://api.persona.projects.bbdgrad.com/api/Persona/makeNewChild";
+      var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/givePersonasChild";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
       if (!response.IsSuccessStatusCode)
       {
