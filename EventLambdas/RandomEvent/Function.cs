@@ -147,8 +147,8 @@ namespace RandomEvent
         await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
       } 
       else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages") {
-        string BirthedResult = string.Join(", ", marriagePairs.Select(x => $"{x.Item1}"));
-        await InsertEventIntoDynamoDB(selectedEvent, description, BirthedResult);
+        string Affectedresult = string.Join(", ", affectedPeople);
+        await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
       }
       else
       {
