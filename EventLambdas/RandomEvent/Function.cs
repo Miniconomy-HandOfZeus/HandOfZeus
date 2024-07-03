@@ -376,10 +376,17 @@ namespace RandomEvent
 
     private async Task SendMarriagePairsToService(List<Dictionary<string, long>> marriagePairs, ILambdaContext context)
     {
+      if (marriagePairs.Count == 0)
+      {
+        context.Logger.LogLine("No marriage pairs to send. Nobody to marry.");
+        return;
+      }
+
       var requestBody = new
       {
         marriagePairs = marriagePairs
       };
+
       var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/marryPersonas";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
       if (!response.IsSuccessStatusCode)
@@ -390,6 +397,12 @@ namespace RandomEvent
 
     private async Task SendKILLSToService(List<long> personIDs, ILambdaContext context)
     {
+      if (personIDs.Count == 0)
+      {
+        context.Logger.LogLine("No people that can get Killed. No Deaths");
+        return;
+      }
+
       var requestBody = new
       {
         personaIds = personIDs
@@ -403,6 +416,13 @@ namespace RandomEvent
     }
     private async Task SendSicknessToService(List<long> personIDs, ILambdaContext context)
     {
+
+      if (personIDs.Count == 0)
+      {
+        context.Logger.LogLine("No people that can get Sick, No Sickness.");
+        return;
+      }
+
       var requestBody = new
       {
         personaIds = personIDs
@@ -416,6 +436,13 @@ namespace RandomEvent
     }
     private async Task SendBirthsToService(List<long> personIDs, ILambdaContext context)
     {
+
+      if (personIDs.Count == 0)
+      {
+        context.Logger.LogLine("No people that can give Babies, No Births.");
+        return;
+      }
+
       var requestBody = new
       {
         patentChildIds = personIDs
