@@ -1,10 +1,4 @@
 ﻿using SalaryLambdas.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
 
 namespace SalaryLambdas.services
 {
@@ -25,7 +19,7 @@ namespace SalaryLambdas.services
 
             if (getsHigherWage)
             {
-                int higherWage = minimumWage + random.Next(1, minimumWage / 2 + 1); // Up to 50% higher
+                int higherWage = minimumWage + random.Next(1, (minimumWage / 2) + 1); // Up to 50% higher
                 return higherWage;
             }
 

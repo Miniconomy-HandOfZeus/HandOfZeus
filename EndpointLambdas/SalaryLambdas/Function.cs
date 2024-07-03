@@ -16,48 +16,56 @@ public class Function
 
     public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
-        //if (input.QueryStringParameters == null)
-        //{
-        //    return new APIGatewayProxyResponse
-        //    {
-        //        StatusCode = 500,
-        //        Body = JsonConvert.SerializeObject(new { message = "Internal server error" }),
-        //        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-        //    };
-        //}
-
-        // Parse the input body to get the person ID
-        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, List<BigInteger>>>(input.Body);
-        if (requestBody == null || !requestBody.ContainsKey("people"))
+        try
         {
+            if (input.QueryStringParameters == null)
+            {
+                throw new Exception("Query string parameters are null");
+            }
+
+            // Parse the input body to get the person ID
+            var requestBody = JsonConvert.DeserializeObject<Dictionary<string, List<long>>>(input.Body);
+            if (requestBody == null || !requestBody.ContainsKey("people"))
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 400,
+                    Body = JsonConvert.SerializeObject(new { message = "Invalid request. 'people' is required." }),
+                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                };
+            }
+
+            List<long> personIds = requestBody["people"];
+
+            List<PersonaWages> personaWages = DetermineWage(personIds);
+
             return new APIGatewayProxyResponse
             {
-                StatusCode = 400,
-                Body = JsonConvert.SerializeObject(new { message = "Invalid request. 'people' is required." }),
+                StatusCode = 200,
+                Body = JsonConvert.SerializeObject(personaWages),
                 Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
             };
         }
-
-        List<BigInteger> personId = requestBody["people"];
-
-        List<PersonaWages> personaWages = DetermineWage(personId);
-
-        return new APIGatewayProxyResponse
+        catch (Exception ex)
         {
-            StatusCode = 200,
-            Body = JsonConvert.SerializeObject(personaWages),
-            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-        };
+            context.Logger.LogError($"Error: ${ex.Message}");
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 500,
+                Body = JsonConvert.SerializeObject(new { message = "Internal server error" }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
+        }
+        
     }
 
 
-    public List<PersonaWages> DetermineWage(List<BigInteger> personas)
+    public List<PersonaWages> DetermineWage(List<long> personas)
     {
         List<PersonaWages> wages = new List<PersonaWages>();
 
         personas.ForEach(async person =>
         {
-
             int wage = await wageDeterminationService.DetermineWageAsync();
             wages.Add(new PersonaWages()
             {
