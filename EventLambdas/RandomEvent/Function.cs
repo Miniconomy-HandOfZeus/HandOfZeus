@@ -154,6 +154,12 @@ namespace RandomEvent
 
       if (selectedEvent == "Marriage")
       {
+        var requestBody = new
+        {
+          marriagePairs = marriagePairs
+        };
+        context.Logger.LogLine($"requestBody : {requestBody}");
+
         string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x["firstPerson"]}, {x["secondPerson"]})"));
         await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
         await SendMarriagePairsToService(marriagePairs, context);
@@ -424,7 +430,7 @@ namespace RandomEvent
         marriagePairs = marriagePairs
       };
 
-      context.Logger.LogLine($"requestBody : {requestBody}");
+
 
       var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/marryPersonas";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
@@ -471,7 +477,7 @@ namespace RandomEvent
 
     private async Task<List<long>> FetchCanBeMarriedPeople()
     {
-      var response = await httpClient.GetFromJsonAsync<List<long>>("https://api.persona.projects.bbdgrad.com/api/HandOfZeus/givePersonasChild");
+      var response = await httpClient.GetFromJsonAsync<List<long>>("https://api.persona.projects.bbdgrad.com/api/Persona/getSinglePersonas");
       return response ?? new List<long>();
     }
   }
