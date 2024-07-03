@@ -13,9 +13,6 @@ import {
   breakageDescription
 } from "./descriptions.js";
 
-
-//document.addEventListener('DOMContentLoaded', async () => {console.log(`Email: ${await getEmail()}`);});
-
 //UI elements\\
 let startResetButton = document.getElementById('startResetButton');
 let eventCountTxt = document.getElementById('eventCountDisplay');
@@ -60,7 +57,7 @@ let timeDisplay = document.getElementById('timeDisplay');
 // Update the timer every second
 setInterval(updateTimer, 5000);
 
-checkToSeeIfSimulationHasStarted();
+//checkToSeeIfSimulationHasStarted();
 
 
 //Start and Reset Logic\\
