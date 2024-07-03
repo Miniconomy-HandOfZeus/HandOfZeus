@@ -10,7 +10,7 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 
 resource "aws_iam_policy" "lambda_access" {
   name        = "${var.naming_prefix}-lambda-policy"
-  description = "Policy that grants full access to DynamoDB, S3 and Secrets Manager."
+  description = "Policy that grants full access to the necessary resources."
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -19,7 +19,8 @@ resource "aws_iam_policy" "lambda_access" {
         Action = [
           "dynamodb:*",
           "s3:*",
-          "secretsmanager:*"
+          "secretsmanager:*",
+          "events:*"
         ],
         Resource = "*"
       }
