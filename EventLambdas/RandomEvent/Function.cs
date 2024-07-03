@@ -146,9 +146,16 @@ namespace RandomEvent
         string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x.Item1}, {x.Item2})"));
         await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
       } 
-      else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages" || selectedEvent == "Hunger") {
+      else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages" || selectedEvent == "Hunger" || selectedEvent == "Sickness") {
         string Affectedresult = string.Join(", ", affectedPeople);
         await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
+      }
+      else if (selectedEvent == "Salary")
+      {
+        var salaryIncreases = CalculateSalaryIncreases(affectedPeopleCount);
+        string salaryIncreasesResult = string.Join(", ", salaryIncreases.Select(x => $"{x.Key}: {x.Value}%"));
+        await InsertEventIntoDynamoDB(selectedEvent, description, salaryIncreasesResult);
+        await SendSalaryIncreasesToService(salaryIncreases);
       }
       else
       {
@@ -406,6 +413,36 @@ namespace RandomEvent
       if (!response.IsSuccessStatusCode)
       {
         throw new Exception($"Failed to send marriage pairs to service endpoint. Status code: {response.StatusCode}");
+      }
+    }
+
+    private Dictionary<long, double> CalculateSalaryIncreases(int count)
+    {
+      var salaryIncreases = new Dictionary<long, double>();
+
+      for (int i = 0; i < count; i++)
+      {
+        long personId = people[random.Next(people.Count)];
+        double increase = random.Next(1, 6); // Random increase between 1% and 5%
+        salaryIncreases[personId] = increase;
+      }
+
+      return salaryIncreases;
+    }
+
+    private async Task SendSalaryIncreasesToService(Dictionary<long, double> salaryIncreases)
+    {
+      var salaryIncreasesPayload = salaryIncreases.Select(increase => new { PersonId = increase.Key, IncreasePercentage = increase.Value }).ToList();
+
+      var response = await httpClient.PostAsJsonAsync("https://labour.projects.bbdgrad.com", salaryIncreasesPayload);
+
+      if (response.IsSuccessStatusCode)
+      {
+        Console.WriteLine("Salary increases sent successfully.");
+      }
+      else
+      {
+        Console.WriteLine($"Failed to send salary increases: {response.StatusCode}");
       }
     }
 
