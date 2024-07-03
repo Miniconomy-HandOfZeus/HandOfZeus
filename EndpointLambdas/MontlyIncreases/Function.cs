@@ -106,7 +106,7 @@ namespace MontlyIncreases
         throw e;
       }
 
-      //long newPopulation = askPopulation();
+      long newPopulation = await ;
       double rate = 1/ oldPopulation;
 
 
