@@ -1,22 +1,22 @@
 ﻿using Amazon.Lambda.Core;
 using StartOrResetSim.Interfaces;
-
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 namespace StartOrResetSim.Services
 {
-    public class DeterminePrice : IDeterminePrice
+  public class DeterminePrice : IDeterminePrice
+  {
+    private readonly DBHelper DBHelper = new DBHelper();
+    public class Item
     {
-        private readonly DBHelper DBHelper = new DBHelper();
-        public class Item
-        {
-            public string Name { get; set; }
-            public int Price { get; set; }
-        }
+      public string Name { get; set; }
+      public int Price { get; set; }
+    }
 
-        List<Item> prices = new List<Item>
+    List<Item> prices = new List<Item>
 {
             new Item { Name = "health_insurance", Price = 100 },
             new Item { Name = "prime_lending_rate", Price = 100 },
-            new Item { Name = "taxes", Price = 400 },
             new Item { Name = "food_price", Price = 400 },
             new Item { Name = "life_insurance", Price = 400 },
             new Item { Name = "short_term_insurance", Price = 400 },
@@ -25,25 +25,30 @@ namespace StartOrResetSim.Services
             new Item { Name = "house_price", Price = 400 }
         };
 
-        public async Task setPrices()
+    public async Task setPrices()
+    {
+      int business = 10;
+      int income = 20;
+      int vat = 30;
+      DBHelper.setTaxes("taxes", business, income, vat);
+      prices.ForEach(item =>
+      {
+        try
         {
-            prices.ForEach(item =>
-            {
-                try
-                {
-                    DBHelper.SetInDbNumber(item.Name, item.Price);
-                }catch (Exception ex)
-                {
-                    LambdaLogger.Log("there was an error in setting prices: " +  ex.Message);
-                }
-                
-            });
+          DBHelper.SetInDbNumber(item.Name, item.Price);
+        }
+        catch (Exception ex)
+        {
+          LambdaLogger.Log("there was an error in setting prices: " + ex.Message);
         }
 
-        public async Task setStartTime(string key, string startTime)
-        {
-            DBHelper.SetInDbString(key, startTime.ToString());
-        }
-
+      });
     }
+
+    public async Task setStartTime(string key, string startTime)
+    {
+      DBHelper.SetInDbString(key, startTime.ToString());
+    }
+
+  }
 }
