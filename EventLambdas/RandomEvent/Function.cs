@@ -150,7 +150,7 @@ namespace RandomEvent
       var description = string.Format(eventDescriptions[selectedEvent], affectedPeopleCount);
       context.Logger.LogLine($"Event Description: {description}");
 
-      var marriagePairs = await CreateMarriagePairs(affectedPeopleCount,context);
+      var marriagePairs = await CreateMarriagePairs(affectedPeopleCount, context);
       context.Logger.LogLine($"marriagePairs : {marriagePairs}");
 
       if (selectedEvent == "Marriage")
@@ -400,8 +400,8 @@ namespace RandomEvent
     private async Task<List<Dictionary<string, long>>> CreateMarriagePairs(int count, ILambdaContext context)
     {
       var pairs = new List<Dictionary<string, long>>();
-      var availablePeople = await FetchCanBeMarriedPeople();
-      context.Logger.LogLine($"Event Description: {availablePeople}");
+      var availablePeople = await FetchCanBeMarriedPeople(context);
+      context.Logger.LogLine($"availablePeople: {availablePeople}");
       while (count > 1 && availablePeople.Count > 1)
       {
         int index1 = random.Next(availablePeople.Count);
@@ -418,6 +418,8 @@ namespace RandomEvent
             { "secondPerson", person2 }
         });
         count -= 2;
+        context.Logger.LogLine($"pairs Description: {pairs}");
+
       }
 
       return pairs;
@@ -476,9 +478,11 @@ namespace RandomEvent
       }
     }
 
-    private async Task<List<long>> FetchCanBeMarriedPeople()
+    private async Task<List<long>> FetchCanBeMarriedPeople(ILambdaContext context)
     {
+      context.Logger.LogLine($"GetFromJsonAsync BEFORE:");
       var response = await httpClient.GetFromJsonAsync<List<long>>("https://api.persona.projects.bbdgrad.com/api/Persona/getSinglePersonas");
+      context.Logger.LogLine($"GetFromJsonAsync AFTER:" + response);
       return response ?? new List<long>();
     }
 
