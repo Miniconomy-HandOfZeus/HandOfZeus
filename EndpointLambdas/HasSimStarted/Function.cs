@@ -25,7 +25,7 @@ public class Function
 
             if (hasStarted)
             {
-                string startTime = await dbHelper.GetStartTime("SimulationStartTime");
+                DateTime startTime = await dbHelper.getSimulationStartDate();
                 LambdaLogger.Log("startTime " + startTime);
 
                 var requestBody = new
