@@ -16,35 +16,25 @@ namespace SickPersonaDies.Services
 
         public async Task<bool> SendPostRequestAsync(SickPersonDiesClass survives)
         {
-
             using (var httpClient = new HttpClient(client))
             {
-                try
+                HttpContent content = null;
+
+                var requestBody = new
                 {
-                    HttpContent content = null;
+                    personaIds = new List<long> {survives.personID}
+                };
 
-                    var requestBody = new
-                    {
-                        personaIds = new List<long> {survives.personID}
-                    };
-
-                    var json = JsonConvert.SerializeObject(requestBody);
-                    content = new StringContent(json, Encoding.UTF8, "application/json");
+                var json = JsonConvert.SerializeObject(requestBody);
+                content = new StringContent(json, Encoding.UTF8, "application/json");
                     
 
-                    var response = await httpClient.PostAsync(personasUrl, content);
+                var response = await httpClient.PostAsync(personasUrl, content);
 
-                    response.EnsureSuccessStatusCode();
+                response.EnsureSuccessStatusCode();
 
-                    return true; // Return true to indicate success
-                }
-                catch (HttpRequestException e)
-                {
-                    Console.WriteLine($"Error sending PUT request: {e.Message}");
-                    return false; // Return false if there was an error
-                }
+                return true; // Return true to indicate success
             }
-
         }
     }
 }

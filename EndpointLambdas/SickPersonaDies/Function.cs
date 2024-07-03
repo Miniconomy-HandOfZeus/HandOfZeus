@@ -42,7 +42,14 @@ public class Function
 
         if (!response.survives)
         {
-            await RequestHandler.SendPostRequestAsync(response);
+            try
+            {
+                await RequestHandler.SendPostRequestAsync(response);
+            } 
+            catch (Exception ex)
+            {
+                context.Logger.Log($"Error: {ex.Message}");
+            }
         }
 
         return new APIGatewayProxyResponse
