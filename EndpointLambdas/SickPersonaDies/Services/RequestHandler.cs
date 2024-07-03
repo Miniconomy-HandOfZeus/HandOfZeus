@@ -19,9 +19,8 @@ namespace SickPersonaDies.Services
             client = new HttpClientHandler();
         }
 
-        public async Task<bool> SendPostRequestAsync(X509Certificate2 cert, sickPersonDiesClass survives)
+        public async Task<bool> SendPostRequestAsync(sickPersonDiesClass survives)
         {
-            client.ClientCertificates.Add(cert);
 
             using (var httpClient = new HttpClient(client))
             {

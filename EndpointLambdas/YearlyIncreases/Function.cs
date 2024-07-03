@@ -23,13 +23,26 @@ namespace YearlyIncreases
     {
       Function function = new Function();
       function.runTasks();
-      var response = new APIGatewayProxyResponse
+      try
       {
-        StatusCode = 200,
-        Body = JsonSerializer.Serialize(new { message = input.Body }),
-        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-      };
-      return response;
+        var response = new APIGatewayProxyResponse
+        {
+          StatusCode = 200,
+          Body = JsonSerializer.Serialize(new { message = input.Body }),
+          Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        };
+        return response;
+      }
+      catch (Exception e)
+      {
+        var response = new APIGatewayProxyResponse
+        {
+          StatusCode = 500,
+          Body = JsonSerializer.Serialize(new { message = "Internal Server Error" }),
+          Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        };
+        return response;
+      }
     }
 
     private void runTasks()

@@ -21,13 +21,13 @@ namespace MontlyIncreases
       Function function = new Function();
       context.Logger.Log("RUN TASKS");
       function.runTasks();
+      
       var response = new APIGatewayProxyResponse
       {
         StatusCode = 200,
         Body = JsonSerializer.Serialize(new { message = input.Body }),
         Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
       };
-      context.Logger.Log(response.ToString());
       return response;
     }
     private void runTasks()
