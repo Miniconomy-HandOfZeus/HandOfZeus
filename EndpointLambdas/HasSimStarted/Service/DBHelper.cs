@@ -12,7 +12,7 @@ namespace HasSimStarted.Service
     public class DBHelper
     {
         private static readonly string tableName = "hand-of-zeus-db";
-        private readonly AmazonDynamoDBClient client = new();
+        private static readonly AmazonDynamoDBClient client = new();
 
         public async Task<bool> GetValue(string key)
         {
@@ -74,6 +74,35 @@ namespace HasSimStarted.Service
 
         }
 
+
+        public async Task<DateTime> getSimulationStartDate()
+        {
+            // Get real-world simulation start time from DB
+            var key = new Dictionary<string, AttributeValue>
+            {
+                { "Key", new AttributeValue { S = "SimulationStartTime" } }
+            };
+
+            var request = new GetItemRequest
+            {
+                TableName = tableName,
+                Key = key
+            };
+
+            var response = await client.GetItemAsync(request);
+
+            if (response.Item != null && response.Item.TryGetValue("value", out AttributeValue? value))
+            {
+                string simulationStartTimeString = value.S;
+                DateTime simulationStartTime = DateTime.ParseExact(simulationStartTimeString, "yyyy-MM-ddTHH:mm:ss", null, System.Globalization.DateTimeStyles.None);
+
+                return simulationStartTime;
+            }
+            else
+            {
+                throw new Exception("Unable to retrieve the simulation start time from the db");
+            }
+        }
         public async Task<string> GetStartTime(string key)
         {
             var request = new GetItemRequest
