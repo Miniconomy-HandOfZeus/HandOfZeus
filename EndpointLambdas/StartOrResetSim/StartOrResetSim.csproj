@@ -15,8 +15,8 @@
     <PackageReference Include="Amazon.Lambda.Core" Version="2.2.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.4.1" />
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.304.1" />
-    <PackageReference Include="AWSSDK.EventBridge" Version="3.7.303.22" />
     <PackageReference Include="AWSSDK.Lambda" Version="3.7.305.43" />
+    <PackageReference Include="AWSSDK.Scheduler" Version="3.7.300.112" />
     <PackageReference Include="AWSSDK.SecretsManager" Version="3.7.304.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
