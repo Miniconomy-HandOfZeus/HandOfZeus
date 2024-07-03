@@ -3,6 +3,7 @@ using Amazon.Lambda.Core;
 using Newtonsoft.Json;
 using StartOrResetSim.Services;
 using System.Security.Cryptography.X509Certificates;
+using static System.Net.WebRequestMethods;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -24,9 +25,9 @@ public class Function
          "https://api.health.projects.bbdgrad.com/control-simulation",
          "https://api.life.projects.bbdgrad.com/control-simulation",
          "https://api.insurance.projects.bbdgrad.com/api/time",
-         "https://api.loans.projects.bbdgrad.com/mng/reset"
-
-    };
+         "https://api.loans.projects.bbdgrad.com/mng/reset",
+         "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/startSimulation",
+};
 
     private readonly ScheduleTrigger _ScheduleTrigger = new();
 
