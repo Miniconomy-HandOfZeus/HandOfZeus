@@ -477,7 +477,7 @@ namespace RandomEvent
 
     private async Task<List<long>> FetchCanBeMarriedPeople()
     {
-      var response = await httpClient.GetFromJsonAsync<List<long>>("https://api.persona.projects.bbdgrad.com/api/HandOfZeus/givePersonasChild");
+      var response = await httpClient.GetFromJsonAsync<List<long>>("https://api.persona.projects.bbdgrad.com/api/Persona/getSinglePersonas");
       return response ?? new List<long>();
     }
   }
