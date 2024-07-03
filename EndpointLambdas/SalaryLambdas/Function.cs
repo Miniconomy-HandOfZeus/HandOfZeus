@@ -1,9 +1,9 @@
 using Amazon.Lambda.Core;
-using SalaryLambdas.services;
 using Amazon.Lambda.APIGatewayEvents;
 using Newtonsoft.Json;
 using SalaryLambdas.Models;
-using System.Numerics;
+using Amazon.DynamoDBv2.Model;
+using Amazon.DynamoDBv2;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -12,9 +12,13 @@ namespace SalaryLambdas;
 
 public class Function
 {
-    private readonly WageDeterminationService wageDeterminationService = new WageDeterminationService(new WageService());
+    //private readonly WageDeterminationService wageDeterminationService = new WageDeterminationService(new WageService());
+    private readonly AmazonDynamoDBClient client = new();
+    private static readonly string tableName = "hand-of-zeus-db";
+    private static readonly string minimumWageKey = "minimum_wage";
+    private readonly static Random random = new Random();
 
-    public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
         try
         {
@@ -23,7 +27,7 @@ public class Function
                 throw new Exception("Query string parameters are null");
             }
 
-            // Parse the input body to get the person ID
+            // Parse the input body to get the people
             var requestBody = JsonConvert.DeserializeObject<Dictionary<string, List<long>>>(input.Body);
             if (requestBody == null || !requestBody.ContainsKey("people"))
             {
@@ -37,8 +41,26 @@ public class Function
 
             List<long> personIds = requestBody["people"];
 
-            List<PersonaWages> personaWages = DetermineWage(personIds);
-            Console.WriteLine($"Persona wages: {personaWages}");
+            // Get the minimum wage from the db
+            var request = new GetItemRequest
+            {
+                TableName = tableName,
+                Key = new Dictionary<string, AttributeValue>
+                {
+                    { "Key", new AttributeValue { S = minimumWageKey } }
+                }
+            };
+
+            var response = await client.GetItemAsync(request);
+            if (response.Item == null || !response.Item.ContainsKey("value"))
+            {
+                throw new Exception("Minimum wage not found in the database.");
+            }
+
+            int minimumWage = int.Parse(response.Item["value"].N);
+
+            // Determine wages
+            List<PersonaWages> personaWages = personIds.Select(id => random.NextDouble() < 0.5 ? new PersonaWages { personaId = id, wage = minimumWage } : new PersonaWages { personaId = id, wage = minimumWage + random.Next(minimumWage / 2) }).ToList();
 
             return new APIGatewayProxyResponse
             {
@@ -58,24 +80,5 @@ public class Function
             };
         }
         
-    }
-
-
-    public List<PersonaWages> DetermineWage(List<long> personas)
-    {
-        List<PersonaWages> wages = new List<PersonaWages>();
-
-        personas.ForEach(async person =>
-        {
-            int wage = await wageDeterminationService.DetermineWageAsync();
-            wages.Add(new PersonaWages()
-            {
-                personaId = person,
-                wage = wage
-            });
-
-        });
-
-        return wages;
     }
 }
