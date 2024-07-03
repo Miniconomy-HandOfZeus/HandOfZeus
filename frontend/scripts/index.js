@@ -14,14 +14,20 @@ import {
 } from "./descriptions.js";
 
 //UI elements\\
-let startResetButton = document.getElementById('startResetButton');
+let startResetButton = document.getElementById('startButton');
+let resetButton = document.getElementById('resetButton');
 let eventCountTxt = document.getElementById('eventCountDisplay');
 let SacrificeButton = document.getElementById('Sacrifice');
 let timerTxt = document.getElementById('timeDisplay');
+
 //Event Listeners\\
 document.getElementById('logout-button').addEventListener('click', logout);
+
 startResetButton.addEventListener('click', startOrResetSim);
+resetButton.addEventListener('click', startOrResetSim);
 SacrificeButton.addEventListener('click', sacrificeSomeone);
+
+
 
 //Variables\\
 let hasSimStarted = false;
@@ -80,8 +86,10 @@ function calculateDate() {
   console.log(formattedDate);
   timerTxt.innerText = formattedDate;
 }
+
+
 // Update the timer every second
-if(simulationStartDate != null){
+if(hasSimStarted){
   setInterval(calculateDate, 5000);
 }
 
@@ -104,21 +112,21 @@ async function checkToSeeIfSimulationHasStarted(){
     console.log(tasks.json.startTime);
     simulationStartDate = tasks.json.startTime;
     hasSimStarted = true;
-    startResetButton.value = false;
-    startResetButton.textContent = "Reset Simulation";
-    if (startResetButton.classList.contains('button-green')) {
-      startResetButton.classList.remove('button-green');
-      startResetButton.classList.add('button-red');
-    }
+    // startResetButton.value = false;
+    // startResetButton.textContent = "Reset Simulation";
+    // if (startResetButton.classList.contains('button-green')) {
+    //   startResetButton.classList.remove('button-green');
+    //   startResetButton.classList.add('button-red');
+    // }
     startPolling();
   } else {
     hasSimStarted = false;
-    startResetButton.value = true;
-    startResetButton.textContent = "Start Simulation";
-    if (startResetButton.classList.contains('button-red')) {
-      startResetButton.classList.remove('button-red');
-      startResetButton.classList.add('button-green');
-    }
+    // startResetButton.value = true;
+    // startResetButton.textContent = "Start Simulation";
+    // if (startResetButton.classList.contains('button-red')) {
+    //   startResetButton.classList.remove('button-red');
+    //   startResetButton.classList.add('button-green');
+    // }
     stopPolling();
   }
 }
@@ -174,24 +182,24 @@ async function startOrResetSim() {
     //something went wrong pop-up
   }
 
-  switch (data.action) {
-    case "true":
-      startResetButton.value = "false";
-      startResetButton.textContent = "Reset Simulation";
-      if (startResetButton.classList.contains('button-green')) {
-        startResetButton.classList.remove('button-green');
-        startResetButton.classList.add('button-red');
-      }
-      break;
-    case "false":
-      startResetButton.value = "true";
-      startResetButton.textContent = "Start Simulation";
-      if (startResetButton.classList.contains('button-red')) {
-        startResetButton.classList.remove('button-red');
-        startResetButton.classList.add('button-green');
-      }
-      break;
-  }
+  // switch (data.action) {
+  //   case "true":
+  //     startResetButton.value = "false";
+  //     startResetButton.textContent = "Reset Simulation";
+  //     if (startResetButton.classList.contains('button-green')) {
+  //       startResetButton.classList.remove('button-green');
+  //       startResetButton.classList.add('button-red');
+  //     }
+  //     break;
+  //   case "false":
+  //     startResetButton.value = "true";
+  //     startResetButton.textContent = "Start Simulation";
+  //     if (startResetButton.classList.contains('button-red')) {
+  //       startResetButton.classList.remove('button-red');
+  //       startResetButton.classList.add('button-green');
+  //     }
+  //     break;
+  // }
 
   startResetButton.disabled = false;
 
@@ -254,7 +262,7 @@ function addEventElement(eventData) {
 
   // Create and append the first <a> element
   const idLink = document.createElement('a');
-  idLink.textContent = eventData.Key;
+  idLink.textContent = calculateDate(simulationStartDate, eventData.date);
   newEvent.appendChild(idLink);
 
   // Create and append the second <a> element
@@ -277,28 +285,28 @@ function addEventElement(eventData) {
     case 'Birth':
       pillLink.classList.add('pill-green');
       
-    case 'marriage':
+    case 'Marriage':
       pillLink.classList.add('pill-yellow');
       
-    case 'hunger':
+    case 'Hunger':
       pillLink.classList.add('pill-lightBlue');
       
-    case 'breakage':
+    case 'Breakage':
       pillLink.classList.add('pill-orange');
       
-    case 'fired':
+    case 'Fired':
       pillLink.classList.add('pill-red');
 
     case 'Famine':
       pillLink.classList.add('pill-purple');
       
-    case 'plague':
+    case 'Plague':
       pillLink.classList.add('pill-purple');
       
-    case 'apocalypse':
+    case 'Apocalypse':
       pillLink.classList.add('pill-purple');
       
-    case 'war':
+    case 'War':
       pillLink.classList.add('pill-purple');
 
     default:
@@ -389,5 +397,30 @@ async function sacrificePersona() {
   } else {
 
   }
+}
+
+function calculateDate(simulationStartDate, currentDate) {
+  // Convert the dates to JavaScript Date objects if they are not already
+  simulationStartDate = new Date(simulationStartDate);
+  currentDate = new Date(currentDate);
+
+  // Get the total seconds difference between the dates
+  const totalSeconds = (currentDate - simulationStartDate) / 1000;
+
+  // Get the current day of the simulation (e.g., day 1302)
+  const simulationDayNumber = Math.floor(totalSeconds / 120) + 1;
+
+  // Calculate current year
+  const year = Math.floor(simulationDayNumber / 360) + 1;
+  const daysIntoYear = Math.floor(simulationDayNumber % 360);
+
+  // Calculate current month and day
+  const month = Math.floor(daysIntoYear / 30) + 1;
+  const day = Math.floor(daysIntoYear % 30);
+
+  // Format the year, month, and day with leading zeros
+  const formattedDate = `${year.toString().padStart(2, '0')}|${month.toString().padStart(2, '0')}|${day.toString().padStart(2, '0')}`;
+
+  return formattedDate;
 }
 
