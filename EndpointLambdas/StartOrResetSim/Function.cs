@@ -3,6 +3,7 @@ using Amazon.Lambda.Core;
 using Newtonsoft.Json;
 using StartOrResetSim.Services;
 using System.Security.Cryptography.X509Certificates;
+using static StartOrResetSim.Services.DeterminePrice;
 using static System.Net.WebRequestMethods;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
