@@ -87,14 +87,14 @@ public class Function
 
                 });
 
-                var body = new
+                var json = new
                 {
                     startTime = currentTime
                 };
 
                 // Serialize the response object to JSON
                 
-                var json = JsonConvert.SerializeObject(body);
+                //var json = JsonConvert.SerializeObject(body);
 
                 return new APIGatewayProxyResponse
                 {
