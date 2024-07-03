@@ -7,7 +7,7 @@ namespace SickPersonaDies.Services
     public class RequestHandler
     {
         private readonly HttpClientHandler client;
-        private readonly string personasUrl = "https://persona.projects.bbdgrad.com/api/killPersonas";
+        private readonly string personasUrl = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/killPersonas";
 
         public RequestHandler()
         {
