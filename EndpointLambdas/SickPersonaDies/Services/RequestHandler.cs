@@ -1,25 +1,20 @@
 ﻿using Newtonsoft.Json;
 using SickPersonaDies.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SickPersonaDies.Services
 {
     public class RequestHandler
     {
         private readonly HttpClientHandler client;
-        private readonly string personasUrl = "https://persona.projects.bbdgrad.com/killPersonas";
+        private readonly string personasUrl = "https://persona.projects.bbdgrad.com/api/killPersonas";
 
         public RequestHandler()
         {
             client = new HttpClientHandler();
         }
 
-        public async Task<bool> SendPostRequestAsync(sickPersonDiesClass survives)
+        public async Task<bool> SendPostRequestAsync(SickPersonDiesClass survives)
         {
 
             using (var httpClient = new HttpClient(client))
@@ -30,7 +25,7 @@ namespace SickPersonaDies.Services
 
                     var requestBody = new
                     {
-                        personaId = survives.personID
+                        personaIds = new List<long> {survives.personID}
                     };
 
                     var json = JsonConvert.SerializeObject(requestBody);

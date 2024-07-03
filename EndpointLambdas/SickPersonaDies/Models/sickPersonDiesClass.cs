@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SickPersonaDies.Models
+﻿namespace SickPersonaDies.Models
 {
-    public class sickPersonDiesClass
+    public class SickPersonDiesClass
     {
-        public BigInteger personID;
+        public long personID;
         public bool survives;
     }
 }
