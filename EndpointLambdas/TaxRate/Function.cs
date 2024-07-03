@@ -24,7 +24,7 @@ namespace TaxRate
         return new APIGatewayProxyResponse
         {
           StatusCode = 500,
-          Body = JsonConvert.SerializeObject(new { message = "Internal server error" }),
+          Body = JsonSerializer.Serialize(new { message = "Internal server error" }),
           Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
       }
@@ -35,7 +35,7 @@ namespace TaxRate
         return new APIGatewayProxyResponse
         {
           StatusCode = 500,
-          Body = JsonConvert.SerializeObject(new { message = "Internal server error" }),
+          Body = JsonSerializer.Serialize(new { message = "Internal server error" }),
           Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
       }
@@ -54,7 +54,7 @@ namespace TaxRate
           return new APIGatewayProxyResponse
           {
             StatusCode = 403,
-            Body = JsonConvert.SerializeObject(new { message = "Forbidden service" }),
+            Body = JsonSerializer.Serialize(new { message = "Forbidden service" }),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
           };
         }
@@ -64,7 +64,7 @@ namespace TaxRate
         return new APIGatewayProxyResponse
         {
           StatusCode = 403,
-          Body = JsonConvert.SerializeObject(new { message = "Forbidden" }),
+          Body = JsonSerializer.Serialize(new { message = "Forbidden" }),
           Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
       }
