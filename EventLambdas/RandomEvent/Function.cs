@@ -18,19 +18,19 @@ namespace RandomEvent
     private static readonly Random random = new Random();
     private static readonly List<string> events = new List<string>
         {
-            //"Death",
-            //"Marriage",
-            //"Birth",
-            //"Sickness",
+            "Death",
+            "Marriage",
+            "Birth",
+            "Sickness",
             //"Breakages",
             //"Salary",
             //"Fired from job",
-            //"FamineStart",
-            //"FamineEnd",
-            //"PlagueStart",
-            //"PlagueEnd",
-            //"WarStart",
-            //"WarEnd"
+            "FamineStart",
+            "FamineEnd",
+            "PlagueStart",
+            "PlagueEnd",
+            "WarStart",
+            "WarEnd",
             "Apocalypse",
             //"Inflation"
         };
@@ -38,19 +38,19 @@ namespace RandomEvent
 
     private static readonly Dictionary<string, int> eventWeights = new Dictionary<string, int>
         {
-            //{ "Death", 0 },
-            //{ "Marriage", 0 },
-            //{ "Birth", 0 },
-            //{ "Sickness", 15 },
+            { "Death", 50 },
+            { "Marriage", 15 },
+            { "Birth", 75 },
+            { "Sickness", 25 },
             //{ "Breakages", 5 },
             //{ "Salary", 25 },
             //{ "Fired from job", 5 },
-            //{ "FamineStart", 1 },
-            //{ "FamineEnd", 0 },
-            //{ "PlagueStart", 1 },
-            //{ "PlagueEnd", 0 },
-            //{ "WarStart", 1 },
-            //{ "WarEnd", 0 },
+            { "FamineStart", 5 },
+            { "FamineEnd", 0 },
+            { "PlagueStart", 5 },
+            { "PlagueEnd", 0 },
+            { "WarStart", 5 },
+            { "WarEnd", 0 },
             { "Apocalypse", 1 },
             //{ "Inflation", 10 }
         };
@@ -100,11 +100,14 @@ namespace RandomEvent
       if (selectedEvent.EndsWith("Start"))
       {
         var endEvent = selectedEvent.Replace("Start", "End");
-        eventWeights[endEvent] = 100; 
+        eventWeights[endEvent] = 100;
+        eventWeights[selectedEvent] = 0;
       }
       else if (selectedEvent.EndsWith("End"))
       {
         eventWeights[selectedEvent] = 0;
+        var startEvent = selectedEvent.Replace("End", "Start");
+        eventWeights[startEvent] = 2;
       }
       if (selectedEvent == "FamineStart" || selectedEvent == "FamineEnd")
       {
