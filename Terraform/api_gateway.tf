@@ -77,8 +77,6 @@ resource "aws_apigatewayv2_route" "service_api" {
   for_each           = var.service_lambda_endpoint_config
   api_id             = aws_apigatewayv2_api.service_api.id
   route_key          = each.key
-  authorization_type = "CUSTOM"
-  authorizer_id      = aws_apigatewayv2_authorizer.service_api.id
   target             = "integrations/${aws_apigatewayv2_integration.service_api[each.key].id}"
 }
 
