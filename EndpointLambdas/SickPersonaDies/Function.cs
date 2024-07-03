@@ -14,7 +14,7 @@ public class Function
     private static readonly Random random = new Random();
     private static readonly RequestHandler RequestHandler = new RequestHandler();
 
-    public async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest input, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
         // Parse the request body to get the person ID
         var requestBody = JsonConvert.DeserializeObject<Dictionary<string, long>>(input.Body);
