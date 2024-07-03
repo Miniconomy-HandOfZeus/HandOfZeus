@@ -58,7 +58,7 @@ public class Function
         currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
         LambdaLogger.Log("the start time is: " + currentTime);
         await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
-        await DeterminePrice.setHasStarted("hasStarted", true);
+        await DeterminePrice.setHasStarted("hasStarted", "true");
         try
         {
           await DeterminePrice.setPrices();
