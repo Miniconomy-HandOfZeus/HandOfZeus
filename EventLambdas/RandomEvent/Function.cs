@@ -16,65 +16,65 @@ namespace RandomEvent
   {
     private static readonly Random random = new Random();
     private static readonly List<string> events = new List<string>
-    {
-        "Death",
-        "Marriage",
-        "Birth",
-        "Hunger",
-        "Sickness",
-        "Breakages",
-        "Salary",
-        "Fired from job",
-        "FamineStart",
-        "FamineEnd",
-        "PlagueStart",
-        "PlagueEnd",
-        "WarStart",
-        "WarEnd",
-        "Apocalypse",
-        "Inflation"
-    };
+        {
+            "Death",
+            "Marriage",
+            "Birth",
+            "Hunger",
+            "Sickness",
+            "Breakages",
+            "Salary",
+            "Fired from job",
+            "FamineStart",
+            "FamineEnd",
+            "PlagueStart",
+            "PlagueEnd",
+            "WarStart",
+            "WarEnd",
+            "Apocalypse",
+            "Inflation"
+        };
 
 
     private static readonly Dictionary<string, int> eventWeights = new Dictionary<string, int>
-    {
-        { "Death", 10 },
-        { "Marriage", 20 },
-        { "Birth", 30 },
-        { "Hunger", 15 },
-        { "Sickness", 15 },
-        { "Breakages", 5 },
-        { "Salary", 25 },
-        { "Fired from job", 5 },
-        { "FamineStart", 1 },
-        { "FamineEnd", 0 },
-        { "PlagueStart", 1 },
-        { "PlagueEnd", 0 },
-        { "WarStart", 1 },
-        { "WarEnd", 0 },
-        { "Apocalypse", 1 },
-        { "Inflation", 10 }
-    };
+        {
+            { "Death", 10 },
+            { "Marriage", 20 },
+            { "Birth", 30 },
+            { "Hunger", 15 },
+            { "Sickness", 15 },
+            { "Breakages", 5 },
+            { "Salary", 25 },
+            { "Fired from job", 5 },
+            { "FamineStart", 1 },
+            { "FamineEnd", 0 },
+            { "PlagueStart", 1 },
+            { "PlagueEnd", 0 },
+            { "WarStart", 1 },
+            { "WarEnd", 0 },
+            { "Apocalypse", 1 },
+            { "Inflation", 10 }
+        };
 
     private static readonly Dictionary<string, string[]> eventEndpoints = new Dictionary<string, string[]>
-    {
-        { "Death", new[] { "https://persona.projects.bbdgrad.com" } },
-        { "Marriage", new[] { "https://persona.projects.bbdgrad.com" } },
-        { "Birth", new[] { "https://persona.projects.bbdgrad.com" } },
-        { "Hunger", new[] { "https://sustenance.projects.bbdgrad.com" } },
-        { "Sickness", new[] { "https://api.health.projects.bbdgrad.com", "https://persona.projects.bbdgrad.com" } },
-        { "Breakages", new[] { "https://api.insurance.projects.bbdgrad.com" } },
-        { "Salary", new[] { "https://labour.projects.bbdgrad.com" } },
-        { "Fired from job", new[] { "https://labour.projects.bbdgrad.com" } },
-        { "FamineStart", new string[] { } }, // No notification for end
-        { "FamineEnd", new string[] { } }, // No notification for end
-        { "PlagueStart", new string[] { } }, // No notification for end
-        { "PlagueEnd", new string[] { } }, // No notification for end
-        { "WarStart", new string[] { } }, // No notification for start
-        { "WarEnd", new string[] { } }, // No notification for end
-        { "Apocalypse", new[] { "https://persona.projects.bbdgrad.com" } },
-        { "Inflation", new[] { "https://api.commercialbank.projects.bbdgrad.com" } }
-    };
+        {
+            { "Death", new[] { "https://persona.projects.bbdgrad.com" } },
+            { "Marriage", new[] { "https://persona.projects.bbdgrad.com" } },
+            { "Birth", new[] { "https://persona.projects.bbdgrad.com" } },
+            { "Hunger", new[] { "https://sustenance.projects.bbdgrad.com" } },
+            { "Sickness", new[] { "https://api.health.projects.bbdgrad.com", "https://persona.projects.bbdgrad.com" } },
+            { "Breakages", new[] { "https://api.insurance.projects.bbdgrad.com" } },
+            { "Salary", new[] { "https://labour.projects.bbdgrad.com" } },
+            { "Fired from job", new[] { "https://labour.projects.bbdgrad.com" } },
+            { "FamineStart", new string[] { } }, // No notification for end
+            { "FamineEnd", new string[] { } }, // No notification for end
+            { "PlagueStart", new string[] { } }, // No notification for end
+            { "PlagueEnd", new string[] { } }, // No notification for end
+            { "WarStart", new string[] { } }, // No notification for start
+            { "WarEnd", new string[] { } }, // No notification for end
+            { "Apocalypse", new[] { "https://persona.projects.bbdgrad.com" } },
+            { "Inflation", new[] { "https://api.commercialbank.projects.bbdgrad.com" } }
+        };
 
     private static readonly List<long> people = new List<long>
         {
@@ -87,6 +87,26 @@ namespace RandomEvent
 
     private readonly IAmazonDynamoDB dynamoDbClient;
     private static readonly HttpClient httpClient = new HttpClient();
+
+    private static readonly Dictionary<string, string> eventDescriptions = new Dictionary<string, string>
+        {
+            { "Death", "The amount of people that died are: {0}" },
+            { "Marriage", "The amount of people that got married are: {0}" },
+            { "Birth", "The amount of people that were born are: {0}" },
+            { "Hunger", "The amount of people affected by hunger are: {0}" },
+            { "Sickness", "The amount of people affected by sickness are: {0}" },
+            { "Breakages", "The amount of breakages are: {0}" },
+            { "Salary", "The amount of salary increases are: {0}" },
+            { "Fired from job", "The amount of people fired from job are: {0}" },
+            { "FamineStart", "A famine has started affecting: {0} people" },
+            { "FamineEnd", "A famine has ended affecting: {0} people" },
+            { "PlagueStart", "A plague has started affecting: {0} people" },
+            { "PlagueEnd", "A plague has ended affecting: {0} people" },
+            { "WarStart", "A war has started affecting: {0} people" },
+            { "WarEnd", "A war has ended affecting: {0} people" },
+            { "Apocalypse", "An apocalypse has occurred affecting: {0} people" },
+            { "Inflation", "The inflation rate increased affecting: {0} people" }
+        };
 
     public Function()
     {
@@ -109,8 +129,12 @@ namespace RandomEvent
 
       var affectedPeopleCount = GetAffectedPeopleCount(eventRate);
       var affectedPeople = GetRandomPeople(affectedPeopleCount);
-
       context.Logger.LogLine($"Affected People: {string.Join(", ", affectedPeople)}");
+
+      var description = string.Format(eventDescriptions[selectedEvent], affectedPeopleCount);
+      context.Logger.LogLine($"Event Description: {description}");
+
+      await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
 
       await CallServiceEndpointsAsync(selectedEvent, eventRate, affectedPeople);
 
@@ -172,9 +196,9 @@ namespace RandomEvent
       {
         TableName = "EventRates",
         Key = new Dictionary<string, AttributeValue>
-        {
-            { "EventName", new AttributeValue { S = eventName } }
-        }
+                {
+                    { "EventName", new AttributeValue { S = eventName } }
+                }
       };
 
       try
@@ -267,20 +291,20 @@ namespace RandomEvent
       {
         TableName = "EventRates",
         Key = new Dictionary<string, AttributeValue>
-        {
-            { "EventName", new AttributeValue { S = eventName } }
-        },
-        AttributeUpdates = new Dictionary<string, AttributeValueUpdate>
-        {
-            {
-                "EventRate",
-                new AttributeValueUpdate
                 {
-                    Action = AttributeAction.PUT,
-                    Value = new AttributeValue { S = newRate }
+                    { "EventName", new AttributeValue { S = eventName } }
+                },
+        AttributeUpdates = new Dictionary<string, AttributeValueUpdate>
+                {
+                    {
+                        "EventRate",
+                        new AttributeValueUpdate
+                        {
+                            Action = AttributeAction.PUT,
+                            Value = new AttributeValue { S = newRate }
+                        }
+                    }
                 }
-            }
-        }
       };
       await dynamoDbClient.UpdateItemAsync(request);
     }
@@ -291,6 +315,34 @@ namespace RandomEvent
       double randomPercentage = random.Next(1, 6);
       double newRate = rate * (1 + randomPercentage / 100);
       return newRate.ToString("F2");
+    }
+
+    private async Task InsertEventIntoDynamoDB(string eventName, string description, string value)
+    {
+      string eventKey = DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ");
+
+      var request = new PutItemRequest
+      {
+        TableName = "hand-of-zeus-db",
+        Item = new Dictionary<string, AttributeValue>
+        {
+            { "Key", new AttributeValue { S = eventKey } },
+            { "event_name", new AttributeValue { S = eventName } },
+            { "type", new AttributeValue { S = "event" } },
+            { "description", new AttributeValue { S = description } },
+            { "value", new AttributeValue { S = value } },
+            { "date", new AttributeValue { S = DateTime.UtcNow.ToString("o") } }
+        }
+      };
+
+      try
+      {
+        await dynamoDbClient.PutItemAsync(request);
+      }
+      catch (Exception ex)
+      {
+        throw new Exception($"Failed to insert event into DynamoDB: {ex.Message}");
+      }
     }
 
   }

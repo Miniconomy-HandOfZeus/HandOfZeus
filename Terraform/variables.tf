@@ -63,7 +63,6 @@ variable "lambda_schedule_config" {
     name              = string
     rate_expression   = string # eg: 2 minutes
     lambda_invoke_arn = string
-    endpoints         = list(string)
   }))
   description = "The configuration for the scheduled Lambda functions such as random events."
 

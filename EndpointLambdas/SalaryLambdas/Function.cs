@@ -3,6 +3,7 @@ using SalaryLambdas.services;
 using Amazon.Lambda.APIGatewayEvents;
 using Newtonsoft.Json;
 using SalaryLambdas.Models;
+using System.Numerics;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -35,6 +36,7 @@ public class Function
                 Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
             };
         }
+
         List<string> allowedServices = [.. allowedServicesString.Split(",")];
 
         context.Logger.Log($"Allowed services: {string.Join(", ", allowedServices)}");
@@ -66,18 +68,18 @@ public class Function
         }
 
         // Parse the input body to get the person ID
-        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(input.Body);
-        if (requestBody == null || !requestBody.ContainsKey("personaId"))
+        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, List<BigInteger>>>(input.Body);
+        if (requestBody == null || !requestBody.ContainsKey("people"))
         {
             return new APIGatewayProxyResponse
             {
                 StatusCode = 400,
-                Body = JsonConvert.SerializeObject(new { message = "Invalid request. 'personaId' is required." }),
+                Body = JsonConvert.SerializeObject(new { message = "Invalid request. 'people' is required." }),
                 Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
             };
         }
 
-        List<string> personId = requestBody["personaId"];
+        List<BigInteger> personId = requestBody["people"];
 
         List<PersonaWages> personaWages = DetermineWage(personId);
 
@@ -90,7 +92,7 @@ public class Function
     }
 
 
-    public List<PersonaWages> DetermineWage(List<string> personas)
+    public List<PersonaWages> DetermineWage(List<BigInteger> personas)
     {
         List<PersonaWages> wages = new List<PersonaWages>();
 
