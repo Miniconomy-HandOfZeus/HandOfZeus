@@ -61,7 +61,7 @@ namespace MontlyIncreases
             },
         ExpressionAttributeValues = new Dictionary<string, AttributeValue>
             {
-                { ":newval", new AttributeValue { S = value+"" } }
+                { ":newval", new AttributeValue { N = value+"" } }
             },
         UpdateExpression = "SET #V = :newval"
       };

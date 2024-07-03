@@ -113,7 +113,7 @@ namespace StartOrResetSim.Services
       }
     }
 
-    public async Task setHasStarted(string key, bool started)
+    public async Task setHasStarted(string key, string started)
     {
             var request = new PutItemRequest
             {
@@ -121,7 +121,7 @@ namespace StartOrResetSim.Services
                 Item = new Dictionary<string, AttributeValue>
                 {
                     { "Key", new AttributeValue { S = key } },
-                    { "value", new AttributeValue { BOOL = started  } }
+                    { "value", new AttributeValue { S = started  } }
                 }
             };
 

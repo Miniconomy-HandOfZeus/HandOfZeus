@@ -59,7 +59,7 @@ public class Function
                 currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
                 LambdaLogger.Log("the start time is: " + currentTime);
                 await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
-                await DeterminePrice.setHasStarted("hasStarted", true);
+                await DeterminePrice.setHasStarted("hasStarted", "true");
                 try
                 {
                     await DeterminePrice.setPrices();
@@ -94,20 +94,22 @@ public class Function
                 };
 
                 // Serialize the response object to JSON
-                string responseBody = JsonConvert.SerializeObject(body);
+                
+                var json = JsonConvert.SerializeObject(body);
 
                 return new APIGatewayProxyResponse
                 {
                     StatusCode = 200,
                     Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
-                    Body = responseBody
+                    Body = JsonConvert.SerializeObject(new { json }),
+
                 };
 
             }
             else
             {
                 await _ScheduleTrigger.StopAsync();
-                await DeterminePrice.setHasStarted("hasStarted", false);
+                await DeterminePrice.setHasStarted("hasStarted", "false");
 
                 OtherApiUrls.ForEach(async url =>
                 {
