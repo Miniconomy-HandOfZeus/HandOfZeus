@@ -53,11 +53,10 @@ namespace HasSimStarted.Service
                     throw new Exception("Item Not found");
                 }
 
-                bool hasSatrted = bool.Parse(response.Item["value"].S);
+                string hasSatrted = response.Item["value"].S;
 
                 LambdaLogger.Log("REPSONSE FROM DB IS: " + response.Item["value"].S);
-                LambdaLogger.Log("REPSONSE FROM DB IS: " + response.Item["value"].ToString());
-                if (hasSatrted == true)
+                if (hasSatrted == "true")
                 {
                     return true;
                 }
@@ -65,7 +64,6 @@ namespace HasSimStarted.Service
                 {
                     return false;
                 }
-                //return int.Parse(value.S);
 
             }
             catch (Exception ex)
