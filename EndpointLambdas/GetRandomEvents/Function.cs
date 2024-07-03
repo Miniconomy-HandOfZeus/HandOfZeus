@@ -29,15 +29,14 @@ namespace GetRandomEvents
       {
         var eventItem = new Dictionary<string, string>();
 
-        if (item.ContainsKey("event_name"))
+        if (item["type"].S == "event")
         {
           eventItem["event_name"] = item["event_name"].S;
+          eventItem["date"] = item["date"].S;
+          eventItem["description"] = item["description"].S;
         }
 
-        if (item.ContainsKey("date"))
-        {
-          eventItem["date"] = item["date"].S;
-        }
+
 
         items.Add(eventItem);
       }
