@@ -34,6 +34,7 @@ namespace GetRandomEvents
           eventItem["event_name"] = item["event_name"].S;
           eventItem["date"] = item["date"].S;
           eventItem["description"] = item["description"].S;
+          eventItem["value"] = item["value"].S;
         }
 
 

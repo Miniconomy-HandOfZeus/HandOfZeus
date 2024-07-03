@@ -134,7 +134,7 @@ namespace RandomEvent
       var description = string.Format(eventDescriptions[selectedEvent], affectedPeopleCount);
       context.Logger.LogLine($"Event Description: {description}");
 
-      await InsertEventIntoDynamoDB(selectedEvent, description);
+      await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
 
       await CallServiceEndpointsAsync(selectedEvent, eventRate, affectedPeople);
 
@@ -317,7 +317,7 @@ namespace RandomEvent
       return newRate.ToString("F2");
     }
 
-    private async Task InsertEventIntoDynamoDB(string eventName, string description)
+    private async Task InsertEventIntoDynamoDB(string eventName, string description, string value)
     {
       string eventKey = DateTime.UtcNow.ToString("yyyyMMddTHHmmssfffZ");
 
@@ -330,6 +330,7 @@ namespace RandomEvent
             { "event_name", new AttributeValue { S = eventName } },
             { "type", new AttributeValue { S = "event" } },
             { "description", new AttributeValue { S = description } },
+            { "value", new AttributeValue { S = value } },
             { "date", new AttributeValue { S = DateTime.UtcNow.ToString("o") } }
         }
       };
