@@ -151,6 +151,7 @@ namespace RandomEvent
       context.Logger.LogLine($"Event Description: {description}");
 
       var marriagePairs = await CreateMarriagePairs(affectedPeopleCount);
+      context.Logger.LogLine($"marriagePairs : {marriagePairs}");
 
       if (selectedEvent == "Marriage")
       {
