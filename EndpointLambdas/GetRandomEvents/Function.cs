@@ -1,7 +1,9 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,7 +15,7 @@ namespace GetRandomEvents
   {
     private static readonly AmazonDynamoDBClient dynamoDbClient = new AmazonDynamoDBClient();
 
-    public async Task<string> FunctionHandler(ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
       var request = new ScanRequest
       {
@@ -31,6 +33,7 @@ namespace GetRandomEvents
 
         if (item["type"].S == "event")
         {
+          eventItem["ID"] = item["Key"].S;
           eventItem["event_name"] = item["event_name"].S;
           eventItem["date"] = item["date"].S;
           eventItem["description"] = item["description"].S;
@@ -42,7 +45,14 @@ namespace GetRandomEvents
         items.Add(eventItem);
       }
 
-      return JsonConvert.SerializeObject(items);
+
+      return new APIGatewayProxyResponse
+      {
+        StatusCode = 200,
+        Body = JsonConvert.SerializeObject(items),
+        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+      };
+
     }
   }
 }
