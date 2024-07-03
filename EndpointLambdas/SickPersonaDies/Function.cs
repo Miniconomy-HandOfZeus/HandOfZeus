@@ -49,6 +49,7 @@ public class Function
             catch (Exception ex)
             {
                 context.Logger.Log($"Error: {ex.Message}");
+                response.survives = false;
             }
         }
 
