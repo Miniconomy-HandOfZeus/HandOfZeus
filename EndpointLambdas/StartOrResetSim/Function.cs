@@ -59,7 +59,7 @@ public class Function
                 currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
                 LambdaLogger.Log("the start time is: " + currentTime);
                 await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
-                await DeterminePrice.setHasStarted("hasStarted", true);
+                await DeterminePrice.setHasStarted("hasStarted", "true");
                 try
                 {
                     await DeterminePrice.setPrices();
@@ -109,7 +109,7 @@ public class Function
             else
             {
                 await _ScheduleTrigger.StopAsync();
-                await DeterminePrice.setHasStarted("hasStarted", false);
+                await DeterminePrice.setHasStarted("hasStarted", "false");
 
                 OtherApiUrls.ForEach(async url =>
                 {
