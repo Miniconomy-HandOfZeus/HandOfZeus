@@ -1,17 +1,18 @@
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using GetValueFromDB.Services;
 using Newtonsoft.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace SickPersonaDie;
+namespace GetValueFromDB;
 
 public class Function
 {
-    private static readonly Random random = new Random();
+    private readonly Repository db = new();
 
-    public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
         if (input.QueryStringParameters == null)
         {
@@ -35,14 +36,14 @@ public class Function
         }
         List<string> allowedServices = [.. allowedServicesString.Split(",")];
 
-        context.Logger.Log($"Allowed services: {string.Join(", ", allowedServices)}");
+        context.Logger.Log($"Allowed services: {string.Join(", ", allowedServices) }");
         context.Logger.Log($"DB key: {key}");
 
         // Validate calling service
         if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
         {
             string callingService = callingServiceObject?.ToString() ?? string.Empty;
-            context.Logger.Log($"{callingService} called this endpoint!");
+            context.Logger.Log($"{callingService} requested the price");
             if (!allowedServices.Contains(callingService))
             {
                 return new APIGatewayProxyResponse
@@ -63,34 +64,12 @@ public class Function
             };
         }
 
-        // Parse the request body to get the person ID
-        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, string>>(input.Body);
-        if (requestBody == null || !requestBody.ContainsKey("personaId"))
-        {
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 400,
-                Body = JsonConvert.SerializeObject(new { message = "Invalid request. 'personaId' is required." }),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
-        }
-
-        string personId = requestBody["personaId"];
-
-        // Determine if the person survives or not (50% chance)
-        bool survives = random.NextDouble() >= 0.5;
-
-        // Create the response
-        var response = new
-        {
-            personId,
-            survives
-        };
+        int value = await db.GetValue(key);
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonConvert.SerializeObject(response),
+            Body = JsonConvert.SerializeObject(new { value }),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
     }

@@ -1,18 +1,27 @@
-using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
+using Amazon.Lambda.APIGatewayEvents;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using Newtonsoft.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace SickPersonaDie;
+namespace SimulationStartTime;
 
 public class Function
 {
-    private static readonly Random random = new Random();
+    private readonly static string tableName = "hand-of-zeus-db";
+    private static readonly AmazonDynamoDBClient _dynamoDbClient = new();
 
-    public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
+    public static async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
+        var response = new APIGatewayProxyResponse
+        {
+            StatusCode = 200,
+            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        };
+
         if (input.QueryStringParameters == null)
         {
             return new APIGatewayProxyResponse
@@ -63,35 +72,40 @@ public class Function
             };
         }
 
-        // Parse the request body to get the person ID
-        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, string>>(input.Body);
-        if (requestBody == null || !requestBody.ContainsKey("personaId"))
+        DateTime simulationStartDate = await getSimulationStartDate();
+
+        response.Body = JsonConvert.SerializeObject(new
         {
-            return new APIGatewayProxyResponse
+            start_date = simulationStartDate
+        });
+
+        return response;
+    }
+
+    private static async Task<DateTime> getSimulationStartDate()
+    {
+        // Get real-world simulation start time from DB
+        var key = new Dictionary<string, AttributeValue>
             {
-                StatusCode = 400,
-                Body = JsonConvert.SerializeObject(new { message = "Invalid request. 'personaId' is required." }),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                { "Key", new AttributeValue { S = "SimulationStartTime" } }
             };
+        var request = new GetItemRequest
+        {
+            TableName = tableName,
+            Key = key
+        };
+        var response = await _dynamoDbClient.GetItemAsync(request);
+
+        if (response.Item != null && response.Item.TryGetValue("value", out AttributeValue? value))
+        {
+            string simulationStartTimeString = value.S;
+            DateTime simulationStartTime = DateTime.ParseExact(simulationStartTimeString, "yyyy-MM-ddTHH:mm:ss", null, System.Globalization.DateTimeStyles.None);
+
+            return simulationStartTime;
         }
-
-        string personId = requestBody["personaId"];
-
-        // Determine if the person survives or not (50% chance)
-        bool survives = random.NextDouble() >= 0.5;
-
-        // Create the response
-        var response = new
+        else
         {
-            personId,
-            survives
-        };
-
-        return new APIGatewayProxyResponse
-        {
-            StatusCode = 200,
-            Body = JsonConvert.SerializeObject(response),
-            Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-        };
+            throw new Exception("Unable to retrieve the simulation start time from the db");
+        }
     }
 }

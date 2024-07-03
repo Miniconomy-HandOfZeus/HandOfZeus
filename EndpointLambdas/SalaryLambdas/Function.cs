@@ -1,13 +1,8 @@
 using Amazon.Lambda.Core;
-using Amazon.DynamoDBv2;
-using Amazon.DynamoDBv2.Model;
-using Amazon.DynamoDBv2.DocumentModel;
 using SalaryLambdas.services;
-using System;
 using Amazon.Lambda.APIGatewayEvents;
 using Newtonsoft.Json;
 using SalaryLambdas.Models;
-using Microsoft.Extensions.DependencyInjection;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -16,28 +11,62 @@ namespace SalaryLambdas;
 
 public class Function
 {
-    
     private readonly WageDeterminationService wageDeterminationService = new WageDeterminationService(new WageService());
 
-    private readonly ServiceProvider _serviceProvider;
-
-    public Function()
+    public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
-        var serviceCollection = new ServiceCollection();
-        ConfigureServices(serviceCollection);
-        _serviceProvider = serviceCollection.BuildServiceProvider();
-    }
+        if (input.QueryStringParameters == null)
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 500,
+                Body = JsonConvert.SerializeObject(new { message = "Internal server error" }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
+        }
 
-    private void ConfigureServices(IServiceCollection services)
-    {
-        services.AddCoreServices();
+        // Parse the custom query parameters set by API gateway
+        if (!input.QueryStringParameters.TryGetValue("allowed_services", out string? allowedServicesString) || !input.QueryStringParameters.TryGetValue("key", out string? key))
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 500,
+                Body = JsonConvert.SerializeObject(new { message = "Internal server error" }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
+        }
+        List<string> allowedServices = [.. allowedServicesString.Split(",")];
 
-    }
+        context.Logger.Log($"Allowed services: {string.Join(", ", allowedServices)}");
+        context.Logger.Log($"DB key: {key}");
 
-    public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
-    {
-        // Parse the request body to get the person ID
-        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(request.Body);
+        // Validate calling service
+        if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
+        {
+            string callingService = callingServiceObject?.ToString() ?? string.Empty;
+            context.Logger.Log($"{callingService} called this endpoint!");
+            if (!allowedServices.Contains(callingService))
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 403,
+                    Body = JsonConvert.SerializeObject(new { message = "Forbidden service" }),
+                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                };
+            }
+        }
+        else
+        {
+            return new APIGatewayProxyResponse
+            {
+                StatusCode = 403,
+                Body = JsonConvert.SerializeObject(new { message = "Forbidden" }),
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+            };
+        }
+
+        // Parse the input body to get the person ID
+        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, List<string>>>(input.Body);
         if (requestBody == null || !requestBody.ContainsKey("personaId"))
         {
             return new APIGatewayProxyResponse
@@ -79,6 +108,4 @@ public class Function
 
         return wages;
     }
-
-
 }

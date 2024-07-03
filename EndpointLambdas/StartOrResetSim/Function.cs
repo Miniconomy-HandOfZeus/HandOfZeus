@@ -1,13 +1,8 @@
-using Amazon.Lambda;
 using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
-using Amazon.SecretsManager;
-using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
 using StartOrResetSim.Services;
-using System;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
