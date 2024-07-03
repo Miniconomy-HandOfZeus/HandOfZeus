@@ -368,7 +368,7 @@ filterEvents('all');
 //human sacrifice\\
 
 async function sacrificePersona() {
-  const response = await fetchWithAuth('/');
+  const response = await fetchWithAuth('/sacrifice');
   if (!response.ok) {
     throw new Error(`HTTP error! Status: ${response.status}`);
   }

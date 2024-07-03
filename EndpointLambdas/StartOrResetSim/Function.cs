@@ -13,12 +13,12 @@ namespace StartOrResetSim;
 
 public class Function
 {
-    private readonly RequestHandler RequestHandler = new RequestHandler();
-    private readonly CertHandler CertHandler = new CertHandler();
-    private readonly DeterminePrice DeterminePrice = new DeterminePrice();
-    private readonly DBHelper DBHelper = new DBHelper();
+  private readonly RequestHandler RequestHandler = new RequestHandler();
+  private readonly CertHandler CertHandler = new CertHandler();
+  private readonly DeterminePrice DeterminePrice = new DeterminePrice();
+  private readonly DBHelper DBHelper = new DBHelper();
 
-    List<string> OtherApiUrls = new List<string> {
+  List<string> OtherApiUrls = new List<string> {
          "https://property-manager.projects.bbdgrad.com/PropertyManager/reset",
          "https://api.care.projects.bbdgrad.com/api/simulation",
          "https://service.electronics.projects.bbdgrad.com/zeus/control",
@@ -32,113 +32,155 @@ public class Function
          "https://api.rentals.projects.bbdgrad.com/api/zeus"
 };
 
-    private readonly ScheduleTrigger _ScheduleTrigger = new();
+  private readonly ScheduleTrigger _ScheduleTrigger = new();
 
-    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
+  public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
+  {
+    string currentTime;
+    // Parse the request body to get the person ID
+    var requestBody = JsonConvert.DeserializeObject<Dictionary<string, bool>>(request.Body);
+    if (requestBody == null || !requestBody.ContainsKey("action"))
     {
-        string currentTime; 
-        // Parse the request body to get the person ID
-        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, bool>>(request.Body);
-        if (requestBody == null || !requestBody.ContainsKey("action"))
-        {
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 400,
-                Body = JsonConvert.SerializeObject(new { message = "Invalid request. bool is required." }),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
-        }
-
-        bool action = requestBody["action"];
-        //X509Certificate2 certs = await CertHandler.GetCertAndKey();
-
-        try
-        {
-            if (action)
-            {
-                currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
-                LambdaLogger.Log("the start time is: " + currentTime);
-                await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
-                await DeterminePrice.setHasStarted("hasStarted", true);
-                try
-                {
-                    await DeterminePrice.setPrices();
-                }
-                catch (Exception ex)
-                {
-                    LambdaLogger.Log("error while setting prices: " + ex.Message);
-                }
-
-
-                await _ScheduleTrigger.StartAsync();
-
-                string startTime = await DBHelper.GetFromDB("SimulationStartTime");
-
-                OtherApiUrls.ForEach(async url =>
-                {
-                    try
-                    {
-                        await RequestHandler.SendPutRequestAsync(url, true, currentTime);
-                    }
-                    catch (Exception ex)
-                    {
-                        LambdaLogger.Log($"error while sending request to {url}: " + ex.Message);
-                    }
-
-
-                });
-
-                var body = new
-                {
-                    startTime = currentTime
-                };
-
-                // Serialize the response object to JSON
-                string responseBody = JsonConvert.SerializeObject(body);
-
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 200,
-                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
-                    Body = responseBody
-                };
-
-            }
-            else
-            {
-                await _ScheduleTrigger.StopAsync();
-                await DeterminePrice.setHasStarted("hasStarted", false);
-
-                OtherApiUrls.ForEach(async url =>
-                {
-                    try
-                    {
-                        await RequestHandler.SendPutRequestAsync(url, false, "");
-                    }
-                    catch (Exception ex)
-                    {
-                        LambdaLogger.Log($"error while sending request to {url}: " + ex.Message);
-                    }
-
-
-                });
-
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 200,
-                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-
-                };
-            }
-        }
-        catch (Exception)
-        {
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 400,
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
-        }
+      return new APIGatewayProxyResponse
+      {
+        StatusCode = 400,
+        Body = JsonConvert.SerializeObject(new { message = "Invalid request. bool is required." }),
+        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+      };
     }
 
+    bool action = requestBody["action"];
+
+    try
+    {
+      if (action)
+      {
+        currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+        LambdaLogger.Log("the start time is: " + currentTime);
+        await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
+        await DeterminePrice.setHasStarted("hasStarted", true);
+        try
+        {
+          await DeterminePrice.setPrices();
+        }
+        catch (Exception ex)
+        {
+          LambdaLogger.Log("error while setting prices: " + ex.Message);
+        }
+
+
+        await _ScheduleTrigger.StartAsync();
+
+        string startTime = await DBHelper.GetFromDB("SimulationStartTime");
+
+        OtherApiUrls.ForEach(async url =>
+        {
+          try
+          {
+            await RequestHandler.SendPutRequestAsync(url, true, currentTime);
+          }
+          catch (Exception ex)
+          {
+            LambdaLogger.Log($"error while sending request to {url}: " + ex.Message);
+          }
+
+
+        });
+
+        var body = new
+        {
+          startTime = currentTime
+        };
+
+        // Serialize the response object to JSON
+        string responseBody = JsonConvert.SerializeObject(body);
+
+        return new APIGatewayProxyResponse
+        {
+          StatusCode = 200,
+          Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
+          Body = responseBody
+        };
+
+      }
+      else
+      {
+        await _ScheduleTrigger.StopAsync();
+        await DeterminePrice.setHasStarted("hasStarted", false);
+        clearDB();
+
+        OtherApiUrls.ForEach(async url =>
+                {
+                  try
+                  {
+                    await RequestHandler.SendPutRequestAsync(url, false, "");
+                  }
+                  catch (Exception ex)
+                  {
+                    LambdaLogger.Log($"error while sending request to {url}: " + ex.Message);
+                  }
+
+
+                });
+
+        return new APIGatewayProxyResponse
+        {
+          StatusCode = 200,
+          Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+
+        };
+      }
+    }
+    catch (Exception)
+    {
+      return new APIGatewayProxyResponse
+      {
+        StatusCode = 400,
+        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+      };
+    }
+  }
+
+  private async Task clearDB()
+  {
+    //start clear events db
+    var scanRequest = new ScanRequest
+    {
+      TableName = "hand-of-zeus-events"
+    };
+
+    var scanResponse = await dynamoDbClient.ScanAsync(scanRequest);
+
+    if (scanResponse.Items.Count == 0)
+    {
+      Console.WriteLine("Table is already empty.");
+      return;
+    }
+
+    // Iterate over each item and delete it
+    foreach (var item in scanResponse.Items)
+    {
+      var key = new Dictionary<string, AttributeValue>
+            {
+                { "Key", item["Key"] }
+            };
+
+      var deleteItemRequest = new DeleteItemRequest
+      {
+        TableName = tableName,
+        Key = key
+      };
+
+      try
+      {
+        await dynamoDbClient.DeleteItemAsync(deleteItemRequest);
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine($"Error deleting item with {partitionKeyName}: {key[partitionKeyName].S}");
+        Console.WriteLine($"Error: {e.Message}");
+        throw e;
+      }
+    }
+  }
 }
