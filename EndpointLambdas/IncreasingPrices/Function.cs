@@ -19,16 +19,50 @@ namespace IncreasingPrices
     private static readonly string tableName = "hand-of-zeus-db";
     public static APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
-      Function function = new Function();
-      string date = function.calculateDate();
-      function.processDate("");
-      var response = new APIGatewayProxyResponse
+      //|| !input.QueryStringParameters.TryGetValue("allowed_services", out string? allowedServicesString)
+      if (input.QueryStringParameters == null)
       {
-        StatusCode = 200,
-        Body = JsonSerializer.Serialize(new { message = input.Body }),
-        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-      };
-      return response;
+        return new APIGatewayProxyResponse
+        {
+          StatusCode = 500,
+          Body = JsonSerializer.Serialize(new { message = "Internal server error" }),
+          Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        };
+      }
+      if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
+      {
+        string callingService = callingServiceObject?.ToString() ?? string.Empty;
+        context.Logger.Log($"{callingService} requested the price");
+        //if (!allowedServices.Contains(callingService))
+        //{
+        //  return new APIGatewayProxyResponse
+        //  {
+        //    StatusCode = 403,
+        //    Body = JsonConvert.SerializeObject(new { message = "Forbidden service" }),
+        //    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        //  };
+        //}
+        Function function = new Function();
+        string date = function.calculateDate();
+        function.processDate("");
+        var response = new APIGatewayProxyResponse
+        {
+          StatusCode = 200,
+          Body = JsonSerializer.Serialize(new { message = input.Body }),
+          Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        };
+        return response;
+
+      }
+      else
+      {
+        return new APIGatewayProxyResponse
+        {
+          StatusCode = 403,
+          Body = JsonSerializer.Serialize(new { message = "Forbidden" }),
+          Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+        };
+      }
     }
     private string calculateDate()
     {
