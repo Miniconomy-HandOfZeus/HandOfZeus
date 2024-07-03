@@ -110,7 +110,7 @@ public class Function
                 {
                     try
                     {
-                        await RequestHandler.SendPutRequestAsync(url, false, "", certs);
+                        await RequestHandler.SendPutRequestAsync(url, false, "");
                     }
                     catch (Exception ex)
                     {
