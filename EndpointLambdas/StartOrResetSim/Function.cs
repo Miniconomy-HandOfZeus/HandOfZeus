@@ -159,6 +159,7 @@ public class Function
     // Iterate over each item and delete it
     foreach (var item in scanResponse.Items)
     {
+      context.Logger.Log(item["Key"]);
       await DBHelper.deleteFromDB(item);
     }
   }
