@@ -85,10 +85,21 @@ namespace RandomEvent
         41, 42, 43, 44, 45, 46, 47, 48, 49, 50
     };
 
-    private static readonly List<long> canBeMarriedPeople = new List<long>
-    {
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-    };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private readonly IAmazonDynamoDB dynamoDbClient;
     private static readonly HttpClient httpClient = new HttpClient();
@@ -139,12 +150,13 @@ namespace RandomEvent
       var description = string.Format(eventDescriptions[selectedEvent], affectedPeopleCount);
       context.Logger.LogLine($"Event Description: {description}");
 
-      var marriagePairs = CreateMarriagePairs(affectedPeopleCount);
+      var marriagePairs = await CreateMarriagePairs(affectedPeopleCount);
 
       if (selectedEvent == "Marriage")
       {
         string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x.Item1}, {x.Item2})"));
         await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
+        await SendMarriagePairsToService(marriagePairs);
       } 
       else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages" || selectedEvent == "Hunger" || selectedEvent == "Sickness") {
         string Affectedresult = string.Join(", ", affectedPeople);
@@ -378,10 +390,10 @@ namespace RandomEvent
       }
     }
 
-    private List<(long, long)> CreateMarriagePairs(int count)
+    private async Task<List<(long, long)>> CreateMarriagePairs(int count)
     {
       var pairs = new List<(long, long)>();
-      var availablePeople = new List<long>(canBeMarriedPeople);
+      var availablePeople = await FetchCanBeMarriedPeople();
 
       while (count > 1 && availablePeople.Count > 1)
       {
@@ -404,10 +416,10 @@ namespace RandomEvent
     {
       var requestBody = new
       {
-        Marriage = marriagePairs
+        Marriage = marriagePairs.Select(pair => new { Person1Id = pair.Item1, Person2Id = pair.Item2 }).ToList()
       };
 
-      var endpoint = "https://persona.projects.bbdgrad.com";
+      var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/marryPersonas";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
 
       if (!response.IsSuccessStatusCode)
@@ -444,6 +456,12 @@ namespace RandomEvent
       {
         Console.WriteLine($"Failed to send salary increases: {response.StatusCode}");
       }
+    }
+
+    private async Task<List<long>> FetchCanBeMarriedPeople()
+    {
+      var response = await httpClient.GetFromJsonAsync<List<long>>("https://api.persona.projects.bbdgrad.com/api/HandOfZeus/givePersonasChild");
+      return response ?? new List<long>();
     }
 
   }
