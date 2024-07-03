@@ -68,7 +68,7 @@ namespace StartOrResetSim.Services
                 }
         }
 
-        public async Task SetInDbNumber(string key, string value)
+        public async Task SetInDbNumber(string key, int value)
         {
             var request = new PutItemRequest
             {
@@ -76,7 +76,7 @@ namespace StartOrResetSim.Services
                 Item = new Dictionary<string, AttributeValue>
                     {
                         { "Key", new AttributeValue { S = key } },
-                        { "value", new AttributeValue { N = value } }
+                        { "value", new AttributeValue { N = value + "" } }
                     }
             };
 
