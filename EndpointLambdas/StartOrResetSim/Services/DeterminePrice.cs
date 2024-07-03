@@ -1,4 +1,5 @@
-﻿using StartOrResetSim.Interfaces;
+﻿using Amazon.Lambda.Core;
+using StartOrResetSim.Interfaces;
 
 namespace StartOrResetSim.Services
 {
@@ -28,7 +29,14 @@ namespace StartOrResetSim.Services
         {
             prices.ForEach(item =>
             {
-                DBHelper.SetInDbNumber(item.Name, item.Price.ToString());
+                try
+                {
+                    DBHelper.SetInDbNumber(item.Name, item.Price);
+                }catch (Exception ex)
+                {
+                    LambdaLogger.Log("there was an error in setting prices: " +  ex.Message);
+                }
+                
             });
         }
 

@@ -64,11 +64,20 @@ public class Function
                 {
                     currentTime = DateTime.Now;
                     await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
-                    await DeterminePrice.setPrices();
+
+                    try
+                    {
+                        await DeterminePrice.setPrices();
+                    }catch (Exception ex)
+                    {
+                        LambdaLogger.Log("error while setting prices: " + ex.Message);
+                    }
+                   
 
                     await _ScheduleTrigger.StartAsync();
 
                     string startTime = await DBHelper.GetFromDB("SimulationStartTime");
+
                     OtherApiUrls.ForEach(async url =>
                     {
                         await RequestHandler.SendPutRequestAsync(url, true, startTime, certs);

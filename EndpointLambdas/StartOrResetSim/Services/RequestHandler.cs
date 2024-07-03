@@ -30,15 +30,15 @@ namespace StartOrResetSim.Services
                     {
                         var requestBody = new
                         {
-                            startTime = startTime,
-                            action = action
+                            action = action,
+                            startTime = startTime
                         };
 
                         var json = JsonConvert.SerializeObject(requestBody);
                         content = new StringContent(json, Encoding.UTF8, "application/json");
                     }
 
-                    var response = await httpClient.PutAsync(url, content);
+                    var response = await httpClient.PostAsync(url, content);
 
                     response.EnsureSuccessStatusCode();
 
