@@ -86,22 +86,6 @@ namespace RandomEvent
         41, 42, 43, 44, 45, 46, 47, 48, 49, 50
     };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     private readonly IAmazonDynamoDB dynamoDbClient;
     private static readonly HttpClient httpClient = new HttpClient();
 
@@ -135,73 +119,6 @@ namespace RandomEvent
       var selectedEvent = SelectWeightedRandomEvent();
       context.Logger.LogLine($"Selected Event: {selectedEvent}");
 
-      var eventRate = await GetEventRateAsync(selectedEvent, context);
-      if (eventRate == null)
-      {
-        context.Logger.LogLine($"Event rate for {selectedEvent} is null. Exiting function.");
-        return;
-      }
-      context.Logger.LogLine($"Event Rate: {eventRate}");
-
-
-      var affectedPeopleCount = GetAffectedPeopleCount(eventRate);
-      var affectedPeople = GetRandomPeople(affectedPeopleCount);
-      context.Logger.LogLine($"Affected People: {string.Join(", ", affectedPeople)}");
-
-      var description = string.Format(eventDescriptions[selectedEvent], affectedPeopleCount);
-      context.Logger.LogLine($"Event Description: {description}");
-
-      var marriagePairs = await CreateMarriagePairs(affectedPeopleCount, context);
-      context.Logger.LogLine($"marriagePairs : {marriagePairs}");
-
-      if (selectedEvent == "Marriage")
-      {
-        var requestBody = new
-        {
-          marriagePairs = marriagePairs
-        };
-        context.Logger.LogLine($"requestBody : {requestBody}");
-
-        string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x["firstPerson"]}, {x["secondPerson"]})"));
-        await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
-        await SendMarriagePairsToService(marriagePairs, context);
-      } 
-      else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages" || selectedEvent == "Hunger" || selectedEvent == "Sickness") {
-        string Affectedresult = string.Join(", ", affectedPeople);
-        await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
-      }
-      else if (selectedEvent == "Salary")
-      {
-        var salaryIncreases = CalculateSalaryIncreases(affectedPeopleCount);
-        string salaryIncreasesResult = string.Join(", ", salaryIncreases.Select(x => $"{x.Key}: {x.Value}%"));
-        await InsertEventIntoDynamoDB(selectedEvent, description, salaryIncreasesResult);
-        await SendSalaryIncreasesToService(salaryIncreases);
-      }
-      else
-      {
-        await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
-      }
-
-      if (selectedEvent == "Death")
-      {
-        var PeopleCanKill = await FetchCanBeKilled(context);
-        context.Logger.LogLine($"Death PEOPLE : {PeopleCanKill}");
-        await SendKILLSToService(PeopleCanKill, context);
-      }
-
-
-      //await CallServiceEndpointsAsync(selectedEvent, eventRate, affectedPeople);
-
-      if (selectedEvent == "Birth")
-      {
-        var PeopleToGiveBirth = await FetchChildlessPeople(context);
-        var person = PeopleToGiveBirth[0];
-        context.Logger.LogLine($"Death PEOPLE : {PeopleToGiveBirth}");
-        context.Logger.LogLine($"Death person : {person}");
-        await SendBirthsToService(person, context);
-      }
-
-
       // Handle start and end events logic
       if (selectedEvent.EndsWith("Start"))
       {
@@ -230,17 +147,75 @@ namespace RandomEvent
         await UpdateEventRateInDynamoDB("Death", selectedEvent == "WarStart" ? "50" : "10");
         await UpdateEventRateInDynamoDB("Inflation", selectedEvent == "WarStart" ? "20" : "10");
       }
-      else if (selectedEvent == "Inflation")
+      else
       {
-        var newRate = AdjustInflationRate(eventRate);
-        await UpdateEventRateInDynamoDB("Inflation", newRate);
+        var eventRate = await GetEventRateAsync(selectedEvent, context);
+        if (eventRate == null)
+        {
+          context.Logger.LogLine($"Event rate for {selectedEvent} is null. Exiting function.");
+          return;
+        }
+        context.Logger.LogLine($"Event Rate: {eventRate}");
+
+
+        var affectedPeopleCount = GetAffectedPeopleCount(eventRate);
+        var affectedPeople = GetRandomPeople(affectedPeopleCount);
+        context.Logger.LogLine($"Affected People: {string.Join(", ", affectedPeople)}");
+
+        var description = string.Format(eventDescriptions[selectedEvent], affectedPeopleCount);
+        context.Logger.LogLine($"Event Description: {description}");
+
+        var marriagePairs = await CreateMarriagePairs(affectedPeopleCount, context);
+        context.Logger.LogLine($"marriagePairs : {marriagePairs}");
+
+        if (selectedEvent == "Marriage")
+        {
+          var requestBody = new
+          {
+            marriagePairs = marriagePairs
+          };
+          context.Logger.LogLine($"requestBody : {requestBody}");
+
+          string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x["firstPerson"]}, {x["secondPerson"]})"));
+          await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
+          await SendMarriagePairsToService(marriagePairs, context);
+        }
+        else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages" || selectedEvent == "Hunger" || selectedEvent == "Sickness")
+        {
+          string Affectedresult = string.Join(", ", affectedPeople);
+          await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
+        }
+        else if (selectedEvent == "Salary")
+        {
+          var salaryIncreases = CalculateSalaryIncreases(affectedPeopleCount);
+          string salaryIncreasesResult = string.Join(", ", salaryIncreases.Select(x => $"{x.Key}: {x.Value}%"));
+          await InsertEventIntoDynamoDB(selectedEvent, description, salaryIncreasesResult);
+          await SendSalaryIncreasesToService(salaryIncreases);
+        }
+        else
+        {
+          await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
+        }
+
+        if (selectedEvent == "Death")
+        {
+          var PeopleCanKill = await FetchCanBeKilled(context);
+          context.Logger.LogLine($"Death PEOPLE : {PeopleCanKill}");
+          await SendKILLSToService(PeopleCanKill, context);
+        }
+
+
+        //await CallServiceEndpointsAsync(selectedEvent, eventRate, affectedPeople);
+
+        if (selectedEvent == "Birth")
+        {
+          var PeopleToGiveBirth = await FetchChildlessPeople(context);
+          var person = PeopleToGiveBirth[0];
+          context.Logger.LogLine($"Death PEOPLE : {PeopleToGiveBirth}");
+          context.Logger.LogLine($"Death person : {person}");
+          await SendBirthsToService(person, context);
+        }
       }
-      else if (selectedEvent == "Marriage")
-      {
-
-
-      }
-
     }
 
     private string SelectWeightedRandomEvent()
