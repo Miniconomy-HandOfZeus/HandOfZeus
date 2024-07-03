@@ -144,8 +144,8 @@ async function retrieveEventData(){
       console.error("Error response:", responseBody);
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
-    console.log("responseBody: " + responseBody.body);
-    const newData = JSON.parse(responseBody.body); // Parse the body JSON string
+    console.log("responseBody: " + responseBody);
+    const newData = JSON.parse(responseBody); // Parse the body JSON string
 
     console.log("Data received:", newData);
 
