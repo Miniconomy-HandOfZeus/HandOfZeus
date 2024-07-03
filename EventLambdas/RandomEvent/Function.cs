@@ -324,6 +324,7 @@ namespace RandomEvent
         TableName = "hand-of-zeus-db",
         Item = new Dictionary<string, AttributeValue>
                 {
+                    { "Key", new AttributeValue { S = "Event" } }, 
                     { "EventName", new AttributeValue { S = eventName } },
                     { "Description", new AttributeValue { S = description } },
                     { "Date", new AttributeValue { S = DateTime.UtcNow.ToString("o") } }
