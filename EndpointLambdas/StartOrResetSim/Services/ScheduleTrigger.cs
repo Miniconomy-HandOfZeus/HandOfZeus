@@ -1,12 +1,13 @@
-﻿using Amazon.EventBridge;
-using Amazon.EventBridge.Model;
+﻿using Amazon.Scheduler;
+using Amazon.Scheduler.Model;
 
 namespace StartOrResetSim.Services
 {
     public class ScheduleTrigger
     {
-        private readonly AmazonEventBridgeClient _client = new();
-        private readonly List<string> scheduleNames = ["RandomEventSchedule-scheduler"];
+        private readonly AmazonSchedulerClient _client = new AmazonSchedulerClient();
+        private readonly List<string> scheduleNames = new List<string> { "RandomEventSchedule-scheduler" };
+        private readonly string scheduleGroupName = "hand-of-zeus-events-scheduler-group";
 
         public async Task StartAsync()
         {
@@ -20,17 +21,19 @@ namespace StartOrResetSim.Services
         {
             try
             {
-                var request = new EnableRuleRequest
+                var request = new UpdateScheduleRequest
                 {
-                    Name = scheduleName
+                    Name = scheduleName,
+                    GroupName = scheduleGroupName,
+                    State = ScheduleState.ENABLED
                 };
 
-                await _client.EnableRuleAsync(request);
-                Console.WriteLine($"Schedule {scheduleName} enabled successfully.");
+                await _client.UpdateScheduleAsync(request);
+                Console.WriteLine($"Schedule {scheduleName} in group {scheduleGroupName} enabled successfully.");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Failed to enable schedule {scheduleName}: {ex.Message}");
+                Console.WriteLine($"Failed to enable schedule {scheduleName} in group {scheduleGroupName}: {ex.Message}");
             }
         }
     }
