@@ -96,6 +96,8 @@ async function checkToSeeIfSimulationHasStarted(){
   });
 
   let tasks = await response.json();
+  console.log(tasks);
+  console.log(tasks.json);
   console.log(tasks.json.hasSatrted);
   
   if(tasks.json.hasSatrted){
