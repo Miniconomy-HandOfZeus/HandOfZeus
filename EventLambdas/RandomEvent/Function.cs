@@ -154,9 +154,9 @@ namespace RandomEvent
 
       if (selectedEvent == "Marriage")
       {
-        string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x.Item1}, {x.Item2})"));
+        string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x["firstPerson"]}, {x["secondPerson"]})"));
         await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
-        await SendMarriagePairsToService(marriagePairs);
+        await SendMarriagePairsToService(marriagePairs, context);
       } 
       else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages" || selectedEvent == "Hunger" || selectedEvent == "Sickness") {
         string Affectedresult = string.Join(", ", affectedPeople);
@@ -214,7 +214,7 @@ namespace RandomEvent
       else if (selectedEvent == "Marriage")
       {
 
-        await SendMarriagePairsToService(marriagePairs);
+
       }
 
     }
@@ -390,9 +390,9 @@ namespace RandomEvent
       }
     }
 
-    private async Task<List<(long, long)>> CreateMarriagePairs(int count)
+    private async Task<List<Dictionary<string, long>>> CreateMarriagePairs(int count)
     {
-      var pairs = new List<(long, long)>();
+      var pairs = new List<Dictionary<string, long>>();
       var availablePeople = await FetchCanBeMarriedPeople();
 
       while (count > 1 && availablePeople.Count > 1)
@@ -405,28 +405,39 @@ namespace RandomEvent
         long person2 = availablePeople[index2];
         availablePeople.RemoveAt(index2);
 
-        pairs.Add((person1, person2));
+        pairs.Add(new Dictionary<string, long>
+        {
+            { "firstPerson", person1 },
+            { "secondPerson", person2 }
+        });
         count -= 2;
       }
 
       return pairs;
     }
 
-    private async Task SendMarriagePairsToService(List<(long, long)> marriagePairs)
+
+    private async Task SendMarriagePairsToService(List<Dictionary<string, long>> marriagePairs, ILambdaContext context)
     {
       var requestBody = new
       {
-        Marriage = marriagePairs.Select(pair => new { Person1Id = pair.Item1, Person2Id = pair.Item2 }).ToList()
+        marriagePairs = marriagePairs
       };
+
+      context.Logger.LogLine($"requestBody : {requestBody}");
 
       var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/marryPersonas";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
+
+
+      //context.Logger.LogLine($"Response : {response}");
 
       if (!response.IsSuccessStatusCode)
       {
         throw new Exception($"Failed to send marriage pairs to service endpoint. Status code: {response.StatusCode}");
       }
     }
+
 
     private Dictionary<long, double> CalculateSalaryIncreases(int count)
     {
