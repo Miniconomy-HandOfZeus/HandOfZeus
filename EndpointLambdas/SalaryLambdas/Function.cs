@@ -48,19 +48,24 @@ public class Function
       {
         TableName = tableName,
         Key = new Dictionary<string, AttributeValue>
-                {
-                    { "Key", new AttributeValue { S = minimumWageKey } }
-                }
+        {
+            { "Key", new AttributeValue { S = minimumWageKey } }
+        }
       };
 
       var response = await client.GetItemAsync(request);
-      if (response.Item == null || !response.Item.ContainsKey("value"))
+      int minimumWage;
+      if (response.Item == null || !response.Item.ContainsKey("value") || response.Item["value"].N == null)
       {
-        throw new Exception("Item Not found");
+        throw new Exception("Item Not found or minimum wage value is null");
       }
-
-      int minimumWage = int.Parse(response.Item["value"].S);
-
+      else
+      {
+        if (!int.TryParse(response.Item["value"].N, out minimumWage))
+        {
+          throw new Exception("Invalid minimum wage value");
+        }
+      }
 
       // Determine wages
       List<PersonaWages> personaWages = personIds.Select(id => random.NextDouble() < 0.5 ? new PersonaWages { personaId = id, wage = minimumWage } : new PersonaWages { personaId = id, wage = minimumWage + random.Next(minimumWage / 2) }).ToList();
