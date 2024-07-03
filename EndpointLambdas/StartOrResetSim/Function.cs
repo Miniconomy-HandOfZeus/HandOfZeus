@@ -36,11 +36,9 @@ public class Function
         "https://persona.projects.bbdgrad.com",
     };
 
-    private static readonly string LambdaFunctionName1 = "DateCalculation";
-    private static readonly string LambdaFunctionName2 = "RandomEvent";
     private readonly ScheduleTrigger _ScheduleTrigger = new();
 
-    public async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest request, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
         DateTime currentTime; 
         // Parse the request body to get the person ID
