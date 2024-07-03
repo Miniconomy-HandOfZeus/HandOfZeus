@@ -77,13 +77,18 @@ namespace RandomEvent
         };
 
     private static readonly List<long> people = new List<long>
-        {
-            1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-            11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
-            21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-            31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-            41, 42, 43, 44, 45, 46, 47, 48, 49, 50
-        };
+    {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+        11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+        31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+        41, 42, 43, 44, 45, 46, 47, 48, 49, 50
+    };
+
+    private static readonly List<long> canBeMarriedPeople = new List<long>
+    {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+    };
 
     private readonly IAmazonDynamoDB dynamoDbClient;
     private static readonly HttpClient httpClient = new HttpClient();
@@ -170,6 +175,11 @@ namespace RandomEvent
       {
         var newRate = AdjustInflationRate(eventRate);
         await UpdateEventRateInDynamoDB("Inflation", newRate);
+      }
+      else if (selectedEvent == "Marriage")
+      {
+        var marriagePairs = CreateMarriagePairs(affectedPeopleCount);
+        await SendMarriagePairsToService(marriagePairs);
       }
 
     }
@@ -342,6 +352,44 @@ namespace RandomEvent
       catch (Exception ex)
       {
         throw new Exception($"Failed to insert event into DynamoDB: {ex.Message}");
+      }
+    }
+
+    private List<(long, long)> CreateMarriagePairs(int count)
+    {
+      var pairs = new List<(long, long)>();
+      var availablePeople = new List<long>(canBeMarriedPeople);
+
+      while (count > 1 && availablePeople.Count > 1)
+      {
+        int index1 = random.Next(availablePeople.Count);
+        long person1 = availablePeople[index1];
+        availablePeople.RemoveAt(index1);
+
+        int index2 = random.Next(availablePeople.Count);
+        long person2 = availablePeople[index2];
+        availablePeople.RemoveAt(index2);
+
+        pairs.Add((person1, person2));
+        count -= 2;
+      }
+
+      return pairs;
+    }
+
+    private async Task SendMarriagePairsToService(List<(long, long)> marriagePairs)
+    {
+      var requestBody = new
+      {
+        Marriage = marriagePairs
+      };
+
+      var endpoint = "https://persona.projects.bbdgrad.com";
+      var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
+
+      if (!response.IsSuccessStatusCode)
+      {
+        throw new Exception($"Failed to send marriage pairs to service endpoint. Status code: {response.StatusCode}");
       }
     }
 
