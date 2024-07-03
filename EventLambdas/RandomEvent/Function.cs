@@ -185,6 +185,7 @@ namespace RandomEvent
       if (selectedEvent == "Death")
       {
         var PeopleCanKill = await FetchCanBeKilled(context);
+        context.Logger.LogLine($"Death PEOPLE : {PeopleCanKill}");
         await SendKILLSToService(PeopleCanKill, context);
       }
 
@@ -194,7 +195,10 @@ namespace RandomEvent
       if (selectedEvent == "Birth")
       {
         var PeopleToGiveBirth = await FetchChildlessPeople(context);
-        await SendBirthsToService(PeopleToGiveBirth, context);
+        var person = PeopleToGiveBirth[0];
+        context.Logger.LogLine($"Death PEOPLE : {PeopleToGiveBirth}");
+        context.Logger.LogLine($"Death person : {person}");
+        await SendBirthsToService(person, context);
       }
 
 
@@ -481,16 +485,17 @@ namespace RandomEvent
       }
     }
 
-    private async Task SendBirthsToService(List<long> personIDs, ILambdaContext context)
+    //private async Task SendBirthsToService(List<long> personIDs, ILambdaContext context)
+    private async Task SendBirthsToService(long personID, ILambdaContext context)
     {
       var requestBody = new
       {
-        personaIds = personIDs
+        personaIds = personID
       };
 
 
 
-      var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/givePersonasChild";
+      var endpoint = "https://api.persona.projects.bbdgrad.com/api/Persona/makeNewChild";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
 
 
