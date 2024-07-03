@@ -51,5 +51,37 @@ namespace HasSimStarted.Service
             }
 
         }
+
+        public async Task<string> GetStartTime(string key)
+        {
+            var request = new GetItemRequest
+            {
+                TableName = tableName,
+                Key = new Dictionary<string, AttributeValue>
+            {
+                { "Key", new AttributeValue { S = key } }
+            }
+            };
+
+            try
+            {
+                var response = await client.GetItemAsync(request);
+
+                if (response.Item == null || !response.Item.TryGetValue("value", out AttributeValue? value))
+                {
+                    throw new Exception($"{key} not found in the db.");
+                }
+
+
+                return response.Item["value"].ToString();
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return "";
+            }
+
+        }
     }
 }

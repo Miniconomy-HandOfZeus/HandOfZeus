@@ -3,6 +3,7 @@ using Amazon.Lambda.APIGatewayEvents;
 using Amazon.Lambda.Core;
 using HasSimStarted.Service;
 using Newtonsoft.Json;
+using System;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -21,13 +22,35 @@ public class Function
 
             bool hasStarted = await dbHelper.GetValue("hasStarted");
 
-
-            return new APIGatewayProxyResponse
+            if(hasStarted)
             {
-                StatusCode = 200,
-                Body = JsonConvert.SerializeObject(new { hasStarted }),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
+                string startTime = await dbHelper.GetStartTime("SimulationStartTime");
+
+                var requestBody = new
+                {
+                    hasSatrted = hasStarted,
+                    startTime = startTime
+                };
+
+                var json = JsonConvert.SerializeObject(requestBody);
+
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 200,
+                    Body = JsonConvert.SerializeObject(new { json }),
+                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                };
+            }
+            else
+            {
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 200,
+                    Body = JsonConvert.SerializeObject(new { hasStarted }),
+                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+                };
+            }
+            
         }
         catch (Exception ex)
         {
