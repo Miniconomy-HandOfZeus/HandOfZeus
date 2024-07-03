@@ -147,20 +147,22 @@ public class Function
   private async Task clearDB(ILambdaContext context)
   {
     //start clear events db
-
-    var scanResponse = DBHelper.scanDB().Result;
-
-    if (scanResponse.Items.Count == 0)
+    do
     {
-      Console.WriteLine("Table is already empty.");
-      return;
-    }
-    context.Logger.Log("Items: " + scanResponse.Items.Count);
-    // Iterate over each item and delete it
-    foreach (var item in scanResponse.Items)
-    {
-      context.Logger.Log(item["Key"].S);
-      await DBHelper.deleteFromDB(item);
-    }
+      var scanResponse = DBHelper.scanDB().Result;
+      context.Logger.Log("Items: " + scanResponse.Items.Count);
+      // Iterate over each item and delete it
+      if (scanResponse.Items.Count == 0)
+      {
+        context.Logger.Log("Table is already empty.");
+        return;
+      }
+      foreach (var item in scanResponse.Items)
+      {
+        context.Logger.Log(item["Key"].S);
+        await DBHelper.deleteFromDB(item);
+      }
+    } while (scanResponse.LastEvaluatedKey != null && scanResponse.LastEvaluatedKey.Count > 0);
+    
   }
 }

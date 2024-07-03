@@ -43,7 +43,7 @@ namespace StartOrResetSim.Services
       var scanRequest = new ScanRequest
       {
         TableName = "hand-of-zeus-events",
-        FilterExpression = $"type = :eventType",
+        FilterExpression = "type = :eventType",
         ExpressionAttributeValues = new Dictionary<string, AttributeValue>
             {
                 { ":eventType", new AttributeValue { S = "event" } }
@@ -51,6 +51,7 @@ namespace StartOrResetSim.Services
 
       };
       var scanResponse = await client.ScanAsync(scanRequest);
+
       return scanResponse;
     }
     public async Task<string> GetFromDB(string key)
