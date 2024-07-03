@@ -74,10 +74,10 @@ resource "aws_apigatewayv2_integration" "service_api" {
 }
 
 resource "aws_apigatewayv2_route" "service_api" {
-  for_each           = var.service_lambda_endpoint_config
-  api_id             = aws_apigatewayv2_api.service_api.id
-  route_key          = each.key
-  target             = "integrations/${aws_apigatewayv2_integration.service_api[each.key].id}"
+  for_each  = var.service_lambda_endpoint_config
+  api_id    = aws_apigatewayv2_api.service_api.id
+  route_key = each.key
+  target    = "integrations/${aws_apigatewayv2_integration.service_api[each.key].id}"
 }
 
 resource "aws_apigatewayv2_integration" "service_options_integration" {
