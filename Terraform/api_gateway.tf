@@ -40,15 +40,6 @@ resource "aws_apigatewayv2_domain_name" "service_api" {
   }
 }
 
-resource "aws_apigatewayv2_authorizer" "service_api" {
-  api_id                            = aws_apigatewayv2_api.service_api.id
-  authorizer_type                   = "REQUEST"
-  authorizer_uri                    = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:625366111301:function:AuthLambda/invocations"
-  name                              = "common-name-extractor"
-  authorizer_payload_format_version = "2.0"
-  authorizer_result_ttl_in_seconds  = 0
-}
-
 resource "aws_apigatewayv2_stage" "service_api" {
   api_id      = aws_apigatewayv2_api.service_api.id
   name        = "$default"
