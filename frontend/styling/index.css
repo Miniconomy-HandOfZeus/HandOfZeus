@@ -5,6 +5,7 @@
 
 h1{
     font-weight: 600;
+    font-size: x-large;
 }
 
 h2{
@@ -18,6 +19,14 @@ hr{
     border-radius: 1rem;   
 }
 
+.vertical-line {
+    width: 1px;
+    height: 3rem;
+    background-color: rgb(49, 49, 49);
+    /* margin: 0 auto; */
+    border-radius: 5px;
+}
+
 body{
     background-color: #efefef;
 }
@@ -27,6 +36,14 @@ body{
     align-items: center;
     justify-content: space-between;
     padding: 0.5rem 1rem 0rem 1rem;
+}
+
+.titleSection{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    width: 25vw;
 }
 
 .mainBody{
@@ -39,11 +56,12 @@ body{
 .infoHolder{
     width: 90vw;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     flex-wrap: nowrap;
     overflow: hidden;
     height: 20vh;
-    justify-content: center;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .infoObect{
@@ -53,12 +71,16 @@ body{
 }
 
 .timeHolder{
-    width: 12rem;
+    width: 15rem;
     background-color: rgb(255, 255, 255);
-    padding: 2rem;
-    border-radius: 1.5rem;
+    padding: 0.5rem;
+    border-radius: 1rem;
     text-align: center;
     font-size: x-large;
+    display: flex;
+    flex-flow: column wrap;
+    justify-content: center;
+    height: 15vh;
 }
 
 .eventHolder{
@@ -76,9 +98,10 @@ body{
     justify-content: space-around;
     align-items: center;
     height: 10vh;
-    background-color: white;
+    background-color: #484848;
     border-radius: 1rem;
     font-weight: 500;
+    color: white;
 }
 
 .filterSelect{
@@ -120,14 +143,20 @@ body{
     border-radius: 0.5rem;
     font-size: medium;
     cursor: pointer;
+    color: white;
+    border-color: none;
 }
 
 .button-red{
-    background-color: #cb5454;
+    background-color: #e47b7b;
+}
+
+.button-grey{
+    background-color: #484848;
 }
 
 .button-green{
-    background-color: #74e784;
+    background-color: #7dc586;
 }
 
 

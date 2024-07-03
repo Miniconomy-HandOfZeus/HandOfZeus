@@ -3,13 +3,14 @@ import { fetchWithAuth } from "./apiHandler.js";
 
 //document.addEventListener('DOMContentLoaded', async () => {console.log(`Email: ${await getEmail()}`);});
 
+//UI elements\\
 let startResetButton = document.getElementById('startResetButton');
+let eventCountTxt = document.getElementById('eventCountDisplay');
+//Event Listeners\\
 document.getElementById('logout-button').addEventListener('click', logout);
+startResetButton.addEventListener('click', startOrResetSim(startResetButton.value));
 
-// console.log(await fetchWithAuth('/helloworld', { 
-//   method: 'GET',
-//   headers: {'Content-Type': 'application/json'}
-// }));
+//Variables\\
 let hasSimStarted = false;
 let pollingIntervalId;
 
@@ -31,6 +32,8 @@ const REAL_TO_SIMULATION_RATIO = 24 * 60 * 60 * 1000 / (2 * 365 * 24 * 60 * 60 *
 // Assuming you have received the start time from your API
 const startTimeFromApi = new Date('2024-07-01T12:00:00Z'); // Replace with the actual start time from your API
 
+
+eventCountTxt.innerText = testData.length;
 function updateTimer() {
   const currentTime = new Date();
   const timeDifference = currentTime - startTimeFromApi;
@@ -56,9 +59,9 @@ function updateTimer() {
 }
 
 // Update the timer every second
-//setInterval(updateTimer, 5000);
+setInterval(updateTimer, 5000);
 
-
+checkToSeeIfSimulationHasStarted();
 
 async function checkToSeeIfSimulationHasStarted(){
   let response = await fetchWithAuth('/', {
@@ -68,8 +71,9 @@ async function checkToSeeIfSimulationHasStarted(){
 
   let tasks = await response.json();
 
-  if(start){
+  if(tasks.start){
     hasSimStarted = true;
+    startResetButton.value = false;
     startResetButton.textContent = "Reset Simulation";
     if(startResetButton.classList.contains('button-green')){
       startResetButton.classList.remove('button-green');
@@ -78,6 +82,7 @@ async function checkToSeeIfSimulationHasStarted(){
     startPolling();
   }else{
     hasSimStarted = false;
+    startResetButton.value = true;
     startResetButton.textContent = "Start Simulation";
     if(startResetButton.classList.contains('button-red')){
       startResetButton.classList.remove('button-red');
@@ -114,12 +119,23 @@ async function retrieveEventData(){
     
     if(newData.length >=1){
       newData.array.forEach(event => {
-        addEventElement(event);
+
+        if(!isDuplicate(testData, event)){
+          testData.unshift(event);
+          addEventElement(event);
+        }
+
       });
+
+      eventCountTxt.innerText = testData.length;
     }
   } catch (error) {
     console.error('Error fetching data:', error);
   }
+}
+
+function isDuplicate(testData, event) {
+  return testData.some(existingEvent => existingEvent.id === event.id);
 }
 
 function startPolling(interval = 5000) {
