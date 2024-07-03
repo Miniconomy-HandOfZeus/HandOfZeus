@@ -87,29 +87,31 @@ public class Function
 
         });
 
-                var json = new
-                {
-                    startTime = currentTime
-                };
+        var json = new
+        {
+          startTime = currentTime
+        };
 
-                // Serialize the response object to JSON
-                
-                //var json = JsonConvert.SerializeObject(body);
+        // Serialize the response object to JSON
 
-                return new APIGatewayProxyResponse
-                {
-                    StatusCode = 200,
-                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
-                    Body = JsonConvert.SerializeObject(new { json }),
+        //var json = JsonConvert.SerializeObject(body);
 
-                };
+        return new APIGatewayProxyResponse
+        {
+          StatusCode = 200,
+          Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
+          Body = JsonConvert.SerializeObject(new { json }),
 
-            }
-            else
-            {
-                await _ScheduleTrigger.StopAsync();
-                await DeterminePrice.setHasStarted("hasStarted", "false");
+        };
 
+      }
+      else
+      {
+        await _ScheduleTrigger.StopAsync();
+        await DeterminePrice.setHasStarted("hasStarted", "false");
+        context.Logger.Log("clear DB");
+        clearDB();
+        context.Logger.Log("Fnish clear, broadcasting reset");
         OtherApiUrls.ForEach(async url =>
                 {
                   try
