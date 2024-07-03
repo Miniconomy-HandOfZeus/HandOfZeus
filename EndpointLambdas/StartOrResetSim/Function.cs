@@ -144,12 +144,8 @@ public class Function
   private async Task clearDB()
   {
     //start clear events db
-    var scanRequest = new ScanRequest
-    {
-      TableName = "hand-of-zeus-events"
-    };
 
-    var scanResponse = await dynamoDbClient.ScanAsync(scanRequest);
+    var scanResponse = DBHelper.scanDB().Result;
 
     if (scanResponse.Items.Count == 0)
     {
@@ -160,27 +156,7 @@ public class Function
     // Iterate over each item and delete it
     foreach (var item in scanResponse.Items)
     {
-      var key = new Dictionary<string, AttributeValue>
-            {
-                { "Key", item["Key"] }
-            };
-
-      var deleteItemRequest = new DeleteItemRequest
-      {
-        TableName = tableName,
-        Key = key
-      };
-
-      try
-      {
-        await dynamoDbClient.DeleteItemAsync(deleteItemRequest);
-      }
-      catch (Exception e)
-      {
-        Console.WriteLine($"Error deleting item with {partitionKeyName}: {key[partitionKeyName].S}");
-        Console.WriteLine($"Error: {e.Message}");
-        throw e;
-      }
+      await DBHelper.deleteFromDB(item);
     }
   }
 }
