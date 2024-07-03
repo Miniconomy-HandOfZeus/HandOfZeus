@@ -156,7 +156,7 @@ namespace RandomEvent
       {
         string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x["firstPerson"]}, {x["secondPerson"]})"));
         await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
-        await SendMarriagePairsToService(marriagePairs);
+        await SendMarriagePairsToService(marriagePairs, context);
       } 
       else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages" || selectedEvent == "Hunger" || selectedEvent == "Sickness") {
         string Affectedresult = string.Join(", ", affectedPeople);
@@ -214,7 +214,7 @@ namespace RandomEvent
       else if (selectedEvent == "Marriage")
       {
 
-        await SendMarriagePairsToService(marriagePairs);
+
       }
 
     }
@@ -417,7 +417,7 @@ namespace RandomEvent
     }
 
 
-    private async Task SendMarriagePairsToService(List<Dictionary<string, long>> marriagePairs)
+    private async Task SendMarriagePairsToService(List<Dictionary<string, long>> marriagePairs, ILambdaContext context)
     {
       var requestBody = new
       {
@@ -426,6 +426,9 @@ namespace RandomEvent
 
       var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/marryPersonas";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
+
+      context.Logger.LogLine($"requestBody : {requestBody}");
+      context.Logger.LogLine($"Response : {response}");
 
       if (!response.IsSuccessStatusCode)
       {
