@@ -101,6 +101,8 @@ public class Function
                 }
                 else
                 {
+                    await _ScheduleTrigger.StopAsync();
+
                     OtherApiUrls.ForEach(async url =>
                     {
                         await RequestHandler.SendPutRequestAsync(url, false, "", certs);
