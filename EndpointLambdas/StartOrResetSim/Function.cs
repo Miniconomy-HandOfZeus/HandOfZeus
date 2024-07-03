@@ -38,12 +38,7 @@ public class Function
 
     private static readonly string LambdaFunctionName1 = "DateCalculation";
     private static readonly string LambdaFunctionName2 = "RandomEvent";
-    private readonly LambdaTrigger _LambdaTrigger;
-
-    public Function()
-    {
-        _LambdaTrigger = new LambdaTrigger();
-    }
+    private readonly ScheduleTrigger _ScheduleTrigger = new();
 
     public async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest request, ILambdaContext context)
     {
@@ -73,13 +68,12 @@ public class Function
                     await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
                     await DeterminePrice.setPrices();
 
-                    await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
-                    await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName2, context);
+                    await _ScheduleTrigger.StartAsync();
 
                     string startTime = await DBHelper.GetFromDB("SimulationStartTime");
-                    OtherApiUrls.ForEach(url =>
+                    OtherApiUrls.ForEach(async url =>
                     {
-                        RequestHandler.SendPutRequestAsync(url, true, startTime, certs);
+                        await RequestHandler.SendPutRequestAsync(url, true, startTime, certs);
                     });
 
                     var body = new
@@ -100,9 +94,9 @@ public class Function
                 }
                 else
                 {
-                    OtherApiUrls.ForEach(url =>
+                    OtherApiUrls.ForEach(async url =>
                     {
-                        RequestHandler.SendPutRequestAsync(url, false, "", certs);
+                        await RequestHandler.SendPutRequestAsync(url, false, "", certs);
                     });
 
                     return new APIGatewayProxyResponse
@@ -113,7 +107,7 @@ public class Function
                     };
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new APIGatewayProxyResponse
                 {
