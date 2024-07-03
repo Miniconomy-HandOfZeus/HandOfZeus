@@ -62,7 +62,7 @@ resource "aws_scheduler_schedule_group" "lambda_schedule_group" {
 }
 
 resource "aws_scheduler_schedule" "lambda_schedules" {
-  for_each   = { for index, config in var.lambda_schedule_config : index => config }
+  for_each   = { for index, config in var.lambda_schedule_config : config.name => config }
   name       = "${each.value.name}-scheduler"
   group_name = aws_scheduler_schedule_group.lambda_schedule_group.name
 
