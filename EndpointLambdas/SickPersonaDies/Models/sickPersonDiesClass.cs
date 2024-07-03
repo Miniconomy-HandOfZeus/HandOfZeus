@@ -5,11 +5,11 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SalaryLambdas.Models
+namespace SickPersonaDies.Models
 {
-    public class PersonaWages
+    public class sickPersonDiesClass
     {
-        public BigInteger personaId;
-        public long wage;
+        public BigInteger personID;
+        public bool survives;
     }
 }
