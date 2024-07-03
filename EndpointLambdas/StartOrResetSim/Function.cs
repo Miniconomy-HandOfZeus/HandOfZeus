@@ -56,6 +56,7 @@ public class Function
                 if (action)
                 {
                     currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+                    LambdaLogger.Log("the start time is: " + currentTime);
                     await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
 
                     try
@@ -75,7 +76,7 @@ public class Function
                     {
                         try
                         {
-                            await RequestHandler.SendPutRequestAsync(url, true, startTime, certs);
+                            await RequestHandler.SendPutRequestAsync(url, true, currentTime, certs);
                         }catch (Exception ex)
                         {
                             LambdaLogger.Log($"error while sending request to {url}: " + ex.Message);
