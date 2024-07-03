@@ -463,6 +463,5 @@ namespace RandomEvent
       var response = await httpClient.GetFromJsonAsync<List<long>>("https://api.persona.projects.bbdgrad.com/api/HandOfZeus/givePersonasChild");
       return response ?? new List<long>();
     }
-
   }
 }

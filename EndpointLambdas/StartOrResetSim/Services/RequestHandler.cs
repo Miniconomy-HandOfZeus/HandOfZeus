@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Amazon.Lambda.Core;
+using Newtonsoft.Json;
 using StartOrResetSim.Interfaces;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -14,9 +15,9 @@ namespace StartOrResetSim.Services
            client = new HttpClientHandler();
         }
 
-        public async Task<bool> SendPutRequestAsync(string url, bool value, string startTime, X509Certificate2 cert)
+        public async Task<bool> SendPutRequestAsync(string url, bool value, string startTime)
         {
-            client.ClientCertificates.Add(cert);
+            //client.ClientCertificates.Add(cert);
             // Prepare the query parameter based on the boolean value
             string action = value ? "start" : "reset";
 
@@ -30,15 +31,16 @@ namespace StartOrResetSim.Services
                     {
                         var requestBody = new
                         {
-                            startTime = startTime,
-                            action = action
+                            action = action,
+                            startTime = startTime
                         };
 
                         var json = JsonConvert.SerializeObject(requestBody);
                         content = new StringContent(json, Encoding.UTF8, "application/json");
                     }
 
-                    var response = await httpClient.PutAsync(url, content);
+                    var response = await httpClient.PostAsync(url, content);
+                    LambdaLogger.Log(response.ToString());
 
                     response.EnsureSuccessStatusCode();
 

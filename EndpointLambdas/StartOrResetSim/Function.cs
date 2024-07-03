@@ -3,6 +3,7 @@ using Amazon.Lambda.Core;
 using Newtonsoft.Json;
 using StartOrResetSim.Services;
 using System.Security.Cryptography.X509Certificates;
+using static System.Net.WebRequestMethods;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -17,37 +18,23 @@ public class Function
     private readonly DBHelper DBHelper = new DBHelper();
 
     List<string> OtherApiUrls = new List<string> {
-        "https://sustenance.projects.bbdgrad.com",
-        "https://electronics.projects.bbdgrad.com",
-        "https://api.bonds.projects.bbdgrad.com",
-        "https://api.loans.projects.bbdgrad.com",
-        "https://rentals.projects.bbdgrad.com",
-        "https://sales.projects.bbdgrad.com",
-        "https://mese.projects.bbdgrad.com",
-        "https://labour.projects.bbdgrad.com",
-        "https://api.mers.projects.bbdgrad.com",
-        "https://care.projects.bbdgrad.com",
-        "https://api.insurance.projects.bbdgrad.com",
-        "https://api.life.projects.bbdgrad.com",
-        "https://api.health.projects.bbdgrad.com",
-        "https://api.commercialbank.projects.bbdgrad.com",
-        "https://api.retailbank.projects.bbdgrad.com",
-        "https://property.projects.bbdgrad.com",
-        "https://persona.projects.bbdgrad.com",
-    };
+         "https://property-manager.projects.bbdgrad.com/PropertyManager/reset",
+         "https://api.care.projects.bbdgrad.com/api/simulation",
+         "https://service.electronics.projects.bbdgrad.com/zeus/control",
+         "https://api.mers.projects.bbdgrad.com/api/simulation/startNewSimulation",
+         "https://api.health.projects.bbdgrad.com/control-simulation",
+         "https://api.life.projects.bbdgrad.com/control-simulation",
+         "https://api.insurance.projects.bbdgrad.com/api/time",
+         "https://api.loans.projects.bbdgrad.com/mng/reset",
+         "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/startSimulation",
+         "https://api.commercialbank.projects.bbdgrad.com/simulation/setup"
+};
 
-    private static readonly string LambdaFunctionName1 = "DateCalculation";
-    private static readonly string LambdaFunctionName2 = "RandomEvent";
-    private readonly LambdaTrigger _LambdaTrigger;
+    private readonly ScheduleTrigger _ScheduleTrigger = new();
 
-    public Function()
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-        _LambdaTrigger = new LambdaTrigger();
-    }
-
-    public async Task<APIGatewayProxyResponse> FunctionHandlerAsync(APIGatewayProxyRequest request, ILambdaContext context)
-    {
-        DateTime currentTime; 
+        string currentTime; 
         // Parse the request body to get the person ID
         var requestBody = JsonConvert.DeserializeObject<Dictionary<string, bool>>(request.Body);
         if (requestBody == null || !requestBody.ContainsKey("action"))
@@ -61,69 +48,87 @@ public class Function
         }
 
         bool action = requestBody["action"];
-        X509Certificate2 certs = await CertHandler.GetCertAndKey();
+        //X509Certificate2 certs = await CertHandler.GetCertAndKey();
 
-        if (certs != null)
+        try
         {
-            try
+            if (action)
             {
-                if (action)
+                currentTime = DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss");
+                LambdaLogger.Log("the start time is: " + currentTime);
+                await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
+
+                try
                 {
-                    currentTime = DateTime.Now;
-                    await DeterminePrice.setStartTime("SimulationStartTime", currentTime);
                     await DeterminePrice.setPrices();
-
-                    await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName1, context);
-                    await _LambdaTrigger.InvokeLambdaAsync(LambdaFunctionName2, context);
-
-                    string startTime = await DBHelper.GetFromDB("SimulationStartTime");
-                    OtherApiUrls.ForEach(url =>
-                    {
-                        RequestHandler.SendPutRequestAsync(url, true, startTime, certs);
-                    });
-
-                    var body = new
-                    {
-                        startTime = currentTime
-                    };
-
-                    // Serialize the response object to JSON
-                    string responseBody = JsonConvert.SerializeObject(body);
-
-                    return new APIGatewayProxyResponse
-                    {
-                        StatusCode = 200,
-                        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
-                        Body = responseBody
-                    };
-
                 }
-                else
+                catch (Exception ex)
                 {
-                    OtherApiUrls.ForEach(url =>
-                    {
-                        RequestHandler.SendPutRequestAsync(url, false, "", certs);
-                    });
-
-                    return new APIGatewayProxyResponse
-                    {
-                        StatusCode = 200,
-                        Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-                        
-                    };
+                    LambdaLogger.Log("error while setting prices: " + ex.Message);
                 }
-            }
-            catch (Exception ex)
-            {
+
+
+                await _ScheduleTrigger.StartAsync();
+
+                string startTime = await DBHelper.GetFromDB("SimulationStartTime");
+
+                OtherApiUrls.ForEach(async url =>
+                {
+                    try
+                    {
+                        await RequestHandler.SendPutRequestAsync(url, true, currentTime);
+                    }
+                    catch (Exception ex)
+                    {
+                        LambdaLogger.Log($"error while sending request to {url}: " + ex.Message);
+                    }
+
+
+                });
+
+                var body = new
+                {
+                    startTime = currentTime
+                };
+
+                // Serialize the response object to JSON
+                string responseBody = JsonConvert.SerializeObject(body);
+
                 return new APIGatewayProxyResponse
                 {
-                    StatusCode = 400,
+                    StatusCode = 200,
+                    Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
+                    Body = responseBody
+                };
+
+            }
+            else
+            {
+                await _ScheduleTrigger.StopAsync();
+
+                OtherApiUrls.ForEach(async url =>
+                {
+                    try
+                    {
+                        await RequestHandler.SendPutRequestAsync(url, false, "");
+                    }
+                    catch (Exception ex)
+                    {
+                        LambdaLogger.Log($"error while sending request to {url}: " + ex.Message);
+                    }
+
+
+                });
+
+                return new APIGatewayProxyResponse
+                {
+                    StatusCode = 200,
                     Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
+
                 };
             }
-            
         }
-        else
+        catch (Exception)
         {
             return new APIGatewayProxyResponse
             {
