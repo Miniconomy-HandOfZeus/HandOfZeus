@@ -61,7 +61,7 @@ public class Function
       }
       else
       {
-        if (!int.TryParse(response.Item["value"].N, out int minimumWage))
+        if (!int.TryParse(response.Item["value"].N, out minimumWage))
         {
           throw new Exception("Invalid minimum wage value");
         }
