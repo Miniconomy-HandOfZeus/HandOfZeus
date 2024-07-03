@@ -97,7 +97,6 @@ namespace TaxRate
       try
       {
         var response = await _dynamoDbClient.GetItemAsync(dbRequest);
-        context.Logger.Log(response.ToString(), response.Item);
         string[] arr = { response.Item["business"].N, response.Item["income"].N, response.Item["vat"].N };
         return arr;
       }
