@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Amazon.Lambda.Core;
+using Newtonsoft.Json;
 using StartOrResetSim.Interfaces;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -39,6 +40,7 @@ namespace StartOrResetSim.Services
                     }
 
                     var response = await httpClient.PostAsync(url, content);
+                    LambdaLogger.Log(response.ToString());
 
                     response.EnsureSuccessStatusCode();
 
