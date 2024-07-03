@@ -493,9 +493,27 @@ namespace RandomEvent
         throw new Exception($"Failed to fetch single personas. Status code: {response.StatusCode}, Response: {responseContent}");
       }
 
-      List<long> singlePersonas = JsonSerializer.Deserialize<List<long>>(responseContent);
+      var responseObject = JsonSerializer.Deserialize<JsonDocument>(responseContent);
 
-      return singlePersonas;
+      var personaIds = new List<long>();
+      var data = responseObject.RootElement.GetProperty("data");
+      var personaIdsArray = data.GetProperty("personaIds");
+
+      context.Logger.LogLine($"DATA: {data}");
+
+      foreach (var id in personaIdsArray.EnumerateArray())
+      {
+        personaIds.Add(id.GetInt64());
+      }
+
+      if (personaIds.Count == 0)
+      {
+        throw new Exception("No single personas found in the response.");
+      }
+
+      context.Logger.LogLine($"personaIds: {personaIds}");
+
+      return personaIds;
     }
 
   }
