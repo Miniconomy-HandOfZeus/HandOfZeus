@@ -1,5 +1,6 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
+using Amazon.Lambda.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +15,68 @@ namespace HasSimStarted.Service
         private readonly AmazonDynamoDBClient client = new();
 
         public async Task<bool> GetValue(string key)
+        {
+            //var request = new GetItemRequest
+            //{
+            //    TableName = tableName,
+            //    Key = new Dictionary<string, AttributeValue>
+            //{
+            //    { "Key", new AttributeValue { S = key } }
+            //}
+            //};
+
+            try
+            {
+                //var response = await client.GetItemAsync(request);
+
+                //if (response.Item == null || !response.Item.TryGetValue("value", out AttributeValue? value))
+                //{
+                //    throw new Exception($"{key} not found in the db.");
+                //}
+
+                //var hasStarted = response.Item["value"].BOOL;
+
+
+
+                var request = new GetItemRequest
+                {
+                    TableName = tableName,
+                    Key = new Dictionary<string, AttributeValue>
+                {
+                    { "Key", new AttributeValue { S = key } }
+                }
+                };
+
+                var response = await client.GetItemAsync(request);
+                if (response.Item == null || !response.Item.ContainsKey("value"))
+                {
+                    throw new Exception("Item Not found");
+                }
+
+                bool hasSatrted = bool.Parse(response.Item["value"].S);
+
+                LambdaLogger.Log("REPSONSE FROM DB IS: " + response.Item["value"].S);
+                LambdaLogger.Log("REPSONSE FROM DB IS: " + response.Item["value"].ToString());
+                if (hasSatrted == true)
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+                //return int.Parse(value.S);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+
+        }
+
+        public async Task<string> GetStartTime(string key)
         {
             var request = new GetItemRequest
             {
@@ -32,22 +95,15 @@ namespace HasSimStarted.Service
                 {
                     throw new Exception($"{key} not found in the db.");
                 }
-                
-                if(value.S == "True")
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-                //return int.Parse(value.S);
+
+
+                return response.Item["value"].ToString();
 
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return false;
+                return "";
             }
 
         }
