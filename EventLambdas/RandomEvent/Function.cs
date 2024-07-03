@@ -20,20 +20,20 @@ namespace RandomEvent
         {
             "Death",
             "Marriage",
-            "Birth",
-            "Hunger",
-            "Sickness",
-            "Breakages",
-            "Salary",
-            "Fired from job",
-            "FamineStart",
-            "FamineEnd",
-            "PlagueStart",
-            "PlagueEnd",
-            "WarStart",
-            "WarEnd",
-            "Apocalypse",
-            "Inflation"
+            "Birth"
+            //"Hunger",
+            //"Sickness",
+            //"Breakages",
+            //"Salary",
+            //"Fired from job",
+            //"FamineStart",
+            //"FamineEnd",
+            //"PlagueStart",
+            //"PlagueEnd",
+            //"WarStart",
+            //"WarEnd",
+            //"Apocalypse",
+            //"Inflation"
         };
 
 
