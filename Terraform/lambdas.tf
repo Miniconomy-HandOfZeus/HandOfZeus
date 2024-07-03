@@ -20,7 +20,8 @@ resource "aws_iam_policy" "lambda_access" {
           "dynamodb:*",
           "s3:*",
           "secretsmanager:*",
-          "events:*"
+          "events:*",
+          "scheduler:*"
         ],
         Resource = "*"
       }
