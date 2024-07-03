@@ -18,63 +18,41 @@ namespace RandomEvent
     private static readonly Random random = new Random();
     private static readonly List<string> events = new List<string>
         {
-            "Death",
-            "Marriage",
-            "Birth",
-            //"Hunger",
-            //"Sickness",
+            //"Death",
+            //"Marriage",
+            //"Birth",
+            "Sickness",
             //"Breakages",
             //"Salary",
             //"Fired from job",
-            "FamineStart",
-            "FamineEnd",
+            //"FamineStart",
+            //"FamineEnd",
             //"PlagueStart",
             //"PlagueEnd",
             //"WarStart",
             //"WarEnd"
             //"Apocalypse",
-            //"Inflation"
+            "Inflation"
         };
 
 
     private static readonly Dictionary<string, int> eventWeights = new Dictionary<string, int>
         {
-            { "Death", 0 },
-            { "Marriage", 0 },
-            { "Birth", 0 },
-            //{ "Hunger", 15 },
+            //{ "Death", 0 },
+            //{ "Marriage", 0 },
+            //{ "Birth", 0 },
             //{ "Sickness", 15 },
             //{ "Breakages", 5 },
             //{ "Salary", 25 },
             //{ "Fired from job", 5 },
-            { "FamineStart", 1 },
-            { "FamineEnd", 0 },
+            //{ "FamineStart", 1 },
+            //{ "FamineEnd", 0 },
             //{ "PlagueStart", 1 },
             //{ "PlagueEnd", 0 },
             //{ "WarStart", 1 },
             //{ "WarEnd", 0 },
             //{ "Apocalypse", 1 },
-            //{ "Inflation", 10 }
-        };
-
-    private static readonly Dictionary<string, string[]> eventEndpoints = new Dictionary<string, string[]>
-        {
-            { "Death", new[] { "https://persona.projects.bbdgrad.com" } },
-            { "Marriage", new[] { "https://persona.projects.bbdgrad.com" } },
-            { "Birth", new[] { "https://persona.projects.bbdgrad.com" } },
-            { "Hunger", new[] { "https://sustenance.projects.bbdgrad.com" } },
-            { "Sickness", new[] { "https://api.health.projects.bbdgrad.com", "https://persona.projects.bbdgrad.com" } },
-            { "Breakages", new[] { "https://api.insurance.projects.bbdgrad.com" } },
-            { "Salary", new[] { "https://labour.projects.bbdgrad.com" } },
-            { "Fired from job", new[] { "https://labour.projects.bbdgrad.com" } },
-            { "FamineStart", new string[] { } }, // No notification for end
-            { "FamineEnd", new string[] { } }, // No notification for end
-            { "PlagueStart", new string[] { } }, // No notification for end
-            { "PlagueEnd", new string[] { } }, // No notification for end
-            { "WarStart", new string[] { } }, // No notification for start
-            { "WarEnd", new string[] { } }, // No notification for end
-            { "Apocalypse", new[] { "https://persona.projects.bbdgrad.com" } },
-            { "Inflation", new[] { "https://api.commercialbank.projects.bbdgrad.com" } }
+            { "Inflation", 10 }
         };
 
     private static readonly List<long> people = new List<long>
@@ -94,7 +72,6 @@ namespace RandomEvent
             { "Death", "The amount of people that died are: {0}" },
             { "Marriage", "The amount of people that got married are: {0}" },
             { "Birth", "The amount of people that were born are: {0}" },
-            { "Hunger", "The amount of people affected by hunger are: {0}" },
             { "Sickness", "The amount of people affected by sickness are: {0}" },
             { "Breakages", "The amount of breakages are: {0}" },
             { "Salary", "The amount of salary increases are: {0}" },
@@ -131,7 +108,7 @@ namespace RandomEvent
       }
       if (selectedEvent == "FamineStart" || selectedEvent == "FamineEnd")
       {
-        await UpdateEventRateInDynamoDB("Hunger", selectedEvent == "FamineStart" ? "50" : "15");
+        await UpdateEventRateInDynamoDB("Death", selectedEvent == "FamineStart" ? "40" : "15");
         await UpdateEventRateInDynamoDB("Inflation", selectedEvent == "FamineStart" ? "20" : "10");
       }
       else if (selectedEvent == "PlagueStart" || selectedEvent == "PlagueEnd")
@@ -162,22 +139,14 @@ namespace RandomEvent
         var description = string.Format(eventDescriptions[selectedEvent], affectedPeopleCount);
         context.Logger.LogLine($"Event Description: {description}");
 
-        var marriagePairs = await CreateMarriagePairs(affectedPeopleCount, context);
-        context.Logger.LogLine($"marriagePairs : {marriagePairs}");
-
         if (selectedEvent == "Marriage")
         {
-          var requestBody = new
-          {
-            marriagePairs = marriagePairs
-          };
-          context.Logger.LogLine($"requestBody : {requestBody}");
-
+          var marriagePairs = await CreateMarriagePairs(affectedPeopleCount, context);
           string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x["firstPerson"]}, {x["secondPerson"]})"));
           await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
           await SendMarriagePairsToService(marriagePairs, context);
         }
-        else if (selectedEvent == "Birth" || selectedEvent == "Fired from job" || selectedEvent == "Breakages" || selectedEvent == "Hunger" || selectedEvent == "Sickness")
+        else if (selectedEvent == "Fired from job" || selectedEvent == "Breakages")
         {
           string Affectedresult = string.Join(", ", affectedPeople);
           await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
@@ -189,28 +158,38 @@ namespace RandomEvent
           await InsertEventIntoDynamoDB(selectedEvent, description, salaryIncreasesResult);
           await SendSalaryIncreasesToService(salaryIncreases);
         }
-        else
+        else if (selectedEvent == "Death")
         {
-          await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
-        }
-
-        if (selectedEvent == "Death")
-        {
+          string Affectedresult = string.Join(", ", affectedPeople);
+          await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
           var PeopleCanKill = await FetchCanBeKilled(context);
-          context.Logger.LogLine($"Death PEOPLE : {PeopleCanKill}");
+          await SendKILLSToService(PeopleCanKill, context);
+        }
+        else if (selectedEvent == "Birth")
+        {
+          string Affectedresult = string.Join(", ", affectedPeople);
+          await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
+          var PeopleToGiveBirth = await FetchChildlessPeople(context);
+          await SendBirthsToService(PeopleToGiveBirth, context);
+        }
+        else if (selectedEvent == "Sickness")
+        {
+          string Affectedresult = string.Join(", ", affectedPeople);
+          await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
+          var PeopleToMakeSick = await FetchCanGetSick(context);
+          await SendSicknessToService(PeopleToMakeSick, context);
+        }
+        else if (selectedEvent == "Apocalypse")
+        {
+          string Affectedresult = string.Join(", ", affectedPeople);
+          await InsertEventIntoDynamoDB(selectedEvent, description, Affectedresult);
+          var PeopleCanKill = await FetchCanBeKilled(context);
           await SendKILLSToService(PeopleCanKill, context);
         }
 
-
-        //await CallServiceEndpointsAsync(selectedEvent, eventRate, affectedPeople);
-
-        if (selectedEvent == "Birth")
+        else
         {
-          var PeopleToGiveBirth = await FetchChildlessPeople(context);
-          var person = PeopleToGiveBirth[0];
-          context.Logger.LogLine($"Death PEOPLE : {PeopleToGiveBirth}");
-          context.Logger.LogLine($"Death person : {person}");
-          await SendBirthsToService(person, context);
+          await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
         }
       }
     }
@@ -301,29 +280,6 @@ namespace RandomEvent
       }
 
       return selectedPeople;
-    }
-
-    private async Task CallServiceEndpointsAsync(string eventName, string eventRate, List<long> affectedPeople)
-    {
-      var requestBody = new
-      {
-        EventName = eventName,
-        EventRate = eventRate,
-        AffectedPeople = affectedPeople
-      };
-
-      if (eventEndpoints.TryGetValue(eventName, out var endpoints))
-      {
-        foreach (var endpoint in endpoints)
-        {
-          var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
-
-          if (!response.IsSuccessStatusCode)
-          {
-            throw new Exception($"Failed to call service endpoint {endpoint}. Status code: {response.StatusCode}");
-          }
-        }
-      }
     }
 
     private async Task UpdateEventRateInDynamoDB(string eventName, string newRate)
@@ -421,15 +377,8 @@ namespace RandomEvent
       {
         marriagePairs = marriagePairs
       };
-
-
-
       var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/marryPersonas";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
-
-
-      //context.Logger.LogLine($"Response : {response}");
-
       if (!response.IsSuccessStatusCode)
       {
         throw new Exception($"Failed to send marriage pairs to service endpoint. Status code: {response.StatusCode}");
@@ -442,37 +391,34 @@ namespace RandomEvent
       {
         personaIds = personIDs
       };
-
-
-
       var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/killPersonas";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
-
-
-      //context.Logger.LogLine($"Response : {response}");
-
       if (!response.IsSuccessStatusCode)
       {
         throw new Exception($"Failed to send KILLS to service endpoint. Status code: {response.StatusCode}");
       }
     }
-
-    //private async Task SendBirthsToService(List<long> personIDs, ILambdaContext context)
-    private async Task SendBirthsToService(long personID, ILambdaContext context)
+    private async Task SendSicknessToService(List<long> personIDs, ILambdaContext context)
     {
       var requestBody = new
       {
-        personaIds = personID
+        personaIds = personIDs
       };
-
-
-
+      var endpoint = "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/givePersonasSickness";
+      var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
+      if (!response.IsSuccessStatusCode)
+      {
+        throw new Exception($"Failed to send SICKNESS to service endpoint. Status code: {response.StatusCode}");
+      }
+    }
+    private async Task SendBirthsToService(List<long> personIDs, ILambdaContext context)
+    {
+      var requestBody = new
+      {
+        personaIds = personIDs
+      };
       var endpoint = "https://api.persona.projects.bbdgrad.com/api/Persona/makeNewChild";
       var response = await httpClient.PostAsJsonAsync(endpoint, requestBody);
-
-
-      //context.Logger.LogLine($"Response : {response}");
-
       if (!response.IsSuccessStatusCode)
       {
         throw new Exception($"Failed to send BIRTHS to service endpoint. Status code: {response.StatusCode}");
@@ -486,7 +432,7 @@ namespace RandomEvent
       for (int i = 0; i < count; i++)
       {
         long personId = people[random.Next(people.Count)];
-        double increase = random.Next(1, 6); // Random increase between 1% and 5%
+        double increase = random.Next(1, 6);
         salaryIncreases[personId] = increase;
       }
 
@@ -511,7 +457,6 @@ namespace RandomEvent
 
     private async Task<List<long>> FetchCanBeMarriedPeople(ILambdaContext context)
     {
-
       var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getSinglePersonas");
       var responseContent = response.Content.ReadAsStringAsync().Result;;
 
@@ -521,13 +466,9 @@ namespace RandomEvent
       }
 
       var responseObject = JsonSerializer.Deserialize<JsonDocument>(responseContent);
-
       var personaIds = new List<long>();
       var data = responseObject.RootElement.GetProperty("data");
       var personaIdsArray = data.GetProperty("personaIds");
-
-
-      
 
       foreach (var id in personaIdsArray.EnumerateArray())
       {
@@ -538,15 +479,11 @@ namespace RandomEvent
       {
         throw new Exception("No single personas found in the response.");
       }
-
- 
-
       return personaIds;
     }
 
     private async Task<List<long>> FetchCanBeKilled(ILambdaContext context)
     {
-
       var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonaIds");
       var responseContent = response.Content.ReadAsStringAsync().Result; ;
 
@@ -556,13 +493,9 @@ namespace RandomEvent
       }
 
       var responseObject = JsonSerializer.Deserialize<JsonDocument>(responseContent);
-
       var personaIds = new List<long>();
       var data = responseObject.RootElement.GetProperty("data");
       var personaIdsArray = data.GetProperty("personaIds");
-
-
-
 
       foreach (var id in personaIdsArray.EnumerateArray())
       {
@@ -573,33 +506,49 @@ namespace RandomEvent
       {
         throw new Exception("No single personas found in the response.");
       }
+      return personaIds;
+    }
 
+    private async Task<List<long>> FetchCanGetSick(ILambdaContext context)
+    {
+      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonaIds");
+      var responseContent = response.Content.ReadAsStringAsync().Result; ;
 
+      if (!response.IsSuccessStatusCode)
+      {
+        throw new Exception($"Failed to fetch personas that can get sick. Status code: {response.StatusCode}, Response: {responseContent}");
+      }
 
+      var responseObject = JsonSerializer.Deserialize<JsonDocument>(responseContent);
+      var personaIds = new List<long>();
+      var data = responseObject.RootElement.GetProperty("data");
+      var personaIdsArray = data.GetProperty("personaIds");
+
+      foreach (var id in personaIdsArray.EnumerateArray())
+      {
+        personaIds.Add(id.GetInt64());
+      }
+
+      if (personaIds.Count == 0)
+      {
+        throw new Exception("No single personas found in the response.");
+      }
       return personaIds;
     }
 
     private async Task<List<long>> FetchChildlessPeople(ILambdaContext context)
     {
-
       var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getChildlessPersonas");
       var responseContent = response.Content.ReadAsStringAsync().Result;
-
-
-
       if (!response.IsSuccessStatusCode)
       {
         throw new Exception($"Failed to fetch childless personas. Status code: {response.StatusCode}, Response: {responseContent}");
       }
-
       var responseObject = JsonSerializer.Deserialize<JsonDocument>(responseContent);
 
       var personaIds = new List<long>();
       var data = responseObject.RootElement.GetProperty("data");
       var personaIdsArray = data.GetProperty("personaIds");
-
-
-
 
       foreach (var id in personaIdsArray.EnumerateArray())
       {
@@ -610,9 +559,6 @@ namespace RandomEvent
       {
         throw new Exception("No childless personas found in the response.");
       }
-
-
-
       return personaIds;
     }
   }
