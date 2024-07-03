@@ -321,7 +321,7 @@ namespace RandomEvent
     {
       var request = new PutItemRequest
       {
-        TableName = "EventLog",
+        TableName = "hand-of-zeus-db",
         Item = new Dictionary<string, AttributeValue>
                 {
                     { "EventName", new AttributeValue { S = eventName } },
