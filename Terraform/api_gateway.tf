@@ -38,19 +38,6 @@ resource "aws_apigatewayv2_domain_name" "service_api" {
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
-
-  mutual_tls_authentication {
-    truststore_uri = "s3://miniconomy-trust-store-bucket/truststore.pem"
-  }
-}
-
-resource "aws_apigatewayv2_authorizer" "service_api" {
-  api_id                            = aws_apigatewayv2_api.service_api.id
-  authorizer_type                   = "REQUEST"
-  authorizer_uri                    = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:eu-west-1:625366111301:function:AuthLambda/invocations"
-  name                              = "common-name-extractor"
-  authorizer_payload_format_version = "2.0"
-  authorizer_result_ttl_in_seconds  = 0
 }
 
 resource "aws_apigatewayv2_stage" "service_api" {
@@ -87,12 +74,10 @@ resource "aws_apigatewayv2_integration" "service_api" {
 }
 
 resource "aws_apigatewayv2_route" "service_api" {
-  for_each           = var.service_lambda_endpoint_config
-  api_id             = aws_apigatewayv2_api.service_api.id
-  route_key          = each.key
-  authorization_type = "CUSTOM"
-  authorizer_id      = aws_apigatewayv2_authorizer.service_api.id
-  target             = "integrations/${aws_apigatewayv2_integration.service_api[each.key].id}"
+  for_each  = var.service_lambda_endpoint_config
+  api_id    = aws_apigatewayv2_api.service_api.id
+  route_key = each.key
+  target    = "integrations/${aws_apigatewayv2_integration.service_api[each.key].id}"
 }
 
 resource "aws_apigatewayv2_integration" "service_options_integration" {
