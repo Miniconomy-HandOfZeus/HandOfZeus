@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -481,9 +482,20 @@ namespace RandomEvent
     private async Task<List<long>> FetchCanBeMarriedPeople(ILambdaContext context)
     {
       context.Logger.LogLine($"GetFromJsonAsync BEFORE:");
-      var response = await httpClient.GetFromJsonAsync<List<long>>("https://api.persona.projects.bbdgrad.com/api/Persona/getSinglePersonas");
+      var response = await httpClient.GetAsync("https://api.persona.projects.bbdgrad.com/api/Persona/getSinglePersonas");
+      var responseContent = response.Content.ReadAsStringAsync().Result;
+
       context.Logger.LogLine($"GetFromJsonAsync AFTER:" + response);
-      return response ?? new List<long>();
+      context.Logger.LogLine($"Raw JSON response: {responseContent}");
+
+      if (!response.IsSuccessStatusCode)
+      {
+        throw new Exception($"Failed to fetch single personas. Status code: {response.StatusCode}, Response: {responseContent}");
+      }
+
+      List<long> singlePersonas = JsonSerializer.Deserialize<List<long>>(responseContent);
+
+      return singlePersonas;
     }
 
   }
