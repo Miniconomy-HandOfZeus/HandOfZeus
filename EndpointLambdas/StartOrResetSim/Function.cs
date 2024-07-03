@@ -146,10 +146,9 @@ public class Function
 
   private async Task clearDB(ILambdaContext context)
   {
+    while (true) { 
     //start clear events db
     var scanResponse = DBHelper.scanDB().Result;
-    do
-    {
       context.Logger.Log("Items: " + scanResponse.Items.Count);
       // Iterate over each item and delete it
       if (scanResponse.Items.Count == 0)
@@ -162,7 +161,6 @@ public class Function
         context.Logger.Log(item["Key"].S);
         await DBHelper.deleteFromDB(item);
       }
-    } while (scanResponse.LastEvaluatedKey != null && scanResponse.LastEvaluatedKey.Count > 0);
-    
+    }    
   }
 }
