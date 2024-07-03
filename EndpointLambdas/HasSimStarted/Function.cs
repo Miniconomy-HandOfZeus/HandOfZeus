@@ -21,10 +21,12 @@ public class Function
         {
 
             bool hasStarted = await dbHelper.GetValue("hasStarted");
+            LambdaLogger.Log("hasStarted " + hasStarted);
 
             if (hasStarted)
             {
                 string startTime = await dbHelper.GetStartTime("SimulationStartTime");
+                LambdaLogger.Log("startTime " + startTime);
 
                 var requestBody = new
                 {
