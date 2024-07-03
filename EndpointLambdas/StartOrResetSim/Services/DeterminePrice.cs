@@ -50,7 +50,7 @@ namespace StartOrResetSim.Services
         DBHelper.SetInDbString(key, startTime.ToString());
     }
 
-    public async Task setHasStarted(string key, bool hasStarted)
+    public async Task setHasStarted(string key, string hasStarted)
     {
         DBHelper.setHasStarted(key, hasStarted);
     }
