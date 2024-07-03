@@ -21,7 +21,7 @@ namespace RandomEvent
             //"Death",
             //"Marriage",
             //"Birth",
-            "Sickness",
+            //"Sickness",
             //"Breakages",
             //"Salary",
             //"Fired from job",
@@ -31,8 +31,8 @@ namespace RandomEvent
             //"PlagueEnd",
             //"WarStart",
             //"WarEnd"
-            //"Apocalypse",
-            "Inflation"
+            "Apocalypse",
+            //"Inflation"
         };
 
 
@@ -51,8 +51,8 @@ namespace RandomEvent
             //{ "PlagueEnd", 0 },
             //{ "WarStart", 1 },
             //{ "WarEnd", 0 },
-            //{ "Apocalypse", 1 },
-            { "Inflation", 10 }
+            { "Apocalypse", 1 },
+            //{ "Inflation", 10 }
         };
 
     private static readonly List<long> people = new List<long>
