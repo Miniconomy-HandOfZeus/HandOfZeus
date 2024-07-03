@@ -1,11 +1,5 @@
-﻿using StartOrResetSim.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static StartOrResetSim.Services.DeterminePrice;
+﻿using Amazon.Lambda.Core;
+using StartOrResetSim.Interfaces;
 
 namespace StartOrResetSim.Services
 {
@@ -20,13 +14,13 @@ namespace StartOrResetSim.Services
 
         List<Item> prices = new List<Item>
 {
-            new Item { Name = "health_insurance", Price = 300 },
-            new Item { Name = "prime_lending_rate", Price = 200 },
+            new Item { Name = "health_insurance", Price = 100 },
+            new Item { Name = "prime_lending_rate", Price = 100 },
             new Item { Name = "taxes", Price = 400 },
             new Item { Name = "food_price", Price = 400 },
             new Item { Name = "life_insurance", Price = 400 },
             new Item { Name = "short_term_insurance", Price = 400 },
-            new Item { Name = "minimum_wage", Price = 400 },
+            new Item { Name = "minimum_wage", Price = 600 },
             new Item { Name = "eletronic_price", Price = 400 },
             new Item { Name = "house_price", Price = 400 }
         };
@@ -35,11 +29,18 @@ namespace StartOrResetSim.Services
         {
             prices.ForEach(item =>
             {
-                DBHelper.SetInDbNumber(item.Name, item.Price.ToString());
+                try
+                {
+                    DBHelper.SetInDbNumber(item.Name, item.Price);
+                }catch (Exception ex)
+                {
+                    LambdaLogger.Log("there was an error in setting prices: " +  ex.Message);
+                }
+                
             });
         }
 
-        public async Task setStartTime(string key, DateTime startTime)
+        public async Task setStartTime(string key, string startTime)
         {
             DBHelper.SetInDbString(key, startTime.ToString());
         }

@@ -1,10 +1,5 @@
 ﻿using Amazon.DynamoDBv2.Model;
 using Amazon.DynamoDBv2;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using SalaryLambdas.Interfaces;
 
 namespace SalaryLambdas.services

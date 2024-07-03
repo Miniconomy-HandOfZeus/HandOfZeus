@@ -1,20 +1,18 @@
-using Amazon.Lambda.Core;
-using SalaryLambdas.services;
 using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.Core;
+using GetValueFromDB.Services;
 using Newtonsoft.Json;
-using SalaryLambdas.Models;
-using System.Numerics;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace SalaryLambdas;
+namespace GetValueFromDB;
 
 public class Function
 {
-    private readonly WageDeterminationService wageDeterminationService = new WageDeterminationService(new WageService());
+    private readonly Repository db = new();
 
-    public APIGatewayProxyResponse FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
+    public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest input, ILambdaContext context)
     {
         if (input.QueryStringParameters == null)
         {
@@ -36,17 +34,16 @@ public class Function
                 Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
             };
         }
-
         List<string> allowedServices = [.. allowedServicesString.Split(",")];
 
-        context.Logger.Log($"Allowed services: {string.Join(", ", allowedServices)}");
+        context.Logger.Log($"Allowed services: {string.Join(", ", allowedServices) }");
         context.Logger.Log($"DB key: {key}");
 
         // Validate calling service
         if (input.RequestContext.Authorizer.TryGetValue("clientCertCN", out var callingServiceObject))
         {
             string callingService = callingServiceObject?.ToString() ?? string.Empty;
-            context.Logger.Log($"{callingService} called this endpoint!");
+            context.Logger.Log($"{callingService} requested the price");
             if (!allowedServices.Contains(callingService))
             {
                 return new APIGatewayProxyResponse
@@ -67,47 +64,13 @@ public class Function
             };
         }
 
-        // Parse the input body to get the person ID
-        var requestBody = JsonConvert.DeserializeObject<Dictionary<string, List<BigInteger>>>(input.Body);
-        if (requestBody == null || !requestBody.ContainsKey("people"))
-        {
-            return new APIGatewayProxyResponse
-            {
-                StatusCode = 400,
-                Body = JsonConvert.SerializeObject(new { message = "Invalid request. 'people' is required." }),
-                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
-            };
-        }
-
-        List<BigInteger> personId = requestBody["people"];
-
-        List<PersonaWages> personaWages = DetermineWage(personId);
+        int value = await db.GetValue(key);
 
         return new APIGatewayProxyResponse
         {
             StatusCode = 200,
-            Body = JsonConvert.SerializeObject(personaWages),
+            Body = JsonConvert.SerializeObject(new { value }),
             Headers = new Dictionary<string, string> { { "Content-Type", "application/json" } }
         };
-    }
-
-
-    public List<PersonaWages> DetermineWage(List<BigInteger> personas)
-    {
-        List<PersonaWages> wages = new List<PersonaWages>();
-
-        personas.ForEach(async person =>
-        {
-
-            int wage = await wageDeterminationService.DetermineWageAsync();
-            wages.Add(new PersonaWages()
-            {
-                personaId = person,
-                wage = wage
-            });
-
-        });
-
-        return wages;
     }
 }

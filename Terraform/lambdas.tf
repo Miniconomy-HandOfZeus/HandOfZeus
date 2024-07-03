@@ -10,16 +10,14 @@ resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
 
 resource "aws_iam_policy" "lambda_access" {
   name        = "${var.naming_prefix}-lambda-policy"
-  description = "Policy that grants full access to DynamoDB, S3 and Secrets Manager."
+  description = "Policy that grants full access to the necessary resources."
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
         Effect = "Allow",
         Action = [
-          "dynamodb:*",
-          "s3:*",
-          "secretsmanager:*"
+          "*"
         ],
         Resource = "*"
       }
@@ -62,7 +60,7 @@ resource "aws_scheduler_schedule_group" "lambda_schedule_group" {
 }
 
 resource "aws_scheduler_schedule" "lambda_schedules" {
-  for_each   = { for index, config in var.lambda_schedule_config : index => config }
+  for_each   = { for index, config in var.lambda_schedule_config : config.name => config }
   name       = "${each.value.name}-scheduler"
   group_name = aws_scheduler_schedule_group.lambda_schedule_group.name
 
@@ -71,6 +69,8 @@ resource "aws_scheduler_schedule" "lambda_schedules" {
   }
 
   schedule_expression = "rate(${each.value.rate_expression})"
+
+  state = "DISABLED"
 
   target {
     arn      = each.value.lambda_invoke_arn
