@@ -28,10 +28,10 @@ namespace RandomEvent
             //"Fired from job",
             //"FamineStart",
             //"FamineEnd",
-            //"PlagueStart",
-            //"PlagueEnd",
-            "WarStart",
-            "WarEnd"
+            "PlagueStart",
+            "PlagueEnd",
+            //"WarStart",
+            //"WarEnd"
             //"Apocalypse",
             //"Inflation"
         };
@@ -49,10 +49,10 @@ namespace RandomEvent
             //{ "Fired from job", 5 },
             //{ "FamineStart", 1 },
             //{ "FamineEnd", 0 },
-            //{ "PlagueStart", 1 },
-            //{ "PlagueEnd", 0 },
-            { "WarStart", 1 },
-            { "WarEnd", 0 },
+            { "PlagueStart", 1 },
+            { "PlagueEnd", 0 },
+            //{ "WarStart", 1 },
+            //{ "WarEnd", 0 },
             //{ "Apocalypse", 1 },
             //{ "Inflation", 10 }
         };
