@@ -15,9 +15,9 @@ namespace StartOrResetSim.Services
            client = new HttpClientHandler();
         }
 
-        public async Task<bool> SendPutRequestAsync(string url, bool value, string startTime, X509Certificate2 cert)
+        public async Task<bool> SendPutRequestAsync(string url, bool value, string startTime)
         {
-            client.ClientCertificates.Add(cert);
+            //client.ClientCertificates.Add(cert);
             // Prepare the query parameter based on the boolean value
             string action = value ? "start" : "reset";
 
