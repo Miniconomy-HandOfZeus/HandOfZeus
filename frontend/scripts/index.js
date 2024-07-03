@@ -17,7 +17,7 @@ import {
 let startResetButton = document.getElementById('startResetButton');
 let eventCountTxt = document.getElementById('eventCountDisplay');
 let SacrificeButton = document.getElementById('Sacrifice');
-
+let timerTxt = document.getElementById('timeDisplay');
 //Event Listeners\\
 document.getElementById('logout-button').addEventListener('click', logout);
 startResetButton.addEventListener('click', startOrResetSim);
@@ -55,8 +55,35 @@ eventCountTxt.innerText = testData.length;
 //Time stuff\\
 let timeDisplay = document.getElementById('timeDisplay');
 
+
+let simulationStartDate;
+
+
+function calculateDate() {
+  const currentDate = new Date();
+  // Calculate the difference in seconds
+  const secondsDifference = (currentDate - simulationStartDate) / 1000;
+
+  // Get the current day of the simulation (e.g., day 1302)
+  const simulationDayNumber = Math.floor((secondsDifference / 120) + 1);
+
+  // Calculate current year
+  const year = Math.floor(simulationDayNumber / 360) + 1;
+  const daysIntoYear = simulationDayNumber % 360;
+
+  // Calculate current month and day
+  const month = Math.floor(daysIntoYear / 30) + 1;
+  const day = daysIntoYear % 30;
+
+  // Format the year, month, and day with leading zeros
+  const formattedDate = `${String(year).padStart(2, '0')}|${String(month).padStart(2, '0')}|${String(day).padStart(2, '0')}`;
+  console.log(formattedDate);
+  timerTxt.innerText = formattedDate;
+}
 // Update the timer every second
-setInterval(updateTimer, 5000);
+if(simulationStartDate != null){
+  setInterval(calculateDate, 5000);
+}
 
 //checkToSeeIfSimulationHasStarted();
 
@@ -128,7 +155,12 @@ async function startOrResetSim() {
     if (!response.ok) {
       throw new Error("API error: " + response.text());
     }
-  } catch (err) {
+    const responseBody = await response.json();
+    console.log(responseBody);
+    const newData = responseBody.startTime;
+    console.log(newData);
+    simulationStartDate = newData;
+  }catch (err){
     //something went wrong pop-up
   }
 
@@ -192,7 +224,7 @@ async function retrieveEventData() {
 }
 
 function isDuplicate(testData, event) {
-  return testData.some(existingEvent => existingEvent.id === event.id);
+  return testData.some(existingEvent => existingEvent.Key === event.Key);
 }
 
 function startPolling(interval = 5000) {
@@ -212,12 +244,12 @@ function addEventElement(eventData) {
 
   // Create and append the first <a> element
   const idLink = document.createElement('a');
-  idLink.textContent = eventData.id;
+  idLink.textContent = eventData.Key;
   newEvent.appendChild(idLink);
 
   // Create and append the second <a> element
   const descriptionLink = document.createElement('a');
-  descriptionLink.textContent = addRandomDescriptionToEvent(eventData.description);
+  descriptionLink.textContent = addRandomDescriptionToEvent(eventData.event_name);
   newEvent.appendChild(descriptionLink);
 
   // Create and append the third <a> element with the "pill" class
@@ -225,37 +257,37 @@ function addEventElement(eventData) {
   pillLink.textContent = eventData.type;
   pillLink.classList.add('pill');
   newEvent.appendChild(pillLink);
-  switch (eventData.type) {
-    case 'sickness':
+  switch(eventData.event_name){
+    case 'Sickness':
       pillLink.classList.add('pill-blue');
 
-    case 'death':
+    case 'Death':
       pillLink.classList.add('pill-red');
 
-    case 'birth':
+    case 'Birth':
       pillLink.classList.add('pill-green');
-
+      
     case 'marriage':
       pillLink.classList.add('pill-yellow');
-
+      
     case 'hunger':
       pillLink.classList.add('pill-lightBlue');
-
+      
     case 'breakage':
       pillLink.classList.add('pill-orange');
-
+      
     case 'fired':
       pillLink.classList.add('pill-red');
 
     case 'Famine':
       pillLink.classList.add('pill-purple');
-
+      
     case 'plague':
       pillLink.classList.add('pill-purple');
-
+      
     case 'apocalypse':
       pillLink.classList.add('pill-purple');
-
+      
     case 'war':
       pillLink.classList.add('pill-purple');
 
