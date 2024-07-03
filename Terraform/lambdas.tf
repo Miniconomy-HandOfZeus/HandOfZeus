@@ -72,6 +72,8 @@ resource "aws_scheduler_schedule" "lambda_schedules" {
 
   schedule_expression = "rate(${each.value.rate_expression})"
 
+  state = "DISABLED"
+
   target {
     arn      = each.value.lambda_invoke_arn
     role_arn = aws_iam_role.scheduler_execution_role.arn
