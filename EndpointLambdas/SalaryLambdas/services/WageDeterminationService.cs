@@ -20,9 +20,11 @@ namespace SalaryLambdas.services
             if (getsHigherWage)
             {
                 int higherWage = minimumWage + random.Next(1, (minimumWage / 2) + 1); // Up to 50% higher
+                Console.WriteLine($"Salary = {higherWage}");
                 return higherWage;
             }
 
+            Console.WriteLine($"Salary = {minimumWage}");
             return minimumWage;
         }
     }

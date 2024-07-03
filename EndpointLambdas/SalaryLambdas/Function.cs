@@ -38,6 +38,7 @@ public class Function
             List<long> personIds = requestBody["people"];
 
             List<PersonaWages> personaWages = DetermineWage(personIds);
+            Console.WriteLine($"Persona wages: {personaWages}");
 
             return new APIGatewayProxyResponse
             {
