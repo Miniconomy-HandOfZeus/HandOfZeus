@@ -139,7 +139,19 @@ namespace RandomEvent
       var description = string.Format(eventDescriptions[selectedEvent], affectedPeopleCount);
       context.Logger.LogLine($"Event Description: {description}");
 
-      await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
+      var marriagePairs = CreateMarriagePairs(affectedPeopleCount);
+
+      if (selectedEvent == "Marriage")
+      {
+        string marriagePairsResult = string.Join(", ", marriagePairs.Select(x => $"({x.Item1}, {x.Item2})"));
+        await InsertEventIntoDynamoDB(selectedEvent, description, marriagePairsResult);
+      } 
+      else
+      {
+        await InsertEventIntoDynamoDB(selectedEvent, description, affectedPeopleCount.ToString());
+      }
+
+      
 
       await CallServiceEndpointsAsync(selectedEvent, eventRate, affectedPeople);
 
@@ -178,7 +190,7 @@ namespace RandomEvent
       }
       else if (selectedEvent == "Marriage")
       {
-        var marriagePairs = CreateMarriagePairs(affectedPeopleCount);
+
         await SendMarriagePairsToService(marriagePairs);
       }
 
