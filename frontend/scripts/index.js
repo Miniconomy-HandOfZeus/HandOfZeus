@@ -29,16 +29,8 @@ SacrificeButton.addEventListener('click', sacrificeSomeone);
 //Variables\\
 let hasSimStarted = false;
 let pollingIntervalId;
-let testData = [
-  { id: "12344", description: "", type: "sickness" },
-  { id: "45666", description: "", type: "death" },
-  { id: "34562", description: "", type: "marriage" },
-  { id: "13567", description: "", type: "breakage" },
-  { id: "56789", description: "", type: "sickness" },
-  { id: "09875", description: "", type: "birth" },
-  { id: "43567", description: "", type: "marriage" },
-  { id: "12678", description: "", type: "birth" }
-]
+let timePollingIntervalId;
+let testData = []
 
 const eventTypes = {
   Sickness: "sickness",
@@ -79,11 +71,6 @@ function calculateDate() {
   const formattedDate = `${String(year).padStart(2, '0')}|${String(month).padStart(2, '0')}|${String(day).padStart(2, '0')}`;
   console.log(formattedDate);
   timerTxt.innerText = formattedDate;
-}
-
-// Update the timer every second
-if(hasSimStarted){
-  setInterval(calculateDate, 5000);
 }
 
 checkToSeeIfSimulationHasStarted();
@@ -132,6 +119,7 @@ function generateRandomNumber(max){
 }
 
 async function reset(){
+  testData = []
   startOrResetSim(false);
 }
 
@@ -191,10 +179,8 @@ async function startOrResetSim(state) {
 
 //Retrieving event data\\
 async function retrieveEventData() {
-  console.log("retrieving data!");
   try {
     const response = await fetchWithAuth('/get-events');
-    console.log("Response received:", response);
 
     const responseBody = await response.json(); // Parse the response body as JSON
 
@@ -203,11 +189,7 @@ async function retrieveEventData() {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    console.log("Response body:", responseBody); // Log the entire response body object
-
     const newData = responseBody.items; // Access the 'items' array directly
-
-    console.log("Data received:", newData);
 
     // Process newData
     if (newData.length >= 1) {
@@ -229,15 +211,18 @@ function isDuplicate(testData, event) {
   return testData.some(existingEvent => existingEvent.Key === event.Key);
 }
 
-function startPolling(interval = 5000) {
+function startPolling(interval = 60000) {
   console.log("STARTING POLLING");
   retrieveEventData(); // Initial fetch
   pollingIntervalId = setInterval(retrieveEventData, interval); // Polling interval
+
+  timePollingIntervalId = setInterval(calculateDate, interval);
 }
 
 function stopPolling() {
   console.log("STOPPING POLLING");
   clearInterval(pollingIntervalId);
+  clearInterval(timePollingIntervalId);
 }
 
 //creating event element\\
@@ -261,6 +246,7 @@ function addEventElement(eventData) {
   pillLink.textContent = eventData.type;
   pillLink.classList.add('pill');
   newEvent.appendChild(pillLink);
+  console.log(eventData.event_name);
   switch(eventData.event_name){
     case 'Sickness':
       pillLink.classList.add('pill-blue');
