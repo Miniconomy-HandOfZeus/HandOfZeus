@@ -355,9 +355,11 @@ function filterEvents(type) {
   allEvents.forEach(event => {
     const eventType = event.querySelector('.pill').textContent;
     if (type === 'all' || eventType === type) {
+      console.log("we are here in the if statment");
       eventList.appendChild(event);
     }
   });
+  console.log("count evefntlist: "+eventList.childElementCount);
 }
 
 filterEvents('all');
