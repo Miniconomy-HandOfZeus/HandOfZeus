@@ -116,7 +116,7 @@ async function sacrificeSomeone() {
         throw new Error("API error: " + response.text());
       }
     } catch (err) {
-      alert("Unavailable for sacrifice at this time" + err);
+      // alert("Unavailable for sacrifice at this time");
     }
 }
 
