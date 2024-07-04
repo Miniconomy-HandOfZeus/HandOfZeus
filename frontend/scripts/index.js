@@ -56,7 +56,9 @@ function calculateDate() {
   console.log(currentDate);
   // Calculate the difference in seconds
   const secondsDifference = (currentDate - simulationStartDate) / 1000;
-  console.log("seconds diff", secondsDifference);
+  if(secondsDifference == NaN){
+    secondsDifference = 0;
+  }
   // Get the current day of the simulation (e.g., day 1302)
   const simulationDayNumber = Math.floor((secondsDifference / 120) + 1);
 
@@ -254,39 +256,40 @@ function addEventElement(eventData) {
   switch(eventData.event_name.trim()){
     case "Sickness":
       pillLink.classList.add('pill-blue');
-
+      break;
     case 'Death':
       pillLink.classList.add('pill-red');
-
+      break;
     case 'Birth':
       pillLink.classList.add('pill-green');
-      
+      break;
     case 'Marriage':
       pillLink.classList.add('pill-yellow');
-      
+      break;
     case 'Hunger':
       pillLink.classList.add('pill-lightBlue');
-      
+      break;
     case 'Breakage':
       pillLink.classList.add('pill-orange');
-      
+      break;
     case 'Fired':
       pillLink.classList.add('pill-red');
-
+      break;
     case 'Famine':
       pillLink.classList.add('pill-purple');
-      
+      break;
     case 'Plague':
       pillLink.classList.add('pill-purple');
-      
+      break;
     case 'Apocalypse':
       pillLink.classList.add('pill-purple');
-      
+      break;
     case 'War':
       pillLink.classList.add('pill-purple');
-
+      break;
     default:
       pillLink.classList.add('pill-blue');
+      break;
   }
 
   // Append the new section to the existing eventHolder section
