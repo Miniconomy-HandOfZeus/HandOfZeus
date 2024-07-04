@@ -293,7 +293,7 @@ function addEventElement(eventData) {
   }
 
   // Append the new section to the existing eventHolder section
-  document.getElementById('eventHolder').appendChild(newEvent);
+  document.getElementById('eventList').appendChild(newEvent);
 }
 
 function addRandomDescriptionToEvent(eventType) {
