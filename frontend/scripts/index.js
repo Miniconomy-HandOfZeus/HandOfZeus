@@ -351,8 +351,10 @@ filterType.addEventListener('change', () => {
 });
 
 function filterEvents(type) {
+  allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
   eventList.innerHTML = ''; // Clear current list
   allEvents.forEach(event => {
+    //all the events are only the ones u set manually for testing
     console.log(event);
     const eventType = event.querySelector('.pill').textContent;
     if (type === 'all' || eventType === type) {
