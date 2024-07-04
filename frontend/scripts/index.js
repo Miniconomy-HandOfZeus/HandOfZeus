@@ -294,7 +294,7 @@ function addEventElement(eventData) {
 
   // Append the new section to the existing eventHolder section
   document.getElementById('eventList').appendChild(newEvent);
-  
+
 
 }
 
