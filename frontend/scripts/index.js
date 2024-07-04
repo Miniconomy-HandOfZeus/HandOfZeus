@@ -294,6 +294,8 @@ function addEventElement(eventData) {
 
   // Append the new section to the existing eventHolder section
   document.getElementById('eventList').appendChild(newEvent);
+  
+
 }
 
 function addRandomDescriptionToEvent(eventType) {
@@ -351,6 +353,8 @@ filterType.addEventListener('change', () => {
 });
 
 function filterEvents(type) {
+  allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
+  console.log(allEvents);
   let eventList = document.getElementById('eventList');
   eventList.innerHTML = ''; // Clear current list
   allEvents.forEach(event => {
