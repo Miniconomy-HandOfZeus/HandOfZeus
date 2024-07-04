@@ -29,7 +29,13 @@ public class Function
          "https://api.loans.projects.bbdgrad.com/mng/reset",
          "https://api.persona.projects.bbdgrad.com/api/HandOfZeus/startSimulation",
          "https://api.commercialbank.projects.bbdgrad.com/simulation/setup",
-         "https://api.rentals.projects.bbdgrad.com/api/zeus"
+         "https://api.rentals.projects.bbdgrad.com/api/zeus",
+         "https://wej3n6xmvf.execute-api.eu-west-1.amazonaws.com/v1/scheduleStart",
+         "https://api.mese.projects.bbdgrad.com/reset",
+         "https://api.sustenance.projects.bbdgrad.com/api/start",
+         "https://api.labour.projects.bbdgrad.com/api/reset",
+         "http://apitel-main-banking-service-envir.eba-3ddqkjjg.eu-west-1.elasticbeanstalk.com/simulation/control",
+
 };
 
   private readonly ScheduleTrigger _ScheduleTrigger = new();
