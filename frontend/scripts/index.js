@@ -351,7 +351,9 @@ filterType.addEventListener('change', () => {
 });
 
 function filterEvents(type) {
+  console.log("before",allEvents.length);
   allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
+  console.log("after",allEvents.length);
   eventList.innerHTML = ''; // Clear current list
   allEvents.forEach(event => {
     //all the events are only the ones u set manually for testing
