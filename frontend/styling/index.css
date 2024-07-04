@@ -48,11 +48,15 @@ body {
     flex-direction: row;
     justify-content: space-between;
     overflow-x: hidden;
+    margin: 0;
 }
 
 .main{
     padding: 2rem;
     width: 75vw;
+    box-sizing: border-box;
+    max-height: 100vh;
+    overflow-y: scroll;
 }
 
 .sideBar{

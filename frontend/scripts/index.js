@@ -53,9 +53,10 @@ let simulationStartDate;
 function calculateDate() {
   console.log("CALCULATING TIME!");
   const currentDate = new Date();
+  console.log(currentDate);
   // Calculate the difference in seconds
   const secondsDifference = (currentDate - simulationStartDate) / 1000;
-
+  console.log("seconds diff", secondsDifference);
   // Get the current day of the simulation (e.g., day 1302)
   const simulationDayNumber = Math.floor((secondsDifference / 120) + 1);
 
@@ -247,10 +248,11 @@ function addEventElement(eventData) {
   const pillLink = document.createElement('a');
   pillLink.textContent = eventData.type;
   pillLink.classList.add('pill');
+  pillLink.innerText = eventData.event_name;
   newEvent.appendChild(pillLink);
   console.log("EVENT NAME IS: " + eventData.event_name);
-  switch(eventData.event_name){
-    case 'Sickness':
+  switch(eventData.event_name.trim()){
+    case "Sickness":
       pillLink.classList.add('pill-blue');
 
     case 'Death':
