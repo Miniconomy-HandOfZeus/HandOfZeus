@@ -350,17 +350,14 @@ filterType.addEventListener('change', () => {
   filterEvents(selectedType);
 });
 
-function filterEvents(type) { 
-  let all_events = Array.from(eventList.getElementsByClassName('eventObject')); 
+function filterEvents(type) {
   eventList.innerHTML = ''; // Clear current list
-  all_events.forEach(event => {
-    //all the events are only the ones u set manually for testing
-    console.log(event);
+  allEvents.forEach(event => {
     const eventType = event.querySelector('.pill').textContent;
-    if (type === 'all' || eventType === type) { 
+    if (type === 'all' || eventType === type) {
       eventList.appendChild(event);
     }
-  }); 
+  });
 }
 
 filterEvents('all');
