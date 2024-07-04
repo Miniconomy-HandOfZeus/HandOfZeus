@@ -353,6 +353,7 @@ filterType.addEventListener('change', () => {
 function filterEvents(type) {
   eventList.innerHTML = ''; // Clear current list
   allEvents.forEach(event => {
+    console.log(event);
     const eventType = event.querySelector('.pill').textContent;
     if (type === 'all' || eventType === type) {
       console.log("we are here in the if statment");
