@@ -342,8 +342,8 @@ function randomPicker(list) {
 
 //Event data filter stuff\\
 let filterType = document.getElementById('filterType');
-let eventList = document.getElementById('eventList');
-let allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
+// let eventList = document.getElementById('eventList');
+// let allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
 
 filterType.addEventListener('change', () => {
   const selectedType = filterType.value;
@@ -351,6 +351,7 @@ filterType.addEventListener('change', () => {
 });
 
 function filterEvents(type) {
+  let allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
   let eventList = document.getElementById('eventList');
   eventList.innerHTML = ''; // Clear current list
   allEvents.forEach(event => {

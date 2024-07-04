@@ -116,7 +116,7 @@ public class Function
         await _ScheduleTrigger.StopAsync();
         await DeterminePrice.setHasStarted("hasStarted", "false");
         context.Logger.Log("clear DB");
-        clearDB(context);
+        await clearDB(context);
         context.Logger.Log("Fnish clear, broadcasting reset");
         OtherApiUrls.ForEach(async url =>
                 {
