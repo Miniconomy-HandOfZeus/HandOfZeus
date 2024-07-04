@@ -171,13 +171,15 @@ body {
 .eventObject {
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
     height: 10vh;
     background-color: white;
     border-radius: 1rem;
     margin: 0.8rem;
     font-weight: 300;
+    padding-inline-end: 1rem;
+    padding-inline-start: 1rem;
 }
 
 .pagination {
