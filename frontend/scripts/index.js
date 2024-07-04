@@ -14,14 +14,17 @@ import {
 } from "./descriptions.js";
 
 //UI elements\\
-let startResetButton = document.getElementById('startResetButton');
+let startResetButton = document.getElementById('startButton');
+let resetButton = document.getElementById('resetButton');
 let eventCountTxt = document.getElementById('eventCountDisplay');
 let SacrificeButton = document.getElementById('Sacrifice');
 let timerTxt = document.getElementById('timeDisplay');
+
 //Event Listeners\\
 document.getElementById('logout-button').addEventListener('click', logout);
 startResetButton.addEventListener('click', startOrResetSim);
-SacrificeButton.addEventListener('click', sacrificeSomeone);
+resetButton.addEventListener('click', startOrResetSim);
+SacrificeButton.addEventListener('click', sacrificeSomeone); 
 
 //Variables\\
 let hasSimStarted = false;
@@ -53,11 +56,7 @@ const eventTypes = {
 eventCountTxt.innerText = testData.length;
 
 //Time stuff\\
-let timeDisplay = document.getElementById('timeDisplay');
-
-
 let simulationStartDate;
-
 
 function calculateDate() {
   const currentDate = new Date();
@@ -80,13 +79,13 @@ function calculateDate() {
   console.log(formattedDate);
   timerTxt.innerText = formattedDate;
 }
+
 // Update the timer every second
-if(simulationStartDate != null){
+if(hasSimStarted){
   setInterval(calculateDate, 5000);
 }
 
 checkToSeeIfSimulationHasStarted();
-
 
 //Start and Reset Logic\\
 async function checkToSeeIfSimulationHasStarted(){
@@ -96,43 +95,23 @@ async function checkToSeeIfSimulationHasStarted(){
   });
 
   let tasks = await response.json();
-  console.log(tasks);
-  console.log(tasks.json);
-  console.log(tasks.json.hasSatrted);
-  
   if(tasks.json.hasSatrted){
     console.log(tasks.json.startTime);
     simulationStartDate = tasks.json.startTime;
     hasSimStarted = true;
-    startResetButton.value = false;
-    startResetButton.textContent = "Reset Simulation";
-    if (startResetButton.classList.contains('button-green')) {
-      startResetButton.classList.remove('button-green');
-      startResetButton.classList.add('button-red');
-    }
+    
     startPolling();
   } else {
     hasSimStarted = false;
-    startResetButton.value = true;
-    startResetButton.textContent = "Start Simulation";
-    if (startResetButton.classList.contains('button-red')) {
-      startResetButton.classList.remove('button-red');
-      startResetButton.classList.add('button-green');
-    }
+    
     stopPolling();
   }
 }
 
 async function sacrificeSomeone() {
-  let inputText = document.getElementById('userInput').value;
-  if (!inputText) {
-    alert("Please add a number to the input field.");
-  } else {
-    console.log(inputText);
-    let number = 10;
-    console.log(number);
+  let randomNum = generateRandomNumber(5);
     try {
-      let data = {"number":number};
+      let data = {"number":randomNum};
       const response = await fetchWithAuth(`/sacrifice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,7 +123,11 @@ async function sacrificeSomeone() {
     } catch (err) {
       alert("Unavailable for sacrifice at this time" + err);
     }
-  }
+}
+
+function generateRandomNumber(max){
+  let random = Math.floor(Math.random() * max) + 1;
+  return random
 }
 
 async function startOrResetSim() {
@@ -174,24 +157,24 @@ async function startOrResetSim() {
     //something went wrong pop-up
   }
 
-  switch (data.action) {
-    case "true":
-      startResetButton.value = "false";
-      startResetButton.textContent = "Reset Simulation";
-      if (startResetButton.classList.contains('button-green')) {
-        startResetButton.classList.remove('button-green');
-        startResetButton.classList.add('button-red');
-      }
-      break;
-    case "false":
-      startResetButton.value = "true";
-      startResetButton.textContent = "Start Simulation";
-      if (startResetButton.classList.contains('button-red')) {
-        startResetButton.classList.remove('button-red');
-        startResetButton.classList.add('button-green');
-      }
-      break;
-  }
+  // switch (data.action) {
+  //   case "true":
+  //     startResetButton.value = "false";
+  //     startResetButton.textContent = "Reset Simulation";
+  //     if (startResetButton.classList.contains('button-green')) {
+  //       startResetButton.classList.remove('button-green');
+  //       startResetButton.classList.add('button-red');
+  //     }
+  //     break;
+  //   case "false":
+  //     startResetButton.value = "true";
+  //     startResetButton.textContent = "Start Simulation";
+  //     if (startResetButton.classList.contains('button-red')) {
+  //       startResetButton.classList.remove('button-red');
+  //       startResetButton.classList.add('button-green');
+  //     }
+  //     break;
+  // }
 
   startResetButton.disabled = false;
 
@@ -254,7 +237,7 @@ function addEventElement(eventData) {
 
   // Create and append the first <a> element
   const idLink = document.createElement('a');
-  idLink.textContent = eventData.Key;
+  idLink.textContent = calculateDateEvent(simulationStartDate, eventData.date);
   newEvent.appendChild(idLink);
 
   // Create and append the second <a> element
@@ -277,28 +260,28 @@ function addEventElement(eventData) {
     case 'Birth':
       pillLink.classList.add('pill-green');
       
-    case 'marriage':
+    case 'Marriage':
       pillLink.classList.add('pill-yellow');
       
-    case 'hunger':
+    case 'Hunger':
       pillLink.classList.add('pill-lightBlue');
       
-    case 'breakage':
+    case 'Breakage':
       pillLink.classList.add('pill-orange');
       
-    case 'fired':
+    case 'Fired':
       pillLink.classList.add('pill-red');
 
     case 'Famine':
       pillLink.classList.add('pill-purple');
       
-    case 'plague':
+    case 'Plague':
       pillLink.classList.add('pill-purple');
       
-    case 'apocalypse':
+    case 'Apocalypse':
       pillLink.classList.add('pill-purple');
       
-    case 'war':
+    case 'War':
       pillLink.classList.add('pill-purple');
 
     default:
@@ -389,5 +372,30 @@ async function sacrificePersona() {
   } else {
 
   }
+}
+
+function calculateDateEvent(simulationStartDate, currentDate) {
+  // Convert the dates to JavaScript Date objects if they are not already
+  simulationStartDate = new Date(simulationStartDate);
+  currentDate = new Date(currentDate);
+
+  // Get the total seconds difference between the dates
+  const totalSeconds = (currentDate - simulationStartDate) / 1000;
+
+  // Get the current day of the simulation (e.g., day 1302)
+  const simulationDayNumber = Math.floor(totalSeconds / 120) + 1;
+
+  // Calculate current year
+  const year = Math.floor(simulationDayNumber / 360) + 1;
+  const daysIntoYear = Math.floor(simulationDayNumber % 360);
+
+  // Calculate current month and day
+  const month = Math.floor(daysIntoYear / 30) + 1;
+  const day = Math.floor(daysIntoYear % 30);
+
+  // Format the year, month, and day with leading zeros
+  const formattedDate = `${year.toString().padStart(2, '0')}|${month.toString().padStart(2, '0')}|${day.toString().padStart(2, '0')}`;
+
+  return formattedDate;
 }
 
