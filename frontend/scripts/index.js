@@ -341,8 +341,8 @@ function randomPicker(list) {
 }
 
 //Event data filter stuff\\
-const filterType = document.getElementById('filterType');
-const eventList = document.getElementById('eventList');
+let filterType = document.getElementById('filterType');
+let eventList = document.getElementById('eventList');
 let allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
 
 filterType.addEventListener('change', () => {
