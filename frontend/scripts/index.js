@@ -20,6 +20,10 @@ let eventCountTxt = document.getElementById('eventCountDisplay');
 let SacrificeButton = document.getElementById('Sacrifice');
 let timerTxt = document.getElementById('timeDisplay');
 
+let filterType = document.getElementById('filterType');
+let eventList = document.getElementById('eventList');
+let allEvents = [];
+
 //Event Listeners\\
 document.getElementById('logout-button').addEventListener('click', logout);
 startResetButton.addEventListener('click', start);
@@ -33,15 +37,15 @@ let timePollingIntervalId;
 let testData = []
 
 const eventTypes = {
-  Sickness: "sickness",
-  Death: "death",
-  Marriage: "marriage",
-  Birth: "birth",
-  Breakage: "breakage",
-  Plague: "plague",
-  Famine: "famine",
-  War: "war",
-  Apocalypse: "apocalypse"
+  Sickness: "Sickness",
+  Death: "Death",
+  Marriage: "Marriage",
+  Birth: "Birth",
+  Breakage: "Breakage",
+  Plague: "Plague",
+  Famine: "Famine",
+  War: "War",
+  Apocalypse: "Apocalypse"
 
 }
 
@@ -52,7 +56,7 @@ let simulationStartDate;
 
 function calculateDate() {
   console.log("CALCULATING TIME!");
-  const currentDate = new Date();
+  const currentDate = new Date.UTC();
   console.log(currentDate);
   // Calculate the difference in seconds
   const secondsDifference = (currentDate - simulationStartDate) / 1000;
@@ -71,7 +75,7 @@ function calculateDate() {
   const day = daysIntoYear % 30;
 
   // Format the year, month, and day with leading zeros
-  const formattedDate = `${String(year).padStart(2, '0')}|${String(month).padStart(2, '0')}|${String(day).padStart(2, '0')}`;
+  const formattedDate = `${String(year).padStart(2, '0')}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')}`;
   console.log(formattedDate);
   timerTxt.innerText = formattedDate;
 }
@@ -122,9 +126,12 @@ function generateRandomNumber(max){
 }
 
 async function reset(){
-  testData = []
   startOrResetSim(false);
   stopPolling();
+  testData = []
+  eventList.textContent = '';
+  eventCountTxt.innerText = 0;
+  timerTxt.innerText = "01/01/01";
 }
 
 async function start(){
@@ -194,7 +201,8 @@ async function retrieveEventData() {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const newData = responseBody.items; // Access the 'items' array directly
+    let newData = responseBody.items; // Access the 'items' array directly
+    newData.sort((a, b) => new Date(b.date) - new Date(a.date));
 
     // Process newData
     if (newData.length >= 1) {
@@ -236,9 +244,11 @@ function addEventElement(eventData) {
   const newEvent = document.createElement('section');
   newEvent.classList.add('eventObject');
 
+
+  let eventDate = eventData.date;
   // Create and append the first <a> element
   const idLink = document.createElement('a');
-  idLink.textContent = calculateDateEvent(simulationStartDate, eventData.date);
+  idLink.textContent = calculateDateEvent(simulationStartDate, eventDate);
   newEvent.appendChild(idLink);
 
   // Create and append the second <a> element
@@ -294,8 +304,7 @@ function addEventElement(eventData) {
 
   // Append the new section to the existing eventHolder section
   document.getElementById('eventList').appendChild(newEvent);
-
-
+  allEvents.push(newEvent);
 }
 
 function addRandomDescriptionToEvent(eventType) {
@@ -343,17 +352,13 @@ function randomPicker(list) {
 }
 
 //Event data filter stuff\\
-let filterType = document.getElementById('filterType');
-let eventList = document.getElementById('eventList');
-let allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
-
 filterType.addEventListener('change', () => {
   const selectedType = filterType.value;
   filterEvents(selectedType);
 });
 
 function filterEvents(type) {
-  allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
+  //allEvents = Array.from(eventList.getElementsByClassName('eventObject'));
   console.log(allEvents);
   let eventList = document.getElementById('eventList');
   eventList.innerHTML = ''; // Clear current list
@@ -399,12 +404,14 @@ function calculateDateEvent(simulationStartDate, currentDate) {
   const daysIntoYear = Math.floor(simulationDayNumber % 360);
 
   // Calculate current month and day
-  const month = Math.floor(daysIntoYear / 30) + 1;
+  let month = Math.floor(daysIntoYear / 30) + 1;
+  month -= 2;
   const day = Math.floor(daysIntoYear % 30);
 
   // Format the year, month, and day with leading zeros
-  const formattedDate = `${year.toString().padStart(2, '0')}|${month.toString().padStart(2, '0')}|${day.toString().padStart(2, '0')}`;
+  const formattedDate = `${year.toString().padStart(2, '0')}/${month.toString().padStart(2, '0')}/${day.toString().padStart(2, '0')}`;
 
   return formattedDate;
 }
+
 
