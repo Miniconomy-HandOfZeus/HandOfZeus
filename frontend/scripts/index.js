@@ -24,7 +24,7 @@ let timerTxt = document.getElementById('timeDisplay');
 document.getElementById('logout-button').addEventListener('click', logout);
 startResetButton.addEventListener('click', startOrResetSim);
 resetButton.addEventListener('click', startOrResetSim);
-SacrificeButton.addEventListener('click', myFunction); //sacrificeSomeone
+SacrificeButton.addEventListener('click', sacrificeSomeone); 
 
 //Variables\\
 let hasSimStarted = false;
@@ -87,7 +87,6 @@ if(hasSimStarted){
 
 checkToSeeIfSimulationHasStarted();
 
-
 //Start and Reset Logic\\
 async function checkToSeeIfSimulationHasStarted(){
   let response = await fetchWithAuth('/sim-started', {
@@ -96,43 +95,23 @@ async function checkToSeeIfSimulationHasStarted(){
   });
 
   let tasks = await response.json();
-  console.log(tasks);
-  console.log(tasks.json);
-  console.log(tasks.json.hasSatrted);
-  
   if(tasks.json.hasSatrted){
     console.log(tasks.json.startTime);
     simulationStartDate = tasks.json.startTime;
     hasSimStarted = true;
-    // startResetButton.value = false;
-    // startResetButton.textContent = "Reset Simulation";
-    // if (startResetButton.classList.contains('button-green')) {
-    //   startResetButton.classList.remove('button-green');
-    //   startResetButton.classList.add('button-red');
-    // }
+    
     startPolling();
   } else {
     hasSimStarted = false;
-    // startResetButton.value = true;
-    // startResetButton.textContent = "Start Simulation";
-    // if (startResetButton.classList.contains('button-red')) {
-    //   startResetButton.classList.remove('button-red');
-    //   startResetButton.classList.add('button-green');
-    // }
+    
     stopPolling();
   }
 }
 
 async function sacrificeSomeone() {
-  let inputText = document.getElementById('userInput').value;
-  if (!inputText) {
-    alert("Please add a number to the input field.");
-  } else {
-    console.log(inputText);
-    let number = 10;
-    console.log(number);
+  let randomNum = generateRandomNumber(5);
     try {
-      let data = {"number":number};
+      let data = {"number":randomNum};
       const response = await fetchWithAuth(`/sacrifice`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -144,7 +123,11 @@ async function sacrificeSomeone() {
     } catch (err) {
       alert("Unavailable for sacrifice at this time" + err);
     }
-  }
+}
+
+function generateRandomNumber(max){
+  let random = Math.floor(Math.random() * max) + 1;
+  return random
 }
 
 async function startOrResetSim() {
@@ -416,24 +399,3 @@ function calculateDateEvent(simulationStartDate, currentDate) {
   return formattedDate;
 }
 
-function myFunction() {
-  document.getElementById("myDropdown").classList.toggle("show");
-}
-
-// Close the dropdown menu if the user clicks outside of it
-window.onclick = function(event) {
-  if (!event.target.matches('.dropbtn')) {
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    var i;
-    for (i = 0; i < dropdowns.length; i++) {
-      var openDropdown = dropdowns[i];
-      if (openDropdown.classList.contains('show')) {
-        openDropdown.classList.remove('show');
-      }
-    }
-  }
-}
-
-function DoSomething(){
-  console.log("HIIIIIII");
-}
