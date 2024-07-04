@@ -15,6 +15,39 @@ namespace StartOrResetSim.Services
       client = new AmazonDynamoDBClient();
     }
 
+    public async Task deleteFromDB(Dictionary<string, AttributeValue> item)
+    {
+      var key = new Dictionary<string, AttributeValue>
+            {
+                { "Key", item["Key"] }
+            };
+
+      var deleteItemRequest = new DeleteItemRequest
+      {
+        TableName = "hand-of-zeus-events",
+        Key = key
+      };
+      try
+      {
+        await client.DeleteItemAsync(deleteItemRequest);
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine($"Error: {e.Message}");
+        throw e;
+      }
+    }
+
+    public async Task<ScanResponse> scanDB()
+    {
+      var scanRequest = new ScanRequest
+      {
+        TableName = "hand-of-zeus-events",
+      };
+      var scanResponse = await client.ScanAsync(scanRequest);
+
+      return scanResponse;
+    }
     public async Task<string> GetFromDB(string key)
     {
       var request = new GetItemRequest
@@ -115,24 +148,24 @@ namespace StartOrResetSim.Services
 
     public async Task setHasStarted(string key, string started)
     {
-            var request = new PutItemRequest
-            {
-                TableName = tableName,
-                Item = new Dictionary<string, AttributeValue>
+      var request = new PutItemRequest
+      {
+        TableName = tableName,
+        Item = new Dictionary<string, AttributeValue>
                 {
                     { "Key", new AttributeValue { S = key } },
                     { "value", new AttributeValue { S = started  } }
                 }
-            };
+      };
 
-            try
-            {
-                await client.PutItemAsync(request);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error updating {key}: {ex.Message}");
-            }
-        }
+      try
+      {
+        await client.PutItemAsync(request);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"Error updating {key}: {ex.Message}");
+      }
+    }
   }
 }

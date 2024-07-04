@@ -32,8 +32,8 @@ namespace MontlyIncreases
     }
     private void runTasks()
     {
-      pushDB("food_price", generateRate(300, 400));
-      pushDB("electronics_price", generateRate(500, 750));
+      pushDB("food_price", generateRate(300, 400)*1024);
+      pushDB("electronics_price", generateRate(500, 750)*1024);
       pushDB("prime_lending_rate", generateRate(5, 15));
       checkPopulation();
     }
@@ -61,7 +61,7 @@ namespace MontlyIncreases
             },
         ExpressionAttributeValues = new Dictionary<string, AttributeValue>
             {
-                { ":newval", new AttributeValue { S = value+"" } }
+                { ":newval", new AttributeValue { N = value+"" } }
             },
         UpdateExpression = "SET #V = :newval"
       };

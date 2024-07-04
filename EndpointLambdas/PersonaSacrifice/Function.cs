@@ -13,12 +13,11 @@ public class Function
 {
     private static readonly HttpClient client = new HttpClient();
     private static readonly Random random = new Random();
-    private string url = "https://api.example.com/data"; //Personas endpoint url here\\
+    private string url = "https://api.persona.projects.bbdgrad.com/api/Persona/getAlivePersonasIds"; //Personas endpoint url here\\
 
 
     public async Task<APIGatewayProxyResponse> FunctionHandler(APIGatewayProxyRequest request, ILambdaContext context)
     {
-
         var requestBody = JsonConvert.DeserializeObject<Dictionary<string, int>>(request.Body);
         if (requestBody == null || !requestBody.ContainsKey("number"))
         {
