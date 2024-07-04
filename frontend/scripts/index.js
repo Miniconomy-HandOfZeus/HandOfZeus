@@ -22,8 +22,8 @@ let timerTxt = document.getElementById('timeDisplay');
 
 //Event Listeners\\
 document.getElementById('logout-button').addEventListener('click', logout);
-startResetButton.addEventListener('click', startOrResetSim);
-resetButton.addEventListener('click', startOrResetSim);
+startResetButton.addEventListener('click', start);
+resetButton.addEventListener('click', reset);
 SacrificeButton.addEventListener('click', sacrificeSomeone); 
 
 //Variables\\
@@ -59,6 +59,7 @@ eventCountTxt.innerText = testData.length;
 let simulationStartDate;
 
 function calculateDate() {
+  console.log("CALCULATING TIME!");
   const currentDate = new Date();
   // Calculate the difference in seconds
   const secondsDifference = (currentDate - simulationStartDate) / 1000;
@@ -130,9 +131,17 @@ function generateRandomNumber(max){
   return random
 }
 
-async function startOrResetSim() {
+async function reset(){
+  startOrResetSim(false);
+}
+
+async function start(){
+  startOrResetSim(true);
+}
+
+async function startOrResetSim(state) {
   startResetButton.disabled = true;
-  let data = { action: startResetButton.value };
+  let data = { action: state };
 
   try {
     const response = await fetchWithAuth('/reset', {
@@ -144,7 +153,7 @@ async function startOrResetSim() {
       throw new Error("API error: " + response.text());
     }
 
-    if(startResetButton.value){
+    if(state){
       const responseBody = await response.json();
       console.log(responseBody);
       const newData = responseBody.json;
@@ -152,7 +161,7 @@ async function startOrResetSim() {
       console.log(newData.startTime);
       simulationStartDate = newData.startTime;
     }
-    
+    startResetButton.disabled = false;
   }catch (err){
     //something went wrong pop-up
   }
@@ -221,11 +230,13 @@ function isDuplicate(testData, event) {
 }
 
 function startPolling(interval = 5000) {
+  console.log("STARTING POLLING");
   retrieveEventData(); // Initial fetch
   pollingIntervalId = setInterval(retrieveEventData, interval); // Polling interval
 }
 
 function stopPolling() {
+  console.log("STOPPING POLLING");
   clearInterval(pollingIntervalId);
 }
 
