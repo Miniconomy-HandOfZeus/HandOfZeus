@@ -121,10 +121,12 @@ function generateRandomNumber(max){
 async function reset(){
   testData = []
   startOrResetSim(false);
+  stopPolling();
 }
 
 async function start(){
   startOrResetSim(true);
+  startPolling();
 }
 
 async function startOrResetSim(state) {
@@ -246,7 +248,7 @@ function addEventElement(eventData) {
   pillLink.textContent = eventData.type;
   pillLink.classList.add('pill');
   newEvent.appendChild(pillLink);
-  console.log(eventData.event_name);
+  console.log("EVENT NAME IS: " + eventData.event_name);
   switch(eventData.event_name){
     case 'Sickness':
       pillLink.classList.add('pill-blue');
