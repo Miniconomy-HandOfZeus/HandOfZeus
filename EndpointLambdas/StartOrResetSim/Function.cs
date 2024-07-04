@@ -35,7 +35,7 @@ public class Function
          "https://api.sustenance.projects.bbdgrad.com/api/start",
          "https://api.labour.projects.bbdgrad.com/api/reset",
          "http://apitel-main-banking-service-envir.eba-3ddqkjjg.eu-west-1.elasticbeanstalk.com/simulation/control",
-
+         "https://api.sales.projects.bbdgrad.com/zeus/reset"
 };
 
   private readonly ScheduleTrigger _ScheduleTrigger = new();
